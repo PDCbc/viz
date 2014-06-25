@@ -1,0 +1,31 @@
+# Run this build by doing something like:
+#   docker run --name #{VIS_NAME} --link #{VISDB_NAME}:mongo -p #{VIS_PORT}:8081 -d -v /vagrant/vis:/app -e 'CONSUMER_KEY=test' -e 'CONSUMER_SECRET=test' visualizer
+FROM node
+
+### Configuration Parameters ###
+# Configure Port
+ENV PORT 8081
+# Configure Secret
+ENV SECRET "Test Secret"
+# Configure MONGO_URI
+ENV MONGO_URI "mongodb://mongo/visualizer"
+# Request Token URL
+ENV REQUEST_TOKEN_URL "https://queryengine:8080/oauth/request_token"
+# Access Token URL
+ENV ACCES_TOKEN_URL "https://queryengine:8080/oauth/access_token"
+# User Authorization URL
+ENV USER_AUTHORIZATION_URL "https://queryengine:8080/oauth/authorize"
+
+### OAuth Keys
+# These aren't populated by default. Passing an environment variable is preferred.
+
+# Consumer Key
+# ENV CONSUMER_KEY "test"
+# Consumer Secret
+# ENV CONSUMER_SECRET "test"
+
+# Set directory to the volume.
+WORKDIR /app
+
+# Install Dependencies then start
+CMD npm install && npm start
