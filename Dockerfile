@@ -8,13 +8,13 @@ ENV PORT 8081
 # Configure Secret
 ENV SECRET "Test Secret"
 # Configure MONGO_URI
-ENV MONGO_URI "mongodb://mongo/visualizer"
+ENV MONGO_URI mongodb://mongo/visualizer
 # Request Token URL
-ENV REQUEST_TOKEN_URL "https://queryengine:8080/oauth/request_token"
+ENV REQUEST_TOKEN_URL https://queryengine:8080/oauth/request_token
 # Access Token URL
-ENV ACCES_TOKEN_URL "https://queryengine:8080/oauth/access_token"
+ENV ACCES_TOKEN_URL https://queryengine:8080/oauth/access_token
 # User Authorization URL
-ENV USER_AUTHORIZATION_URL "https://queryengine:8080/oauth/authorize"
+ENV USER_AUTHORIZATION_URL https://queryengine:8080/oauth/authorize
 
 ### OAuth Keys
 # These aren't populated by default. Passing an environment variable is preferred.
