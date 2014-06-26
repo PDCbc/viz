@@ -39,6 +39,10 @@ function environment(callback) {
         logger.warn('No $USER_AUTHORIZATION_URL present. Defaulting to `https://localhost:8080/oauth/authorize`.');
         process.env.USER_AUTHORIZATION_URL = 'https://localhost:8080/oauth/authorize';
     }
+    if (!process.env.CALLBACK_URL) {
+        logger.warn('No $CALLBACK_URL present. Defaulting to `https://localhost:8080/auth/callback`.');
+        process.env.CALLBACK_URL = 'https://localhost:8080/auth/callback';
+    }
     if (!process.env.CONSUMER_KEY) {
         logger.warn('No $CONSUMER_KEY present. Defaulting to `test`.');
         process.env.CONSUMER_KEY = 'test';
@@ -140,7 +144,7 @@ function auth(callback, data) {
             userAuthorizationURL: process.env.USER_AUTHORIZATION_URL,
             consumerKey: process.env.CONSUMER_KEY,
             consumerSecret: process.env.CONSUMER_SECRET,
-            callbackURL: 'https://127.0.0.1:' + process.env.PORT + '/auth/callback'
+            callbackURL: process.env.CALLBACK_URL
         },
         function verify(token, tokenSecret, profile, done) {
             // TODO: Actually verify.
