@@ -138,7 +138,7 @@ function models(callback, data) {
 function auth(callback, data) {
     var passport = require('passport'),
         OAuth1Strategy = require('passport-oauth1');
-    passport.use(new OAuth1Strategy({
+    passport.use('oauth', new OAuth1Strategy({
             requestTokenURL: process.env.REQUEST_TOKEN_URL,
             accessTokenURL: process.env.ACCESS_TOKEN_URL,
             userAuthorizationURL: process.env.USER_AUTHORIZATION_URL,
@@ -180,6 +180,13 @@ function routes(callback, data) {
     router.get('/fail', function (req, res) {
         res.send('You failed.');
     });
+    router.get('/',
+        ensureLoggedIn('/auth'),
+        function (req, res) {
+            console.log(req.passport);
+            console.log(req.session);
+        }
+    );
     // Attach the router.
     data.httpd.use(router);
     callback(null, router);
