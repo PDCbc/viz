@@ -148,13 +148,13 @@ function auth(callback, data) {
         },
         function verify(token, tokenSecret, profile, done) {
             // TODO: Actually verify.
-            console.log(arguments);
+            console.log('TODO: Verify called.');
             done(null, { key: token, secret: tokenSecret });
         }
     ));
     passport.serializeUser(function(token, done) {
         console.log('Serialize');
-        return done(null, token.key);
+        return done(null, token);
     });
     passport.deserializeUser(function(id, done) {
         // TODO
@@ -180,13 +180,45 @@ function routes(callback, data) {
     router.get('/fail', function (req, res) {
         res.send('You failed.');
     });
-    router.get('/',
+
+    // Testing route.
+    router.get('/api/',
         ensureLoggedIn('/auth'),
         function (req, res) {
-            console.log(req.passport);
-            console.log(req.session);
+            var oauth = {
+                consumer_key: process.env.CONSUMER_KEY,
+                consumer_secret: process.env.CONSUMER_SECRET,
+                token: req.session.passport.user.key,
+                token_secret: req.session.passport.user.secret
+            };
+            require('request').get({ url: 'https://queryengine:8080/', oauth: oauth, json: true },
+                function (error, request, body) {
+                    res.send(body);
+                }
+            );
+
         }
     );
+
+    // Testing route.
+    router.get('/api/:id',
+        ensureLoggedIn('/auth'),
+        function (req, res) {
+            var oauth = {
+                consumer_key: process.env.CONSUMER_KEY,
+                consumer_secret: process.env.CONSUMER_SECRET,
+                token: req.session.passport.user.key,
+                token_secret: req.session.passport.user.secret
+            };
+            require('request').get({ url: 'https://queryengine:8080/' + req.params.id, oauth: oauth, json: true },
+                function (error, request, body) {
+                    res.send(body);
+                }
+            );
+
+        }
+    );
+
     // Attach the router.
     data.httpd.use(router);
     callback(null, router);

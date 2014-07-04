@@ -24,6 +24,7 @@
     "hbs": "^2.7.0",
     "mongoose": "^3.8.12",
     "morgan": "^1.1.1",
+    "request": "^2.36.0",
     "oauthorize": "^0.1.0",
     "passport": "^0.2.0",
     "passport-http-oauth": "^0.1.3",
