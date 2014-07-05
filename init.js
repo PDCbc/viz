@@ -104,7 +104,9 @@ function httpd(callback, data) {
     // Parses bodies.
     server.use(require('body-parser').urlencoded({ extended: true }));
     server.use(require('body-parser').json());
-	// Session store
+	// Static serving of the site from `site`
+	server.use(require('serve-static')('site'));
+    // Session store
 	server.use(require('express-session')({
         secret: process.env.SECRET,
 		cookie: { secure: true }
@@ -169,7 +171,6 @@ function routes(callback, data) {
         ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
         ensureLoggedOut = require('connect-ensure-login').ensureLoggedOut,
         passport = require('passport');
-
     router.get('/auth',
         passport.authenticate('oauth')
     );
@@ -180,7 +181,6 @@ function routes(callback, data) {
     router.get('/fail', function (req, res) {
         res.send('You failed.');
     });
-
     // Testing route.
     router.get('/api/',
         ensureLoggedIn('/auth'),
@@ -218,7 +218,6 @@ function routes(callback, data) {
 
         }
     );
-
     // Attach the router.
     data.httpd.use(router);
     callback(null, router);

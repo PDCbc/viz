@@ -1,0 +1,134 @@
+<html>
+
+<head>
+	<meta charset="UTF-8">
+
+	<title>SCOOP Dashboard</title>
+	<meta name="description" content="The SCOOP Visualization Dashboard.">
+
+	<link rel="stylesheet" href="lib/bootstrap.css">
+	<link rel="stylesheet" href="lib/jasny-bootstrap.css">
+	<link rel="stylesheet" href="lib/font-awesome.css">
+	<link rel="stylesheet" href="lib/c3.css">
+	<link rel="stylesheet" href="css/auxilary.css">
+</head>
+
+<body>
+
+
+<div class="navmenu navmenu-inverse navmenu-fixed-left offcanvas">
+	<a class="navmenu-brand" href="#/">SCOOP Dashboard</a>
+			
+			<ul class="nav navmenu-nav">
+				<li><a class="navmenu-header" href="#/queries">
+					<i class="fa fa-question"></i> 
+					 Queries
+				</a></li>
+			</ul>
+			<ul id="queries" class="nav navmenu-nav">
+					<!-- Populated after login -->
+			</ul>
+
+			<ul class="nav navmenu-nav">
+				<li><a class="navmenu-header">
+					<i class="fa fa-file-text-o"></i> 
+					 Reports
+				</a></li>
+			</ul>
+			<ul id="reports" class="nav navmenu-nav">
+				<!-- Populated after login -->
+			</ul>
+</div>
+
+<div class="navbar navbar-default navbar-fixed-top">
+	<button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target=".navmenu" data-canvas="body">
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	</button>
+</div>
+
+<div id="main" class="container">
+	<div class="row text-center" style="height: 100%">
+		<div class="col-md-12">
+			<div class="page-header">
+				<h1>Welcome</h1>
+			</div>
+			<form id="auth" class="form-horizontal" role="form">
+				<div class="form-group">
+					<label>Identity
+						<input id="identity" class="form-control" type="text" name="identity" placeholder="Your supplied identity.">
+					</label>
+				</div>
+				<div class="form-group">
+					<label>Password
+						<input id="password" class="form-control" type="password" name="password" placeholder="Your supplied password.">
+					</label>
+				</div>
+				<p>Note: The use of this network is subject to data-sharing agreements.</p>
+				<button class="btn btn-primary btn-labeled">
+					<span class="btn-label">
+						<i class="fa fa-key"></i>
+					</span>
+					Authenticate
+				</button>
+			</form>
+		</div>
+	</div>
+</div><!-- /.container -->
+
+
+
+
+
+	<script src="lib/async.js"></script>
+	<script src="lib/lodash.js"></script>
+	<script src="lib/jquery-2.1.1.js"></script>
+	<script src="lib/jquery.cookie.js"></script>
+	<script src="lib/modernizr.js"></script>
+	<script src="lib/bootstrap.js"></script>
+	<script src="lib/jasny-bootstrap.js"></script>
+	<script src="lib/d3.v3.js"></script>
+	<script src="lib/c3.js"></script>
+	<script src="lib/routie.js"></script>
+
+	<!-- Visualizer stuff -->
+	<script src="js/Api.js"></script>
+	<script src="js/Sidebar.js"></script>
+	<script src="js/Vizualizer.js"></script>
+	<script src="js/Router.js"></script>
+	<script>
+		$(document).ready(function(){
+			// Initialize the API.
+			document.api = new Api();
+			// Begin Authentication.
+			$('#auth').submit(function (event) {
+				event.preventDefault();
+				console.log("Submitting");
+				// Authenicate
+				var opts = {
+					identity: $('#auth #identity').val(),
+					password: $('#auth #password').val()
+				};
+				document.api.auth(opts)
+					.done(function() {
+						console.log("Auth successful!");
+						if (window.location.hash === "") {
+							window.location.hash = '/';
+						}
+						// Auth Successful
+						document.visualizer = new Visualizer();
+						document.sidebar = new Sidebar();
+						document.router = new Router();
+					})
+					.error(function () {
+						console.log(arguments)
+						// Auth failed.
+						throw "Authentication failed.";
+					});
+			});
+		});
+	</script>
+</body>
+
+</html>

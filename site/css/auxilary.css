@@ -1,0 +1,50 @@
+html, body {
+	height: 100%;
+}
+
+body {
+	padding: 50px 0 0 0;
+}
+
+.navbar-toggle {
+	float: left;
+	margin-left: 15px;
+}
+
+@media (min-width: 0) {
+	.navbar-toggle {
+		display: block; /* force showing the toggle */
+	}
+}
+
+@media (min-width: 992px) {
+	body {
+		padding: 0;
+	}
+	.navbar {
+		right: auto;
+		background: none;
+		border: none;
+		box-shadow: none;
+	}
+}
+
+.navmenu-header {
+	display: block;
+	font-size: 18px;
+	line-height: 20px;
+	padding: 10px 15px;
+	margin: 10px 0;
+}
+.navmenu-header:hover,
+.navmenu-header:focus {
+	text-decoration: none;
+}
+
+.darkened {
+	background: #444444;
+}
+
+.nav > li > a {
+	display: inline-block;
+}
