@@ -209,6 +209,7 @@ function routes(callback, data) {
       };
       require('request').get({ url: 'https://queryengine:8080/' + req.params.id, oauth: oauth, json: true },
         function (error, request, body) {
+          // Need to join this data with the entry stored on the visualizer.
           res.send(body);
         }
       );

@@ -5,7 +5,7 @@ function Sidebar() {
   'use strict';
   /** Populate the sidebar. */
   this.populateFavouriteQueries = function () {
-    d3.json(document.api.favouriteQueries(), function (error, data) {
+    d3.json(document.api.queries(), function (error, data) {
       if (error) {
         throw error;
       }

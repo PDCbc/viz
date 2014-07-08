@@ -2,7 +2,7 @@
 ```bash
 git clone https://github.com/Hoverbear/scoop-visualizer.git
 cd scoop-visualizer
-docker build -t visualizer .
+docker build --rm=true -t visualizer .
 docker pull mongo
 ```
 

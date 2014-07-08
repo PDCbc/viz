@@ -3,8 +3,7 @@
  */
 function Api() {
   'use strict';
-  this.version = '/v1';
-  this.root = '/api';
+  this.root = '/api/';
 
   /** Authenticates the user.
    * TODO: Improve this interface. It's awkward.
@@ -16,7 +15,7 @@ function Api() {
     if (!(opts.identity && opts.password)) {
       throw 'A identity and password are both required.';
     }
-    return $.get(this.root + this.version + '/auth', opts);
+    return $.get(this.root + '/auth', opts);
   };
 
   /** Returns the URI for getting a list of queries.
@@ -25,7 +24,7 @@ function Api() {
    * @returns {string} - The URI to access.
    */
   this.queries = function (opts) {
-    var url = this.root + this.version + '/queries';
+    var url = this.root;
     if (opts) {
       url += '?' + $.param(opts);
     }
@@ -39,13 +38,13 @@ function Api() {
    * @returns {string} - The URI to access.
    */
   this.query = function (id, opts) {
-    if (!id) { throw "An id must be provided."}
-    var url = this.root + this.version + '/query/' + id;
+    if (!id) { throw "An id must be provided."; }
+    var url = this.root + id;
     if (opts) {
       url += '?' + $.param(opts);
     }
     return url;
-  }
+  };
 
   /** Returns a URI used to query the API.
    * TODO: List all possible opts.
@@ -53,7 +52,7 @@ function Api() {
    * @returns {string} - The URI to access.
    */
   this.favouriteQueries = function (opts) {
-    var url = this.root + this.version + '/favourites/queries';
+    var url = this.root + '/favourites/queries';
     if (opts) {
       url += '?' + $.param(opts);
     }

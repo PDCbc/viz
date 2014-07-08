@@ -13,7 +13,7 @@ function Visualizer() {
   this.home = function () {
     this.clean();
     main.append('p').text('Successfully logged');
-  }
+  };
 
   /** Displays a list of queries. */
   this.queries = function () {
@@ -36,9 +36,9 @@ function Visualizer() {
           d3.select(this)
             .append('div').classed('panel-heading', true)
             .append('h3').classed('panel-title', true)
-            .text(function (d) { return d.title; })
+            .text(function (d) { return d.title; });
           d3.select(this).append('panel-body')
-            .text(function (d) { return d.description; })
+            .text(function (d) { return d.description; });
         })
         .each(function (d) {
           var group = d3.select(this);
@@ -82,30 +82,34 @@ function Visualizer() {
       // Info
       var info = tabContent.append('div').classed({ 'tab-pane': true, 'fade': true, 'active': true, 'in': true }).attr('id', 'info').call(function (info) {
         // Set description.
-        info.append('h4').text('Description:')
+        info.append('h4').text('Description:');
         info.append('p').attr('id', 'description').classed('panel', true)
           .text(data.description);
         // Some info
         info.append('p').attr('id', 'details').call(function (details) {
           // Author
-          details.append('b').text('Author: ')
+          details.append('b').text('Author: ');
           details.append('span').attr('id', 'author')
             .text(data.author);
-          details.append('br')
+          details.append('br');
           // Date
-          details.append('b').text('Date: ')
+          details.append('b').text('Date: ');
           details.append('span').attr('id', 'date')
             .text(data.date);
-        })
+        });
       });
 
       // Make chart
-      data.charts.map(function (chart, index) {
-        var width = (chart.width) ? chart.width : 100
-        displayArea.append('div').attr('id', "chart-" + index).attr('style', 'width: ' + width + '%; display: inline-block');
-        chart.bindto = '#chart-' + index;
-        charts.push(c3.generate(chart));
-      })
+      // data.charts.map(function (chart, index) {
+      //   var width = (chart.width) ? chart.width : 100;
+      //   displayArea.append('div').attr('id', "chart-" + index).attr('style', 'width: ' + width + '%; display: inline-block');
+      //   chart.bindto = '#chart-' + index;
+      //   charts.push(c3.generate(chart));
+      // });
+      console.log(data);
+      displayArea.append('div').attr('id', 'chart');
+      data.bindto = '#chart';
+      c3.generate(data);
       // Controls
       var controls = tabContent.append('form').classed({ 'tab-pane': true, 'fade': true, 'form-horizontal': true }).attr('id', 'controls').call(function (controls) {
         charts.map(function (chart) {
@@ -136,7 +140,7 @@ function Visualizer() {
     var colours = controls.append('div').attr('id', 'colours');
     columns.forEach(function (key) {
       var group = colours.append('div').classed({ 'form-group': true, 'col-xs-2': true });
-      var label = group.append('label')
+      var label = group.append('label');
       label.append('span').text(' ' + key);
       group.append('input')
         .classed('form-control', true)
