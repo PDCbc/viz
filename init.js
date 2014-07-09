@@ -59,6 +59,7 @@ function environment(callback) {
  * @param {Function} next - The callback.
  */
 function certificate(next) {
+  console.log(process.env.NODE_TLS_REJECT_UNAUTHORIZED == "0");
   var fs = require('fs');
   // Get the certificates.
   async.auto({
