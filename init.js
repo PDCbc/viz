@@ -1,16 +1,18 @@
 'use strict';
 
 var async = require('async'),
+    _ = require('lodash'),
     logger = require('./lib/logger');
 
 async.auto({
   environment:     environment,
+  validators:      validators,
   database:        [ 'environment', database ],
   certificate:     [ 'environment', certificate ],
   httpd:           [ 'environment', httpd ],
   models:          [ 'database', models ],
   auth:            [ 'models', 'httpd', auth ],
-  routes:          [ 'auth', 'models', 'httpd', routes ]
+  routes:          [ 'auth', 'validators', 'models', 'httpd', routes ]
 }, complete);
 
 function environment(callback) {
@@ -164,6 +166,36 @@ function auth(callback, data) {
   return callback(null);
 }
 
+function validators(callback, data) {
+  var tv4 = require('tv4'),
+      fs = require('fs');
+  /**
+   * Creates validator functions for input.
+   * @param {String}   file     - The file path.
+   * @param {Function} callback - The callback.
+   */
+  function validatorFactory(file, callback) {
+    fs.readFile('./schema/list.json', 'utf8', function (err, file) {
+      if (err) { callback(err, null); }
+      /**
+       * Validates the data based on the schema.
+       * @param  {Object} data - The data to validate.
+       * @return {Boolean}     - If it's valid.
+       */
+      function validate(data) {
+        return tv4.validate(data, JSON.parse(file));
+      }
+      return callback(null, validate);
+    });
+  }
+  async.parallel({
+    item: _.partial(validatorFactory, './schema/item.json'),
+    list: _.partial(validatorFactory, './schema/list.json')
+  }, function finish(error, results) {
+      callback(error, results);
+  });
+}
+
 function routes(callback, data) {
   var router = new require('express').Router(),
       ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
@@ -192,6 +224,12 @@ function routes(callback, data) {
       };
       require('request').get({ url: 'https://queryengine:8080/api', oauth: oauth, json: true },
         function (error, request, body) {
+          if (error) { /* TODO: Handle this safely. */
+            return res.json({ error: error });
+          }
+          if (data.validators.list(body) !== true) {
+            return res.json({ error: 'Validation of data failed.' });
+          }
           res.send(body);
         }
       );
@@ -208,6 +246,10 @@ function routes(callback, data) {
       };
       require('request').get({ url: 'https://queryengine:8080/api/' + req.params.title, oauth: oauth, json: true },
         function (error, request, body) {
+          if (error) { /* TODO: Handle this safely. */ return res.send(error); }
+          if (data.validators.item(body) !== true) {
+            return res.json({ error: 'Validation of data failed.' });
+          }
           // Need to join this data with the entry stored on the visualizer.
           res.send(body);
         }
