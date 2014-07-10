@@ -132,15 +132,15 @@ function Visualizer() {
     // Colours
     function changeColumnColour() {
       var column = $(this).data('column'),
-        colour = $(this).val(),
-        current = chart.data.colors();
+          colour = $(this).val(),
+          current = chart.data.colors();
       current[column] = colour;
       chart.data.colors(current);
     }
     var colours = controls.append('div').attr('id', 'colours');
     columns.forEach(function (key) {
-      var group = colours.append('div').classed({ 'form-group': true, 'col-xs-2': true });
-      var label = group.append('label');
+      var group = colours.append('div').classed({ 'form-group': true, 'col-xs-2': true }),
+          label = group.append('label');
       label.append('span').text(' ' + key);
       group.append('input')
         .classed('form-control', true)

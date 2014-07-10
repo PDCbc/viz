@@ -16,7 +16,7 @@ function Router() {
     document.visualizer.queries();
   });
   /** Get a specific query. */
-  routie('/query/:id', function (id) {
-    document.visualizer.queryById(id);
+  routie('/query/:title', function (title) {
+    document.visualizer.queryById(title);
   });
 }

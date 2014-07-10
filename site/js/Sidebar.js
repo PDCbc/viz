@@ -9,7 +9,7 @@ function Sidebar() {
       if (error) {
         throw error;
       }
-      var liElems = d3.select('#queries').selectAll('li').data(data)
+      var liElems = d3.select('#queries').selectAll('li').data(data.visualizations)
         .enter()
         .append('li')
         .call(function (li) {
@@ -19,7 +19,7 @@ function Sidebar() {
             });
           // Link to query
           li.append('a')
-            .attr('href', function (d) { return '#' + '/query/' + d._id; })
+            .attr('href', function (d) { return '#' + '/query/' + d.title; })
             .text(function (d) { return d.title; })
         })
         .attr('title', function (d) { return d.description; });

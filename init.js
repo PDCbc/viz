@@ -197,7 +197,7 @@ function routes(callback, data) {
       );
     }
   );
-  router.get('/api/:id',
+  router.get('/api/:title',
     ensureLoggedIn('/auth'),
     function (req, res) {
       var oauth = {
@@ -206,7 +206,7 @@ function routes(callback, data) {
         token: req.session.passport.user.key,
         token_secret: req.session.passport.user.secret
       };
-      require('request').get({ url: 'https://queryengine:8080/api' + req.params.id, oauth: oauth, json: true },
+      require('request').get({ url: 'https://queryengine:8080/api/' + req.params.title, oauth: oauth, json: true },
         function (error, request, body) {
           // Need to join this data with the entry stored on the visualizer.
           res.send(body);
