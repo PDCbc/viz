@@ -59,7 +59,6 @@ function environment(callback) {
  * @param {Function} next - The callback.
  */
 function certificate(next) {
-  console.log(process.env.NODE_TLS_REJECT_UNAUTHORIZED == "0");
   var fs = require('fs');
   // Get the certificates.
   async.auto({
@@ -180,8 +179,9 @@ function routes(callback, data) {
   router.get('/fail', function (req, res) {
     res.send('You failed.');
   });
-  // Testing route.
-  router.get('/api/',
+
+  // API Routes
+  router.get('/api',
     ensureLoggedIn('/auth'),
     function (req, res) {
       var oauth = {
@@ -190,15 +190,13 @@ function routes(callback, data) {
         token: req.session.passport.user.key,
         token_secret: req.session.passport.user.secret
       };
-      require('request').get({ url: 'https://queryengine:8080/', oauth: oauth, json: true },
+      require('request').get({ url: 'https://queryengine:8080/api', oauth: oauth, json: true },
         function (error, request, body) {
           res.send(body);
         }
       );
     }
   );
-
-  // Testing route.
   router.get('/api/:id',
     ensureLoggedIn('/auth'),
     function (req, res) {
@@ -208,7 +206,7 @@ function routes(callback, data) {
         token: req.session.passport.user.key,
         token_secret: req.session.passport.user.secret
       };
-      require('request').get({ url: 'https://queryengine:8080/' + req.params.id, oauth: oauth, json: true },
+      require('request').get({ url: 'https://queryengine:8080/api' + req.params.id, oauth: oauth, json: true },
         function (error, request, body) {
           // Need to join this data with the entry stored on the visualizer.
           res.send(body);
