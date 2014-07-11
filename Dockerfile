@@ -9,6 +9,7 @@ ENV PORT 8081
 ENV SECRET Test Secret
 # Configure MONGO_URI
 ENV MONGO_URI mongodb://visualizerdb/visualizer
+ENV PROVIDER_URL https://queryengine:8080
 # Request Token URL
 ENV REQUEST_TOKEN_URL https://queryengine:8080/oauth/request_token
 # Access Token URL
@@ -30,7 +31,8 @@ ENV CONSUMER_KEY visualizer
 # Consumer Secret
 ENV CONSUMER_SECRET specialsecret
 
-# Set directory to the volume.
+# Set directory to the volume.m
+
 VOLUME ["/app"]
 WORKDIR /app
 

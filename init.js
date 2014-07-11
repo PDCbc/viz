@@ -9,6 +9,7 @@ async.auto({
   validators:      validators,
   database:        [ 'environment', database ],
   certificate:     [ 'environment', certificate ],
+  middleware:      middleware,
   httpd:           [ 'environment', httpd ],
   models:          [ 'database', models ],
   auth:            [ 'models', 'httpd', auth ],
@@ -91,11 +92,64 @@ function certificate(next) {
   }
 }
 
+function middleware(callback, data) {
+  function providerRequest(req, path, callback) {
+    var oauth = {
+      consumer_key: process.env.CONSUMER_KEY,
+      consumer_secret: process.env.CONSUMER_SECRET,
+      token: req.session.passport.user.key,
+      token_secret: req.session.passport.user.secret
+    };
+    require('request').get({ url: process.env.PROVIDER_URL + path, oauth: oauth, json: true }, function (error, request, body) {
+      callback(error, request);
+    });
+    // Callback should be (error, request)
+  }
+  function populateVisualizationList(req, res, next) {
+    if (!req.session.passport.user) { return next(); }
+    // TODO: Cache this per user.
+    providerRequest(req, '/api', function validation(error, request) {
+      if (error) { return next(error); }
+      var validated = data.validators.list(request.body);
+      if (validated.valid === true) {
+        req.visualizations = request.body.visualizations;
+        next();
+      } else {
+        next(new Error(JSON.stringify(validated, 2)));
+      }
+    });
+  }
+  function populateVisualization(req, res, next) {
+    if (!req.session.passport.user) { return next(); }
+    if (!req.params.title) { return res.redirect('/'); }
+    providerRequest(req, '/api/' + req.params.title, function validation(error, request) {
+      if (error) { return next(error); }
+      var validated = data.validators.item(request.body);
+      if (validated.valid === true) {
+        req.visualization = request.body;
+        next();
+      } else {
+        next(new Error(JSON.stringify(validated, 2)));
+      }
+    });
+  }
+  return callback(null, {
+    populateVisualizationList: populateVisualizationList,
+    populateVisualization: populateVisualization,
+    providerRequest: providerRequest
+  });
+}
+
 function httpd(callback, data) {
   var server = require('express')(),
       passport = require('passport');
   // Set the server engine.
   server.set('view engine', 'hbs');
+  // Page Routes
+  require('hbs').registerPartials(__dirname + '/views/partials');
+  require('hbs').registerHelper('json', function(data) {
+    return JSON.stringify(data);
+  });
   // Middleware (https://github.com/senchalabs/connect#middleware)
   // Ordering ~matters~.
   // Logger
@@ -106,7 +160,7 @@ function httpd(callback, data) {
   server.use(require('body-parser').urlencoded({ extended: true }));
   server.use(require('body-parser').json());
   // Static serving of the site from `site`
-  server.use(require('serve-static')('site'));
+  server.use('/assets', require('serve-static')('assets'));
   // Session store
   server.use(require('express-session')({
     secret: process.env.SECRET,
@@ -183,7 +237,7 @@ function validators(callback, data) {
        * @return {Boolean}     - If it's valid.
        */
       function validate(data) {
-        return tv4.validate(data, JSON.parse(file));
+        return tv4.validateResult(data, JSON.parse(file));
       }
       return callback(null, validate);
     });
@@ -205,55 +259,33 @@ function routes(callback, data) {
     passport.authenticate('oauth')
   );
   router.get('/auth/callback',
-    passport.authenticate('oauth', { failureRedirect: '/fail' }),
-    function (req, res) { res.redirect('/'); }
+    passport.authenticate('oauth', { successReturnToOrRedirect: '/', failureRedirect: '/fail' })
   );
-  router.get('/fail', function (req, res) {
-    res.send('You failed.');
+  router.get('/logout', function (req, res) {
+    req.logout();
+    res.redirect('/');
   });
-
-  // API Routes
-  router.get('/api',
-    ensureLoggedIn('/auth'),
-    function (req, res) {
-      var oauth = {
-        consumer_key: process.env.CONSUMER_KEY,
-        consumer_secret: process.env.CONSUMER_SECRET,
-        token: req.session.passport.user.key,
-        token_secret: req.session.passport.user.secret
-      };
-      require('request').get({ url: 'https://queryengine:8080/api', oauth: oauth, json: true },
-        function (error, request, body) {
-          if (error) { /* TODO: Handle this safely. */
-            return res.json({ error: error });
-          }
-          if (data.validators.list(body) !== true) {
-            return res.json({ error: 'Validation of data failed.' });
-          }
-          res.send(body);
-        }
-      );
+  router.get('/',
+    data.middleware.populateVisualizationList,
+    function render(req, res) {
+      res.render('index', {
+        title: 'Welcome',
+        user: req.session.passport.user,
+        visualizations: req.visualizations
+      });
     }
   );
-  router.get('/api/:title',
+  router.get('/visualization/:title',
     ensureLoggedIn('/auth'),
-    function (req, res) {
-      var oauth = {
-        consumer_key: process.env.CONSUMER_KEY,
-        consumer_secret: process.env.CONSUMER_SECRET,
-        token: req.session.passport.user.key,
-        token_secret: req.session.passport.user.secret
-      };
-      require('request').get({ url: 'https://queryengine:8080/api/' + req.params.title, oauth: oauth, json: true },
-        function (error, request, body) {
-          if (error) { /* TODO: Handle this safely. */ return res.send(error); }
-          if (data.validators.item(body) !== true) {
-            return res.json({ error: 'Validation of data failed.' });
-          }
-          // Need to join this data with the entry stored on the visualizer.
-          res.send(body);
-        }
-      );
+    data.middleware.populateVisualization,
+    data.middleware.populateVisualizationList,
+    function render(req, res) {
+      res.render('visualization', {
+        title: req.params.title,
+        user: req.session.passport.user,
+        visualizations: req.visualizations,
+        visualization: req.visualization
+      });
     }
   );
   // Attach the router.

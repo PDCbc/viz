@@ -1,0 +1,26 @@
+<html>
+{{> head}}
+<body>
+{{> sidebar}}
+
+{{#with visualization}}
+<div class="container">
+  <div class="row text-center">
+    <h1>{{title}}</h1>
+    <p>{{description}}</p>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div id="chart"></div>
+      </div>
+    </div> <!-- panel -->
+    <script>
+      var visualization = {{{json this}}};
+      visualization.bindto = '#chart';
+      var chart = c3.generate(visualization);
+      console.log(chart.data)
+    </script>
+</div> <!-- container -->
+{{/with}}
+
+</body>
+</html>

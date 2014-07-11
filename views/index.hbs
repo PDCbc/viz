@@ -1,0 +1,37 @@
+<html>
+{{> head}}
+<body>
+{{> sidebar}}
+
+<div class="container">
+  <div class="row text-center">
+    <h1>Visualizer</h1>
+    <hr>
+    <h3 class="text-muted">A Lead Lab project supported by the PDC and NSERC.</h3>
+  </div> <!-- row text-center -->
+
+  <div class="row">
+    {{#if user}}
+      <p>Congratulations!</p>
+      <pre><code>{{user}}</code></pre>
+    {{else}}
+      <div class="col-xs-6 col-xs-offset-3">
+        In order to access the visualization data, you must authenticate with the Query Engine.
+        <div class="text-center">
+          <a href="/auth" class="btn btn-primary btn-labeled">
+            <span class="btn-label">
+              <i class="fa fa-key"></i>
+            </span>
+            Authenticate
+          </a>
+        </div> <!-- text-center -->
+      </div> <!-- col-xs-6 col-xs-offset-3 -->
+    {{/if}}
+  </div> <!-- row -->
+
+
+</div> <!-- container -->
+
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+{{#if user}}
+  <div class="navmenu navmenu-inverse navmenu-fixed-left offcanvas">
+    <a class="navmenu-brand" href="#/">SCOOP Dashboard</a>
+    <ul class="nav navmenu-nav">
+      <li><a class="navmenu-header" href="#/queries">
+        <i class="fa fa-question"></i>
+        Visualizations
+      </a></li>
+    </ul>
+    <ul id="queries" class="nav navmenu-nav">
+        {{#each visualizations}}
+          <li><a href="/visualization/{{title}}"  data-toggle="tooltip" data-placement="right" title="{{description}}">{{title}}</a></li>
+        {{/each}}
+    </ul>
+    <script>
+      $(document).ready(function(){
+        $('ul#queries > li > a').tooltip();
+      });
+    </script>
+  </div>
+
+  <div class="navbar navbar-default navbar-fixed-top">
+    <button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target=".navmenu" data-canvas="body">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+  </div>
+{{/if}}
