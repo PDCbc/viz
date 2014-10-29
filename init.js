@@ -12,8 +12,7 @@ async.auto({
   middleware:      middleware,
   httpd:           [ 'environment', httpd ],
   models:          [ 'database', models ],
-  auth:            [ 'models', 'httpd', auth ],
-  routes:          [ 'auth', 'validators', 'models', 'httpd', routes ]
+  routes:          [ 'validators', 'models', 'httpd', routes ]
 }, complete);
 
 function environment(callback) {
@@ -28,31 +27,6 @@ function environment(callback) {
     if (!process.env.MONGO_URI) {
     logger.warn('No $MONGO_URI present. Defaulting to `mongodb://localhost/vis`.');
     process.env.MONGO_URI = 'mongodb://localhost/vis';
-  }
-  // OAuth Stuff
-  if (!process.env.REQUEST_TOKEN_URL) {
-    logger.warn('No $REQUEST_TOKEN_URL present. Defaulting to `https://localhost:8080/oauth/request_token`.');
-    process.env.REQUEST_TOKEN_URL = 'https://localhost:8080/oauth/request_token';
-  }
-  if (!process.env.ACCESS_TOKEN_URL) {
-    logger.warn('No $ACCESS_TOKEN_URL present. Defaulting to `https://localhost:8080/oauth/access_token`.');
-    process.env.ACCESS_TOKEN_URL = 'https://localhost:8080/oauth/access_token';
-  }
-  if (!process.env.USER_AUTHORIZATION_URL) {
-    logger.warn('No $USER_AUTHORIZATION_URL present. Defaulting to `https://localhost:8080/oauth/authorize`.');
-    process.env.USER_AUTHORIZATION_URL = 'https://localhost:8080/oauth/authorize';
-  }
-  if (!process.env.CALLBACK_URL) {
-    logger.warn('No $CALLBACK_URL present. Defaulting to `https://localhost:8080/auth/callback`.');
-    process.env.CALLBACK_URL = 'https://localhost:8080/auth/callback';
-  }
-  if (!process.env.CONSUMER_KEY) {
-    logger.warn('No $CONSUMER_KEY present. Defaulting to `test`.');
-    process.env.CONSUMER_KEY = 'test';
-  }
-  if (!process.env.CONSUMER_SECRET) {
-    logger.warn('No $CONSUMER_SECRET present. Defaulting to `test`.');
-    process.env.CONSUMER_SECRET = 'test';
   }
   return callback(null);
 }
@@ -191,35 +165,6 @@ function models(callback, data) {
   return callback(null);
 }
 
-function auth(callback, data) {
-  var passport = require('passport'),
-      OAuth1Strategy = require('passport-oauth1');
-  passport.use('oauth', new OAuth1Strategy({
-      requestTokenURL: process.env.REQUEST_TOKEN_URL,
-      accessTokenURL: process.env.ACCESS_TOKEN_URL,
-      userAuthorizationURL: process.env.USER_AUTHORIZATION_URL,
-      consumerKey: process.env.CONSUMER_KEY,
-      consumerSecret: process.env.CONSUMER_SECRET,
-      callbackURL: process.env.CALLBACK_URL
-    },
-    function verify(token, tokenSecret, profile, done) {
-      // TODO: Actually verify.
-      console.log('TODO: Verify called.');
-      done(null, { key: token, secret: tokenSecret });
-    }
-  ));
-  passport.serializeUser(function(token, done) {
-    console.log('Serialize');
-    return done(null, token);
-  });
-  passport.deserializeUser(function(id, done) {
-    // TODO
-    console.log('Deserialize');
-    return done(null, id);
-  });
-  return callback(null);
-}
-
 function validators(callback, data) {
   var tv4 = require('tv4'),
       fs = require('fs');
@@ -255,14 +200,11 @@ function routes(callback, data) {
       ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
       ensureLoggedOut = require('connect-ensure-login').ensureLoggedOut,
       passport = require('passport');
-  router.get('/auth',
-    passport.authenticate('oauth')
-  );
-  router.get('/auth/callback',
-    passport.authenticate('oauth', { successReturnToOrRedirect: '/', failureRedirect: '/fail' })
-  );
+  router.get('/auth', function (req, res) {
+    console.error("Not implemented yet");
+  });
   router.get('/logout', function (req, res) {
-    req.logout();
+    console.error("Logout called, but no auth implemented");
     res.redirect('/');
   });
   router.get('/',
@@ -276,7 +218,7 @@ function routes(callback, data) {
     }
   );
   router.get('/visualization/:title',
-    ensureLoggedIn('/auth'),
+    function () { console.error("Auth not implemented yet."); },
     data.middleware.populateVisualization,
     data.middleware.populateVisualizationList,
     function render(req, res) {
