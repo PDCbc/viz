@@ -4,6 +4,14 @@ var async = require('async'),
     _ = require('lodash'),
     logger = require('./lib/logger');
 
+/**
+ * Callback levels:
+ *   - next: Top scope.
+ *   - callback: Second scope.
+ *   - cb: Third scope.
+ *   ... After that, you're on your own.
+ */
+
 async.auto({
   environment:     environment,
   validators:      validators,
@@ -15,7 +23,7 @@ async.auto({
   routes:          [ 'validators', 'models', 'httpd', routes ]
 }, complete);
 
-function environment(callback) {
+function environment(next) {
   if (!process.env.SECRET) {
     logger.warn('No $SECRET present. Generating a temporary random value.');
     process.env.SECRET = require('crypto').randomBytes(256);
@@ -32,7 +40,7 @@ function environment(callback) {
     logger.warn('No PROVIDER_URL present. Defaulting to `https://localhost:8080`.');
     process.env.PROVIDER_URL = 'https://localhost:8080';
   }
-  return callback(null);
+  return next(null);
 }
 
 /**
@@ -43,8 +51,8 @@ function certificate(next) {
   var fs = require('fs');
   // Get the certificates.
   async.auto({
-    key:  function (next) { fs.readFile('cert/server.key', 'utf8', next); },
-    cert: function (next) { fs.readFile('cert/server.crt', 'utf8', next); }
+    key:  function (callback) { fs.readFile('cert/server.key', 'utf8', callback); },
+    cert: function (callback) { fs.readFile('cert/server.crt', 'utf8', callback); }
   }, function (error, results) {
     if (error) { generateCertificate(error, results, next); }
     else { return next(error, results); }
@@ -56,28 +64,28 @@ function certificate(next) {
    * @param {Object|null} results - Passed to `next`.
    * @param {Function}    next    - The callback. Is passed `error` (if not a certificate error) and `results`.
    */
-  function generateCertificate(error, results, next) {
+  function generateCertificate(error, results, callback) {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // Tell Node it's okay.
     if (error && error.code === 'ENOENT') {
       logger.warn('No certificates present in `cert/{server.key, server.crt}`. Generating a temporary certificate.');
       require('pem').createCertificate({ days: 1, selfSigned: true }, function formatKey(error, keys) {
         if (error) { return next(error, null); }
-        return next(null, {key: keys.serviceKey, cert: keys.certificate });
+        return callback(null, {key: keys.serviceKey, cert: keys.certificate });
       });
     } else {
-      return next(error, results);
+      return callback(error, results);
     }
   }
 }
 
-function middleware(callback, data) {
+function middleware(next, data) {
   function providerRequest(req, path, callback) {
     require('request').get({ url: process.env.PROVIDER_URL + path, json: true }, function (error, request, body) {
       callback(error, request);
     });
     // Callback should be (error, request)
   }
-  function populateVisualizationList(req, res, next) {
+  function populateVisualizationList(req, res, callback) {
     // TODO: Cache this per user.
     providerRequest(req, '/api', function validation(error, request) {
       if (error) { return next(error); }
@@ -85,34 +93,33 @@ function middleware(callback, data) {
       console.log(validated.valid);
       if (validated.valid === true) {
         req.visualizations = request.body.visualizations;
-        next();
+        callback();
       } else {
-        next(new Error(JSON.stringify(validated, 2)));
+        callback(new Error(JSON.stringify(validated, 2)));
       }
     });
   }
-  function populateVisualization(req, res, next) {
+  function populateVisualization(req, res, callback) {
     if (!req.params.title) { return res.redirect('/'); }
     providerRequest(req, '/api/' + req.params.title, function validation(error, request) {
       if (error) { return next(error); }
       var validated = data.validators.item(request.body);
-      console.log(validated.valid);
       if (validated.valid === true) {
         req.visualization = request.body;
-        next();
+        callback();
       } else {
-        next(new Error(JSON.stringify(validated, 2)));
+        callback(new Error(JSON.stringify(validated, 2)));
       }
     });
   }
-  return callback(null, {
+  return next(null, {
     populateVisualizationList: populateVisualizationList,
     populateVisualization: populateVisualization,
     providerRequest: providerRequest
   });
 }
 
-function httpd(callback, data) {
+function httpd(next, data) {
   var server = require('express')();
   // Set the server engine.
   server.set('view engine', 'hbs');
@@ -141,34 +148,39 @@ function httpd(callback, data) {
   // server.use(require('csurf')());
   // Compresses responses.
   server.use(require('compression')());
-  return callback(null, server);
+  return next(null, server);
 }
 
-function database(callback, data) {
+/**
+ * This task sets up MongoDB and will not invoke next until it has either connected or errored.
+ */
+function database(next, data) {
   var connection = require('mongoose').connect(process.env.MONGO_URI).connection;
+  // This is an event handler.
+  // The mongoose library emits events (open or error) when it connects (or fails to)
   connection.on('open', function () {
     logger.log('Connected to database on ' + process.env.MONGO_URI);
-    return callback(null);
+    return next(null);
   });
   connection.on('error', function (error) {
-    return callback(error, connection);
+    return next(error, connection);
   });
 }
 
-function models(callback, data) {
-  return callback(null);
+function models(next, data) {
+  return next(null);
 }
 
-function validators(callback, data) {
-  var tv4 = require('tv4'),
+function validators(next, data) {
+  var tv4 = require('tv4'), // Node module: https://github.com/geraintluff/tv4
       fs = require('fs');
   /**
    * Creates validator functions for input.
    * @param {String}   file     - The file path.
    * @param {Function} callback - The callback.
    */
-  function validatorFactory(file, callback) {
-    fs.readFile('./schema/list.json', 'utf8', function (err, file) {
+  function validatorFactory(filePath, callback) {
+    fs.readFile(filePath, 'utf8', function (err, file) {
       if (err) { callback(err, null); }
       /**
        * Validates the data based on the schema.
@@ -182,18 +194,20 @@ function validators(callback, data) {
     });
   }
   async.parallel({
+    // callbacks are implictly here
     item: _.partial(validatorFactory, './schema/item.json'),
     list: _.partial(validatorFactory, './schema/list.json')
   }, function finish(error, results) {
-      callback(error, results);
+      next(error, results);
+      // Results is [function validateItem(data), function validateList(data)]
   });
 }
 
-function routes(callback, data) {
+function routes(next, data) {
   var router = new require('express').Router();
-  router.get('/auth', function (req, res, next) {
+  router.get('/auth', function (req, res, callback) {
     console.error("Not implemented yet");
-    next();
+    callback();
   });
   router.get('/logout', function (req, res) {
     console.error("Logout called, but no auth implemented");
@@ -210,7 +224,7 @@ function routes(callback, data) {
     }
   );
   router.get('/visualization/:title',
-    function (req, res, next) { console.error("Auth not implemented yet."); next(); },
+    function (req, res, callback) { console.error("Auth not implemented yet."); callback(); },
     data.middleware.populateVisualization,
     data.middleware.populateVisualizationList,
     function render(req, res) {
@@ -225,7 +239,7 @@ function routes(callback, data) {
   );
   // Attach the router.
   data.httpd.use(router);
-  callback(null, router);
+  next(null, router);
 }
 
 function complete(error, data) {
