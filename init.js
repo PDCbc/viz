@@ -24,9 +24,13 @@ function environment(callback) {
     logger.warn('No $PORT present. Choosing a sane default, 8081.');
     process.env.PORT = 8081;
   }
-    if (!process.env.MONGO_URI) {
+  if (!process.env.MONGO_URI) {
     logger.warn('No $MONGO_URI present. Defaulting to `mongodb://localhost/vis`.');
     process.env.MONGO_URI = 'mongodb://localhost/vis';
+  }
+  if (!process.env.PROVIDER_URL) {
+    logger.warn('No PROVIDER_URL present. Defaulting to `https://localhost:8080`.');
+    process.env.PROVIDER_URL = 'https://localhost:8080';
   }
   return callback(null);
 }
@@ -68,23 +72,17 @@ function certificate(next) {
 
 function middleware(callback, data) {
   function providerRequest(req, path, callback) {
-    var oauth = {
-      consumer_key: process.env.CONSUMER_KEY,
-      consumer_secret: process.env.CONSUMER_SECRET,
-      token: req.session.passport.user.key,
-      token_secret: req.session.passport.user.secret
-    };
-    require('request').get({ url: process.env.PROVIDER_URL + path, oauth: oauth, json: true }, function (error, request, body) {
+    require('request').get({ url: process.env.PROVIDER_URL + path, json: true }, function (error, request, body) {
       callback(error, request);
     });
     // Callback should be (error, request)
   }
   function populateVisualizationList(req, res, next) {
-    if (!req.session.passport.user) { return next(); }
     // TODO: Cache this per user.
     providerRequest(req, '/api', function validation(error, request) {
       if (error) { return next(error); }
       var validated = data.validators.list(request.body);
+      console.log(validated.valid);
       if (validated.valid === true) {
         req.visualizations = request.body.visualizations;
         next();
@@ -94,11 +92,11 @@ function middleware(callback, data) {
     });
   }
   function populateVisualization(req, res, next) {
-    if (!req.session.passport.user) { return next(); }
     if (!req.params.title) { return res.redirect('/'); }
     providerRequest(req, '/api/' + req.params.title, function validation(error, request) {
       if (error) { return next(error); }
       var validated = data.validators.item(request.body);
+      console.log(validated.valid);
       if (validated.valid === true) {
         req.visualization = request.body;
         next();
@@ -115,8 +113,7 @@ function middleware(callback, data) {
 }
 
 function httpd(callback, data) {
-  var server = require('express')(),
-      passport = require('passport');
+  var server = require('express')();
   // Set the server engine.
   server.set('view engine', 'hbs');
   // Page Routes
@@ -140,9 +137,6 @@ function httpd(callback, data) {
     secret: process.env.SECRET,
     cookie: { secure: true }
   }));
-  // Passport middleware.
-  server.use(passport.initialize());
-  server.use(passport.session());
   // Protects against CSRF.
   // server.use(require('csurf')());
   // Compresses responses.
@@ -196,12 +190,10 @@ function validators(callback, data) {
 }
 
 function routes(callback, data) {
-  var router = new require('express').Router(),
-      ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
-      ensureLoggedOut = require('connect-ensure-login').ensureLoggedOut,
-      passport = require('passport');
-  router.get('/auth', function (req, res) {
+  var router = new require('express').Router();
+  router.get('/auth', function (req, res, next) {
     console.error("Not implemented yet");
+    next();
   });
   router.get('/logout', function (req, res) {
     console.error("Logout called, but no auth implemented");
@@ -212,19 +204,20 @@ function routes(callback, data) {
     function render(req, res) {
       res.render('index', {
         title: 'Welcome',
-        user: req.session.passport.user,
+        user: 'Not Implemented Auth User',
         visualizations: req.visualizations
       });
     }
   );
   router.get('/visualization/:title',
-    function () { console.error("Auth not implemented yet."); },
+    function (req, res, next) { console.error("Auth not implemented yet."); next(); },
     data.middleware.populateVisualization,
     data.middleware.populateVisualizationList,
     function render(req, res) {
+      console.log("I GOT THERE");
       res.render('visualization', {
         title: req.params.title,
-        user: req.session.passport.user,
+        user: 'Not implemented yet user',
         visualizations: req.visualizations,
         visualization: req.visualization
       });
