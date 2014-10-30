@@ -9,7 +9,7 @@ case $OSTYPE in
     Darwin) # Mac
         printf "\e[31m -- This script assumes you already have Homebrew installed. See http://brew.sh -- \e[0m\n"
         brew install mongodb nodejs
-        printf "\e[32m -- This scrpt does NOT enable MongoDB. Enable it yourself with \`launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mongodb.plist\`\n"
+        printf "\e[32m -- This scrpt does NOT enable MongoDB. Enable it yourself with \`mongod --config /usr/local/etc/mongod.conf\`\n"
         ;;
 
     Linux) # Linux
