@@ -18,8 +18,10 @@ If you're on Windows, or feel like having a VM to work on, install [Vagrant](htt
 
 ```bash
 cd $PROJECT_DIRECTORY
-vagrant up  # Start the VM.
-vagrant ssh # Shell into the VM.
+vagrant up      # Start the VM.
+vagrant ssh     # Shell into the VM.
+vagrant halt    # Stop the VM.
+vagrant destroy # Delete the VM.
 ```
 
 ## Starting
