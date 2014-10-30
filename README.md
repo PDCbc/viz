@@ -1,29 +1,47 @@
-# Build and Prep
+# Setup
+
+## Dependencies
+
+Before starting, you should ensure you have the following available on your machine:
+
+* An active MongoDB instance.
+* Node.js
+
+On Mac OS X or a RHEL/Fedora derivative you can install it like so:
+
 ```bash
-git clone https://github.com/Hoverbear/scoop-visualizer.git
-cd scoop-visualizer
-docker build --rm=true -t visualizer .
-docker pull mongo
+cd $PROJECT_DIRECTORY
+./setup.sh
 ```
 
-# Run
+If you're on Windows, or feel like having a VM to work on, install [Vagrant](https://www.vagrantup.com/) try using our `Vagrantfile`:
+
 ```bash
-docker run -P -d --name=visualizerdb mongo
-docker run -d --link visualizerdb:visualizerdb --link queryengine:queryengine -p 8081:8081 -v $(pwd):/app --name=visualizer visualizer
+cd $PROJECT_DIRECTORY
+vagrant up  # Start the VM.
+vagrant ssh # Shell into the VM.
 ```
 
-# Making certificates
+## Starting
 
-In order to not have to accept a new cert every time, bake your own. [Source](https://library.linode.com/security/ssl-certificates/self-signed)
+```bash
+cd $PROJECT_DIRECTORY
+npm install # Install Dependencies into `.node_modules/`.
+npm start   # Start the application.
+```
+
+# Deploy
+
+There is a `Dockerfile` for use in deployment, however your mileage may vary.
+
+# Troubleshooting
+
+## Making certificates
+
+In order to not have to accept a new cert every time, bake your own. [Source](https://library.linode.com/security/ssl-certificates/self-signed).
+
 ```bash
 mkdir ./cert
 openssl req -new -x509 -days 365 -nodes -out ./cert/server.crt -keyout ./cert/server.key
 chmod 600 ./cert/*
-```
-
-# Troubleshooting
-On SELinux (Fedora/CentOS/RHEL) you might need to set while in the project directory. [Source](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Resource_Management_and_Linux_Containers_Guide/sec-Sharing_Data_Across_Containers.html).
-
-```bash
-chcon -Rt svirt_sandbox_file_t $(pwd)
 ```
