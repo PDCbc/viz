@@ -23,6 +23,11 @@ async.auto({
     routes:      require('./lib/routes')
 }, complete);
 
+/**
+ * The final completion function. Throws any errors that arise, or listens.
+ * @param  {Error}  error Any errors passed to us via `next(err, null)`` from tasks.
+ * @param  {Object} data  The complete async data object.
+ */
 function complete(error, data) {
     if (error) { logger.error(error); throw error; }
     // No errors
