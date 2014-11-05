@@ -7,7 +7,7 @@
     "start": "node init.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Andrew Hobden <andrew+scoop@hoverbear.org>",
+  "author": "Andrew Hobden <andrew+scoop@hoverbear.org>, Ryan Habibi <rphabibi@uvic.ca>",
   "license": "GPLv2",
   "private": true,
   "dependencies": {
