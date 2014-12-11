@@ -6,12 +6,14 @@
         <i class="fa fa-question"></i>
         Visualizations
       </a></li>
-      <li><a href="/logout">Log Out</a></li>
     </ul>
     <ul id="queries" class="nav navmenu-nav">
-        {{#each visualizations}}
+        {{#each queries}}
           <li><a href="/visualization/{{title}}"  data-toggle="tooltip" data-placement="right" title="{{description}}">{{title}}</a></li>
         {{/each}}
+    </ul>
+    <ul id="queries" class="nav navmenu-nav">
+        <li><a href="/logout">Log Out</a></li>
     </ul>
     <script>
       $(document).ready(function(){
