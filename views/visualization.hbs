@@ -3,24 +3,22 @@
 <body>
 {{> sidebar}}
 
-{{#with visualization}}
 <div class="container">
   <div class="row text-center">
-    <h1>{{title}}</h1>
-    <p>{{description}}</p>
+    <p> TODO: Add the stuff Fieran isn't giving us. </p>
+    <!-- <h1>{{visualization.title}}</h1> -->
+    <!-- <p>{{visualization.description}}</p> -->
     <div class="panel panel-default">
       <div class="panel-body">
         <div id="chart"></div>
       </div>
+      {{{ script }}}
+      <script>
+        var data = {{{json visualization }}};
+        vis(data); // Render.
+      </script>
     </div> <!-- panel -->
-    <script>
-      var visualization = {{{json this}}};
-      visualization.bindto = '#chart';
-      var chart = c3.generate(visualization);
-      console.log(chart.data)
-    </script>
 </div> <!-- container -->
-{{/with}}
 
 </body>
 </html>
