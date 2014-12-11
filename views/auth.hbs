@@ -1,24 +1,50 @@
-<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>SCOOP Auth - Login</title>
-</head>
+{{> head}}
 <body>
-    {{#if user }}
-        <p>You're currently logged in as {{ user.username }}. Logging in again will log you out of your current identity and into the new one.</p>
-    {{/if}}
-    {{#if message }}
-        <p>There was the following message: {{ message }}</p>
-    {{/if}}
-    <form action="/auth" method="POST">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required />
+    {{> sidebar}}
 
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required />
+    <div class="container">
+        <div class="row text-center">
+            <h1>Visualizer</h1>
+            <hr>
+            <h3 class="text-muted">A Lead Lab project supported by the PDC and NSERC.</h3>
+        </div> <!-- row text-center -->
 
-        <input type="submit">
-    </form>
+        <div class="row">
+            {{#if user }}
+                <p>You're currently logged in as {{ user.username }}. Logging in again will log you out of your current identity and into the new one.</p>
+            {{/if}}
+            {{#if message }}
+                <p>There was the following message: {{ message }}</p>
+            {{/if}}
+            <form action="/auth" method="POST" role="form" class="form-horizontal">
+                <div class="form-group">
+                    <label for="username" class="col-sm-1 col-sm-offset-2">Username</label>
+                    <div class="col-sm-7">
+                        <input type="text" id="username" class="form-control" name="username" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="col-sm-1 col-sm-offset-2">Password</label>
+                    <div class="col-sm-7">
+                        <input type="password" id="password" class="form-control" name="password" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label></label>
+                    <div class="col-sm-7 col-sm-offset-3 text-center">
+                        <button href="/auth" class="btn btn-primary btn-labeled">
+                            <span class="btn-label pull-left">
+                                <i class="fa fa-key"></i>
+                            </span>
+                            Authenticate
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
