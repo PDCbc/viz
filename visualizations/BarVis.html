@@ -1,0 +1,142 @@
+<script>
+	function vis(data) {
+		//define container constraints
+		var margin = {top: 50, right: 50, bottom: 75, left: 75},
+			width = 600 - margin.left - margin.right,
+			height = 400 - margin.top - margin.bottom;
+
+		//set up SVG container to contain all components
+		var canvas = d3.select("#chart")
+			.append("svg")
+			.attr("width",width + margin.left + margin.right)
+			.attr("height",height + margin.top + margin.bottom)
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		//append a title
+		canvas.append("g")
+			.attr("class", "title")
+			.append("text")
+			.attr("x", width/2)
+			.attr("y", -margin.top/2)
+			.style("text-anchor","middle")
+			.style("text-decoration", "underline")
+			.text("Bar Graph Prototype");
+
+		//x position scale using date data
+		//domain set as the first 3 keys in the JSON,
+		//if structure modified must be changed.
+		var xScale = d3.scale.ordinal()
+			.rangeBands([0,width],0.1)
+			.domain(d3.keys(data.processed_result));
+
+		//x axis def
+		var xAxis = d3.svg.axis()
+			.scale(xScale)
+			.orient("bottom");
+
+		//add X Axis
+		canvas.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis)
+			.append("text")
+				.attr("x", (width )/2)
+				.attr("y", margin.bottom)
+				.style("text-anchor","middle")
+				.text("X Axis");
+
+		//Rotate and move X Axis ticks for vertical write and align
+		canvas.selectAll("g.x.axis g.tick text")
+			.style("text-anchor", "end")
+			.attr("dx", "-.8em")
+			.attr("dy", ".-35em")
+			.attr("transform", "rotate(-90)");
+
+		//y position scaling
+		var yScale = d3.scale.linear()
+			.range([height,0]);
+
+		//function to return a ratio rounded up to the nearest 10
+		//used for scaling Y Axis
+		var trimAndScale = function(d){
+			var x= d.aggregate_result.numerator/d.aggregate_result.denominator;
+			x = Math.ceil((x*10)+1)*10;
+			if (x > 100){
+				return 100;
+			} else {
+				return x;}
+		};
+
+		//scale Y axis
+		yScale.domain([0,d3.max([
+			d3.max(data.processed_result.network,trimAndScale),
+			d3.max(data.processed_result.clinic,trimAndScale),
+			d3.max(data.processed_result.clinician,trimAndScale)
+		])]);
+
+		//y axis def
+		var yAxis = d3.svg.axis()
+			.scale(yScale)
+			.orient("left");
+
+		//add Y Axis
+		canvas.append("g")
+			.attr("class", "y axis")
+			.attr("transform", "translate(-10,0)")
+			.call(yAxis)
+			.append("text")
+			.attr("y", -40)
+			.attr("x", -height/2 +margin.top)
+			.attr("transform", "rotate(-90)")
+			.style("text-anchor", "end")
+			.text("Y Axis (%)");
+
+		//console.log(xScale.rangeBand());
+
+		//bars for display. Due to JSON formatting the easiest way is
+		//to create them seperatly.
+		var bar1 = canvas.append("g")
+			.attr("class","bars")
+			.selectAll(".bar")
+				.data(data.processed_result.network)
+				.enter().append("rect")
+					.attr("x", xScale("network"))
+					.attr("y",yScale(0))
+					.attr("width", xScale.rangeBand())
+					.attr("height", 0)
+					.attr("fill","black")
+					.transition()
+						.duration(2000)
+						.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+						.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
+
+		var bar2 = canvas.append("g")
+			.attr("class","bars")
+			.selectAll(".bar")
+				.data(data.processed_result.clinic)
+				.enter().append("rect")
+					.attr("x", xScale("clinic"))
+					.attr("y",yScale(0))
+					.attr("width", xScale.rangeBand())
+					.attr("height", 0)
+					.attr("fill","steelblue")
+					.transition()
+						.duration(2000)
+						.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+						.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
+		var bar3 = canvas.append("g")
+			.attr("class","bars")
+			.selectAll(".bar")
+				.data(data.processed_result.clinician)
+				.enter().append("rect")
+					.attr("x", xScale("clinician"))
+					.attr("y",yScale(0))
+					.attr("width", xScale.rangeBand())
+					.attr("height", 0)
+					.attr("fill","darkred")
+					.transition()
+						.duration(2000)
+						.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+						.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
+	}
+</script>
