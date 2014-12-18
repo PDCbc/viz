@@ -115,7 +115,7 @@
             .attr("x", width/2)
             .attr("y", margin.bottom )
             .style("text-anchor","middle")
-            .text("X Axis (Time)");
+            .text("Query Date");
 
         //add Y Axis
         canvas.append("g")
@@ -127,7 +127,7 @@
             .attr("x", -height/2 + margin.top)
             .attr("transform", "rotate(-90)")
             .style("text-anchor", "end")
-            .text("Y Axis (%)");
+            .text("Percentage of Patients (%)");
 
         //style axis
         canvas.selectAll("g.xaxis path, g.yaxis path")
