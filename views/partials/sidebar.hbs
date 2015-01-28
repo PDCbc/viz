@@ -1,17 +1,42 @@
 {{#if user}}
   <div class="navmenu navmenu-inverse navmenu-fixed-left offcanvas">
-    <a class="navmenu-brand" href="#/">SCOOP Dashboard</a>
+    <a class="navmenu-brand" href="#/">Visualization Dashboard</a>
     <ul class="nav navmenu-nav">
-      <li><a class="navmenu-header" href="#/queries">
-        <i class="fa fa-question"></i>
-        Visualizations
-      </a></li>
+      <li>
+        <a class="navmenu-header" href="#/queries">
+          <i class="fa fa-bullseye">PDC Visualizations</i>
+        </a>
+      </li>
     </ul>
+
     <ul id="queries" class="nav navmenu-nav">
-        {{#each queries}}
-          <li><a href="/visualization/{{title}}/548f70f34fe634b592000002/27542"  data-toggle="tooltip" data-placement="right" title="{{description}}">{{title}}</a></li>
-        {{/each}}
+      {{#each pdc_queries}}
+        <li>
+          <i class="fa fa-eye" style="color:#AAAAAA">
+            <a href="/visualization/{{title}}/548f70f34fe634b592000002/45567"  data-toggle="tooltip" data-placement="right" title="{{description}}">{{title}}</a>
+          </i>
+        </li>
+      {{/each}}
     </ul>
+
+    <ul class="nav navmenu-nav">
+      <li>
+        <a class="navmenu-header" href="#/queries">
+          <i class="fa fa-bullseye">Integrity Visualizations</i>
+        </a>
+      </li>
+    </ul>
+
+    <ul id="queries" class="nav navmenu-nav">
+      {{#each integrity_queries}}
+      <li>
+        <i class="fa fa-eye" style="color:#AAAAAA">
+          <a href="/integrity_visualization/{{title}}/548f70f34fe634b592000002/45567/36"  data-toggle="tooltip" data-placement="right" title="{{description}}">{{title}}</a>
+        </i>
+      </li>
+      {{/each}}
+    </ul>
+
     <ul id="queries" class="nav navmenu-nav">
         <li><a href="/logout">Log Out</a></li>
     </ul>

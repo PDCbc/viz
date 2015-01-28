@@ -5,15 +5,15 @@
 
 <div class="container">
   <div class="row text-center">
-    <!-- <h1>{{visualization.title}}</h1> -->
-    <!-- <p>{{visualization.description}}</p> -->
+    <h1>{{visualization.title}}</h1>
+    <p>{{visualization.description}}</p>
     <div class="panel panel-default">
       <div class="panel-body">
         <div id="chart"></div>
       </div>
       {{{ script }}}
       <script>
-        var data = {{{json visualization }}};
+        var data = {{{json visualization}}};
         vis(data); // Render.
       </script>
     </div> <!-- panel -->

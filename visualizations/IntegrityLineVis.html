@@ -2,6 +2,9 @@
 
     //data needs to be valid JSON in standard HUB API line graph format
     function vis(data){
+        //data colors
+        var dataColors = {'clinician':'black', 'clinic':'blue', 'network':'red'};
+
         //define container constraints
         var margin = {top: 50, right: 50, bottom: 150, left: 75},
             width = 600 - margin.left - margin.right,
@@ -15,40 +18,61 @@
             .range([0,width]);
 
         //y position scaling
-        var yScale = d3.scale.linear()
+        var yScaleClinician = d3.scale.linear()
             .range([height,0]);
 
+        var yScaleClinic = d3.scale.linear()
+            .range([height,0]);
+
+        var yScaleNetwork = d3.scale.linear()
+            .range([height,0]);
+
+        var yScales = {'clinician':yScaleClinician, 'clinic':yScaleClinic, 'network':yScaleNetwork};
         //x axis def
         var xAxis = d3.svg.axis()
             .scale(xScale)
             .orient("bottom");
 
-        //y axis def
-        var yAxis = d3.svg.axis()
-            .scale(yScale)
+        //clinician y axis def
+        var yAxisClinician = d3.svg.axis()
+            .scale(yScaleClinician)
+            .orient("left");
+
+        //clinic y axis def
+        var yAxisClinic = d3.svg.axis()
+            .scale(yScaleClinic)
+            .orient("left");
+
+        //clinic y axis def
+        var yAxisNetwork = d3.svg.axis()
+            .scale(yScaleNetwork)
             .orient("left");
 
         //set up SVG container to contain all components
-        var canvas = d3.select("#chart")
-            .append("svg")
-            .attr("width",width + margin.left + margin.right)
-            .attr("height",height + margin.top + margin.bottom);
+        var canvas = d3.select('#chart')
+            .append('svg')
+            .attr('width',width + margin.left + margin.right)
+            .attr('height',height + margin.top + margin.bottom)
+            .style({'overflow':'visible'});
 
         //append a title
-        canvas.append("g")
-            .attr("class", "title")
-            .append("text")
-            .attr("x", width/2)
-            .attr("y", margin.top/2)
-            .style("text-anchor","middle")
-            .style("text-decoration", "underline")
-            .text(data.title);
-
+        canvas.append('g')
+            .attr('class', 'title')
+            .append('text')
+            .attr('text-anchor','middle')
+            .attr('text-decoration','underline')
+            .attr('dominant-baseline','central')
+            .attr('x',200)
+            .text(data.processed_result.title);
 
         //Line functions to build path from JSON
-        var line = d3.svg.line()
-            .x(function(d){return xScale(d.time);})
-            .y(function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
+        var line =
+          function(set)
+          {
+            d3.svg.line()
+              .x(function(d){return xScale(d.time);})
+              .y(function(d){return yScales[set]((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
+          }
 
         //@TODO
         //parse date on all line data
@@ -83,27 +107,22 @@
             ])
         ]);
 
-        //function to return a ratio rounded up to the nearest 10
-        //used for scaling Y Axis
+        function fetchDenominator(set)
+        {
 
-        var trimAndScale = function(d) {
-          var x;
-          x = d.aggregate_result.numerator/d.aggregate_result.denominator;
-          x = Math.ceil((x*10)+1)*10;
+          var denominator = data.processed_result[set].length > 0 ? data.processed_result[set][0].aggregate_result.denominator : 0;
+          console.log('set: ' + set + ' denominator: ' + denominator );
+          return denominator;
+        }
 
-          if (x > 100){
-              return 100;
-          } else {
-              return x;
-          }
-        };
+        console.log(data.processed_result);
 
-        //scale Y axis
-        yScale.domain([0,d3.max([
-            d3.max(data.processed_result.network,trimAndScale),
-            d3.max(data.processed_result.clinic,trimAndScale),
-            d3.max(data.processed_result.clinician,trimAndScale)
-        ])]);
+        //yScaleClinician.domain([0,fetchDenominator('clinician')]);
+        //yScaleClinic.domain([0,fetchDenominator('clinic')]);
+        //yScaleNetwork.domain([0,fetchDenominator('network')]);
+        yScaleClinician.domain([0,Math.floor(fetchDenominator('clinician')*1.5)]);
+        yScaleClinic.domain([0,Math.floor(fetchDenominator('clinic')*1.5)]);
+        yScaleNetwork.domain([0,Math.floor(fetchDenominator('network')*1.5)]);
 
         //add X Axis
         canvas.append("g")
@@ -117,16 +136,24 @@
             .text("Query Date");
 
         //add Y Axis
-        canvas.append("g")
-            .attr("class", "yaxis")
-            .attr("transform", "translate(50," + (margin.top/2 + 20) + ")")
-            .call(yAxis)
-            .append("text")
-            .attr("y", -40)
-            .attr("x", -height/2 + margin.top)
-            .attr("transform", "rotate(-90)")
-            .style("text-anchor", "end")
-            .text("Percentage of Patients (%)");
+        function appendYAxis(yaxis, set, axisCount, label)
+        {
+          canvas.append('g')
+          .attr('class', 'yaxis')
+          .attr('transform', 'translate(' + (50 - 40*axisCount) + ',' + (margin.top/2 + 20) + ')')
+          .style({'fill':dataColors[set]})
+          .call(yaxis)
+          .append('text')
+          .attr('y', -40)
+          .attr('x', -height/2 + margin.top)
+          .attr('transform', 'rotate(-90)')
+          .style({'text-anchor':'end', 'fill':'black'})
+          .text(label ? 'Patients Count' : '');
+        }
+
+        appendYAxis(yAxisClinician, 'clinician', 0, false);
+        appendYAxis(yAxisClinic, 'clinic', 1, false);
+        appendYAxis(yAxisClinic, 'network', 2, true);
 
         //style axis
         canvas.selectAll("g.xaxis path, g.yaxis path")
@@ -147,9 +174,9 @@
         .selectAll("path")
         .data([data.processed_result.clinician])
         .enter().append("path")
-        .attr("d", line)
+        .attr("d", function(){line('clinician');})
         .attr("fill", "none")
-        .attr("stroke", "black")
+        .attr("stroke", dataColors.clinician)
         .attr("stroke-width",5)
         .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
@@ -158,14 +185,18 @@
         .selectAll("circle")
         .data(data.processed_result.clinician)
         .enter()
-        .append("circle")
-        .attr("onmouseover", "evt.target.setAttribute('r', '10');")
-        .attr("onmouseout", "evt.target.setAttribute('r', '7');")
-        .attr("cx",function(d){return xScale(d.time);})
-        .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-        .attr("fill","black")
-        .attr("r",7)
-        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        .append('circle')
+        .attr('onmouseover', 'evt.target.setAttribute("r", "10");')
+        .attr('onmouseout', 'evt.target.setAttribute("r", "7");')
+        .attr('cx',function(d){return xScale(d.time);})
+        .attr('cy',
+          function(d){
+            yScaleClinician.domain([0,100]);
+            return yScaleClinician(d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
+          })
+        .attr('fill',dataColors.clinician)
+        .attr('r',7)
+        .attr('transform', 'translate(60,' + (margin.top/2 + 20) + ')');
 
         //create and append paths for line data
         var clinicPath = canvas.append("g")
@@ -173,9 +204,9 @@
         .selectAll("path")
         .data([data.processed_result.clinic])
         .enter().append("path")
-        .attr("d", line)
+        .attr("d", function(){line('clinic');})
         .attr("fill", "none")
-        .attr("stroke", "blue")
+        .attr("stroke", dataColors.clinic)
         .attr("stroke-width",2)
         .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
@@ -188,8 +219,11 @@
         .attr("onmouseover", "evt.target.setAttribute('r', '10');")
         .attr("onmouseout", "evt.target.setAttribute('r', '5');")
         .attr("cx",function(d){return xScale(d.time);})
-        .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-        .attr("fill","blue")
+        .attr("cy",function(d){
+            yScaleClinic.domain([0,100]);
+            return yScaleClinic(d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
+          })
+        .attr("fill",dataColors.clinic)
         .attr("r",4)
         .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
@@ -198,9 +232,9 @@
             .selectAll("path")
             .data([data.processed_result.network])
             .enter().append("path")
-            .attr("d", line)
+            .attr("d", function(){line('network');})
             .attr("fill", "none")
-            .attr("stroke", "red")
+            .attr("stroke", dataColors.network)
             .attr("stroke-width",1)
             .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
@@ -213,8 +247,11 @@
             .attr("onmouseover", "evt.target.setAttribute('r', '10');")
             .attr("onmouseout", "evt.target.setAttribute('r', '2');")
             .attr("cx",function(d){return xScale(d.time);})
-            .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-            .attr("fill","red")
+            .attr("cy",function(d){
+                yScaleNetwork.domain([0,100]);
+                return yScaleNetwork(d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
+              })
+            .attr("fill",dataColors.network)
             .attr("r",2)
             .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
     }
