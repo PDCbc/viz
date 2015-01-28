@@ -1,7 +1,18 @@
 <script>
-
+    /*
+        Author: Ryan Habibi
+        Date: Jan 2015
+        
+        Line Graph Visualization
+        
+        Creates an SVG object containing x and y axis, title, and generating 3 lines
+        out of data points provided in the JSON for network, clinic, and clinician.
+    */
+    
+    
     //data needs to be valid JSON in standard HUB API line graph format
     function vis(data){
+        
         //define container constraints
         var margin = {top: 50, right: 50, bottom: 150, left: 75},
             width = 600 - margin.left - margin.right,
@@ -28,13 +39,14 @@
             .scale(yScale)
             .orient("left");
 
-        //set up SVG container to contain all components
+        //set up SVG container to contain all components,
+        //all further elements are appended to he canvas to be seen
         var canvas = d3.select("#chart")
             .append("svg")
             .attr("width",width + margin.left + margin.right)
             .attr("height",height + margin.top + margin.bottom);
 
-        //append a title
+        //append title text to the top of the page
         canvas.append("g")
             .attr("class", "title")
             .append("text")
@@ -45,13 +57,12 @@
             .text(data.title);
 
 
-        //Line functions to build path from JSON
+        //Line functions to build path from JSON data
         var line = d3.svg.line()
             .x(function(d){return xScale(d.time);})
             .y(function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
 
-        //@TODO
-        //parse date on all line data
+        //parse date on all line data to standardize format as outlined in above parse function
         data.processed_result.network.forEach(function(d) {
             d.time = parseDate(d.time);
         });
@@ -63,13 +74,14 @@
         });
 
         //scale number of XAxis ticks based on JSON
+        //causes some problems because of automatic D3 tick labels, could be changed with stronger logic
         xAxis.ticks(Math.max(
             Object.keys(data.processed_result.network).length,
             Object.keys(data.processed_result.clinic).length,
             Object.keys(data.processed_result.clinician).length
         ));
 
-        //set the domain to the absolute min and max of the 3 data sets
+        //set the domain to the absolute min and max of the 3 data sets to ensure proper scaling
         xScale.domain([
             d3.min([
                 d3.min(data.processed_result.network,function(d){return d.time;}),
@@ -83,9 +95,8 @@
             ])
         ]);
 
-        //function to return a ratio rounded up to the nearest 10
+        //function to return a ratio rounded up to the nearest multiple of 10
         //used for scaling Y Axis
-
         var trimAndScale = function(d) {
           var x;
           x = d.aggregate_result.numerator/d.aggregate_result.denominator;
@@ -99,36 +110,37 @@
         };
 
         //scale Y axis
+        //ineffeicent, should find local maximums and trimAndScale just those values
         yScale.domain([0,d3.max([
             d3.max(data.processed_result.network,trimAndScale),
             d3.max(data.processed_result.clinic,trimAndScale),
             d3.max(data.processed_result.clinician,trimAndScale)
         ])]);
 
-        //add X Axis
+        //add X Axis to canvas
         canvas.append("g")
             .attr("class", "xaxis")
             .attr("transform", "translate(60," + (height + 45) + ")")
             .call(xAxis)
             .append("text")
-            .attr("x", width/2)
-            .attr("y", margin.bottom )
-            .style("text-anchor","middle")
-            .text("Query Date");
+                .attr("x", width/2)
+                .attr("y", margin.bottom )
+                .style("text-anchor","middle")
+                .text("Query Date");
 
-        //add Y Axis
+        //add Y Axis to canvas
         canvas.append("g")
             .attr("class", "yaxis")
             .attr("transform", "translate(50," + (margin.top/2 + 20) + ")")
             .call(yAxis)
             .append("text")
-            .attr("y", -40)
-            .attr("x", -height/2 + margin.top)
-            .attr("transform", "rotate(-90)")
-            .style("text-anchor", "end")
-            .text("Percentage of Patients (%)");
+                .attr("y", -40)
+                .attr("x", -height/2 + margin.top)
+                .attr("transform", "rotate(-90)")
+                .style("text-anchor", "end")
+                .text("Percentage of Patients (%)");
 
-        //style axis
+        //style x axis
         canvas.selectAll("g.xaxis path, g.yaxis path")
         .style("shape-rendering","crispEdges")
         .style("stroke", "Black")
@@ -141,81 +153,78 @@
         .attr("dy", "-.35em")
         .attr("transform", "rotate(90)");
 
-        //create and append paths for line data
+        //create and append paths using line data
         var clinicianPath = canvas.append("g")
         .attr("class","line")
         .selectAll("path")
         .data([data.processed_result.clinician])
         .enter().append("path")
-        .attr("d", line)
-        .attr("fill", "none")
-        .attr("stroke", "black")
-        .attr("stroke-width",5)
-        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
-
-        var clinicianPoints = canvas.append("g")
-        .attr("class","points")
-        .selectAll("circle")
-        .data(data.processed_result.clinician)
-        .enter()
-        .append("circle")
-        .attr("onmouseover", "evt.target.setAttribute('r', '10');")
-        .attr("onmouseout", "evt.target.setAttribute('r', '7');")
-        .attr("cx",function(d){return xScale(d.time);})
-        .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-        .attr("fill","black")
-        .attr("r",7)
-        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
-
-        //create and append paths for line data
+            .attr("d", line)
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width",5)
+            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+            
         var clinicPath = canvas.append("g")
         .attr("class","line")
         .selectAll("path")
         .data([data.processed_result.clinic])
         .enter().append("path")
-        .attr("d", line)
-        .attr("fill", "none")
-        .attr("stroke", "blue")
-        .attr("stroke-width",2)
-        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
-
-        var clinicPoints = canvas.append("g")
-        .attr("class","points")
-        .selectAll("circle")
-        .data(data.processed_result.clinic)
-        .enter()
-        .append("circle")
-        .attr("onmouseover", "evt.target.setAttribute('r', '10');")
-        .attr("onmouseout", "evt.target.setAttribute('r', '5');")
-        .attr("cx",function(d){return xScale(d.time);})
-        .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-        .attr("fill","blue")
-        .attr("r",4)
-        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
-
+            .attr("d", line)
+            .attr("fill", "none")
+            .attr("stroke", "blue")
+            .attr("stroke-width",2)
+            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        
         var networkPath = canvas.append("g")
             .attr("class","line")
             .selectAll("path")
             .data([data.processed_result.network])
             .enter().append("path")
-            .attr("d", line)
-            .attr("fill", "none")
-            .attr("stroke", "red")
-            .attr("stroke-width",1)
+                .attr("d", line)
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width",1)
+                .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+
+        //add circles for points to make clear when there is a recorded value
+        var clinicianPoints = canvas.append("g")
+        .attr("class","points")
+        .selectAll("circle")
+        .data(data.processed_result.clinician)
+        .enter().append("circle")
+            .attr("onmouseover", "evt.target.setAttribute('r', '10');")
+            .attr("onmouseout", "evt.target.setAttribute('r', '7');")
+            .attr("cx",function(d){return xScale(d.time);})
+            .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+            .attr("fill","black")
+            .attr("r",7)
+            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+
+        var clinicPoints = canvas.append("g")
+        .attr("class","points")
+        .selectAll("circle")
+        .data(data.processed_result.clinic)
+        .enter().append("circle")
+            .attr("onmouseover", "evt.target.setAttribute('r', '10');")
+            .attr("onmouseout", "evt.target.setAttribute('r', '5');")
+            .attr("cx",function(d){return xScale(d.time);})
+            .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+            .attr("fill","blue")
+            .attr("r",4)
             .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
         var networkPoints = canvas.append("g")
             .attr("class","points")
             .selectAll("circle")
             .data(data.processed_result.network)
-            .enter()
-            .append("circle")
-            .attr("onmouseover", "evt.target.setAttribute('r', '10');")
-            .attr("onmouseout", "evt.target.setAttribute('r', '2');")
-            .attr("cx",function(d){return xScale(d.time);})
-            .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-            .attr("fill","red")
-            .attr("r",2)
-            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+            .enter().append("circle")
+                .attr("onmouseover", "evt.target.setAttribute('r', '10');")
+                .attr("onmouseout", "evt.target.setAttribute('r', '2');")
+                .attr("cx",function(d){return xScale(d.time);})
+                .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+                .attr("fill","red")
+                .attr("r",2)
+                .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
     }
 </script>
