@@ -66,14 +66,38 @@
             .text(data.processed_result.title);
 
         //Line functions to build path from JSON
-        var line =
-          function(set)
-          {
-            d3.svg.line()
-              .x(function(d){return xScale(d.time);})
-              .y(function(d){return yScales[set]((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
-          }
-
+/*        var clinicianLine = d3.svg.line()
+          .x(function(d){return xScale(d.time);})
+          .y(function(d){
+            yScales['clinician'].domain([0,100]);
+            return yScales['clinician'](d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
+        });
+*/
+        function line(set)
+        {
+          return d3.svg.line()
+          .x(function(d){
+            return xScale(d.time);})
+          .y(function(d){
+            yScales[set].domain([0,100]);
+            return yScales[set](d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3)});
+        }
+/*
+        var clinicLine = d3.svg.line()
+          .x(function(d){return xScale(d.time);})
+          .y(function(d){
+            yScales['clinic'].domain([0,100]);
+            return yScales['clinic'](d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
+          });
+*/
+/*
+        var networkLine = d3.svg.line()
+          .x(function(d){return xScale(d.time);})
+          .y(function(d){
+            yScales['network'].domain([0,100]);
+            return yScales['network'](d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
+          });
+*/
         //@TODO
         //parse date on all line data
         data.processed_result.network.forEach(function(d) {
@@ -168,17 +192,7 @@
         .attr("dy", "-.35em")
         .attr("transform", "rotate(90)");
 
-        //create and append paths for line data
-        var clinicianPath = canvas.append("g")
-        .attr("class","line")
-        .selectAll("path")
-        .data([data.processed_result.clinician])
-        .enter().append("path")
-        .attr("d", function(){line('clinician');})
-        .attr("fill", "none")
-        .attr("stroke", dataColors.clinician)
-        .attr("stroke-width",5)
-        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+
 
         var clinicianPoints = canvas.append("g")
         .attr("class","points")
@@ -187,7 +201,7 @@
         .enter()
         .append('circle')
         .attr('onmouseover', 'evt.target.setAttribute("r", "10");')
-        .attr('onmouseout', 'evt.target.setAttribute("r", "7");')
+        .attr('onmouseout', 'evt.target.setAttribute("r", "8");')
         .attr('cx',function(d){return xScale(d.time);})
         .attr('cy',
           function(d){
@@ -195,20 +209,8 @@
             return yScaleClinician(d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
           })
         .attr('fill',dataColors.clinician)
-        .attr('r',7)
+        .attr('r',8)
         .attr('transform', 'translate(60,' + (margin.top/2 + 20) + ')');
-
-        //create and append paths for line data
-        var clinicPath = canvas.append("g")
-        .attr("class","line")
-        .selectAll("path")
-        .data([data.processed_result.clinic])
-        .enter().append("path")
-        .attr("d", function(){line('clinic');})
-        .attr("fill", "none")
-        .attr("stroke", dataColors.clinic)
-        .attr("stroke-width",2)
-        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
         var clinicPoints = canvas.append("g")
         .attr("class","points")
@@ -217,42 +219,68 @@
         .enter()
         .append("circle")
         .attr("onmouseover", "evt.target.setAttribute('r', '10');")
-        .attr("onmouseout", "evt.target.setAttribute('r', '5');")
+        .attr("onmouseout", "evt.target.setAttribute('r', '6');")
         .attr("cx",function(d){return xScale(d.time);})
         .attr("cy",function(d){
             yScaleClinic.domain([0,100]);
             return yScaleClinic(d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
           })
         .attr("fill",dataColors.clinic)
+        .attr("r",6)
+        .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+
+        var networkPoints = canvas.append("g")
+        .attr("class","points")
+        .selectAll("circle")
+        .data(data.processed_result.network)
+        .enter()
+        .append("circle")
+        .attr("onmouseover", "evt.target.setAttribute('r', '10');")
+        .attr("onmouseout", "evt.target.setAttribute('r', '4');")
+        .attr("cx",function(d){return xScale(d.time);})
+        .attr("cy",function(d){
+          yScaleNetwork.domain([0,100]);
+          return yScaleNetwork(d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
+        })
+        .attr("fill",dataColors.network)
         .attr("r",4)
         .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
-        var networkPath = canvas.append("g")
-            .attr("class","line")
-            .selectAll("path")
-            .data([data.processed_result.network])
-            .enter().append("path")
-            .attr("d", function(){line('network');})
-            .attr("fill", "none")
-            .attr("stroke", dataColors.network)
-            .attr("stroke-width",1)
-            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        //create and append paths for line data
+        var clinicianPath = canvas.append("g")
+          .attr("class","line")
+          .selectAll("path")
+          .data([data.processed_result.clinician])
+          .enter().append("path")
+            .attr("d", line('clinician'))
+              .style("pointer-events", "none")
+              .attr("fill", "none")
+              .attr("stroke", dataColors.clinician)
+              .attr("stroke-width",5)
+              .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
 
-        var networkPoints = canvas.append("g")
-            .attr("class","points")
-            .selectAll("circle")
-            .data(data.processed_result.network)
-            .enter()
-            .append("circle")
-            .attr("onmouseover", "evt.target.setAttribute('r', '10');")
-            .attr("onmouseout", "evt.target.setAttribute('r', '2');")
-            .attr("cx",function(d){return xScale(d.time);})
-            .attr("cy",function(d){
-                yScaleNetwork.domain([0,100]);
-                return yScaleNetwork(d.aggregate_result.numerator/d.aggregate_result.denominator*100*2/3);
-              })
-            .attr("fill",dataColors.network)
-            .attr("r",2)
-            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        var clinicPath = canvas.append("g")
+          .attr("class","line")
+          .selectAll("path")
+          .data([data.processed_result.clinic])
+          .enter().append("path")
+            .attr("d", line('clinic'))
+              .style("pointer-events", "none")
+              .attr("fill", "none")
+              .attr("stroke", dataColors.clinic)
+              .attr("stroke-width",2)
+              .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+
+        var networkPath = canvas.append("g")
+          .attr("class","line")
+          .selectAll("path")
+          .data([data.processed_result.network])
+          .enter().append("path")
+            .attr("d", line('network'))
+              .style("pointer-events", "none")
+              .attr("fill", "none")
+              .attr("stroke", dataColors.network)
+              .attr("stroke-width",1)
+              .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
     }
 </script>
