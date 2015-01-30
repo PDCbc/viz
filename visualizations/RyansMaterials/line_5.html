@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+	
+	<head>
+		<title>Line Page</title>
+		<script src="http://d3js.org/d3.v3.min.js">	</script>
+		<meta charset="utf-8">
+		
+	</head>
+
+	<style>
+
+	.axis path,
+	.axis line {
+		stroke: Black;
+  		fill: none;
+ 		stroke: #000;
+  		shape-rendering: crispEdges;
+  	}
+
+	div.tooltip {   
+		position: absolute;           
+		text-align: center;           
+		width: 125px;                  
+		height: 40px;                 
+		padding: 2px;             
+		font: 12px sans-serif;        
+		background: lightsteelblue;   
+		border: 0px;      
+		border-radius: 8px;           
+		pointer-events: none;         
+	}
+
+	</style>
+
+	<body>
+
+		<script>
+
+			//@TODO 
+			//count entries and set X Axis ticks to highest entry count
+
+			// d3.selectAll("g.x.axis g.tick text")
+
+
+			//define container constraints
+			var margin = {top: 50, right: 50, bottom: 75, left: 75},
+    			width = 600 - margin.left - margin.right,
+    			height = 400 - margin.top - margin.bottom;
+
+    		//expected date format for parsing to data types
+			var parseDate = d3.time.format("%a %b %d %Y").parse;
+
+			//x position scale using date data
+			var xScale = d3.time.scale()
+							.range([0,width]);
+
+			//y position scaling
+			var yScale = d3.scale.linear()
+							.range([height,0]);
+
+			//x axis def
+			var xAxis = d3.svg.axis()
+						.scale(xScale)
+						.orient("bottom");
+
+			//y axis def
+			var yAxis = d3.svg.axis()
+						.scale(yScale)
+						.orient("left");
+						
+			//set up SVG container to contain all components 
+			var canvas = d3.select("body")
+				.append("svg")
+				.attr("width",width + margin.left + margin.right)
+				.attr("height",height + margin.top + margin.bottom)
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			
+			//append a title
+      		canvas.append("g")
+		      	.attr("class", "title")
+		      	.append("text")
+		      		.attr("x", width/2)
+					.attr("y", -margin.top/2)
+					.style("text-anchor","middle")
+					.style("text-decoration", "underline")
+					.text("Line Graph Prototype");
+
+
+			//Line functions to build path from JSON
+			var line = d3.svg.line()
+						.x(function(d){return xScale(d.time);}) 
+						.y(function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
+
+			d3.json("sampleBMI.json",
+				function(error,data){
+
+					//@TODO
+					//parse date on all line data
+					data.processed_result.network.forEach(function(d) {
+					    d.time = parseDate(d.time);
+  					});
+  					data.processed_result.clinic.forEach(function(d) {
+					    d.time = parseDate(d.time);
+  					});
+  					data.processed_result.clinician.forEach(function(d) {
+					    d.time = parseDate(d.time);
+  					});
+
+  					//scale number of XAxis ticks based on JSON
+  					xAxis.ticks(Math.max(
+  							Object.keys(data.processed_result.network).length,
+  							Object.keys(data.processed_result.clinic).length,
+  							Object.keys(data.processed_result.clinician).length
+  						));
+  					
+					//set the domain to the absolute min and max of the 3 data sets
+					xScale.domain(
+							[
+								d3.min(
+									[
+									d3.min(data.processed_result.network,function(d){return d.time;}),
+									d3.min(data.processed_result.clinic,function(d){return d.time;}),
+									d3.min(data.processed_result.clinician,function(d){return d.time;})
+									]
+								)
+							,
+								d3.max(
+									[
+									d3.max(data.processed_result.network,function(d){return d.time;}),
+									d3.max(data.processed_result.clinic,function(d){return d.time;}),
+									d3.max(data.processed_result.clinician,function(d){return d.time;})
+									]
+								)
+							]
+						);
+
+					//function to return a ratio rounded up to the nearest 10
+					//used for scaling Y Axis
+					var trimAndScale = function(d){
+						var x= d.aggregate_result.numerator/d.aggregate_result.denominator;
+						x = Math.ceil((x*10)+1)*10;
+						if (x > 100){
+							return 100;
+						} else {
+							return x;}
+					};
+					
+
+					//scale Y axis
+					yScale.domain([0,d3.max([
+									d3.max(data.processed_result.network),
+									d3.max(data.processed_result.clinic),
+									d3.max(data.processed_result.clinician)
+									],trimAndScale)]);
+
+					//add X Axis
+					canvas.append("g")
+		      			.attr("class", "x axis")
+		      			.attr("transform", "translate(0," + height + ")")
+		      			.call(xAxis) 
+						.append("text")
+							.attr("x", (width )/2)
+							.attr("y", margin.bottom)
+							.style("text-anchor","middle")
+							.text("X Axis (Time)");
+					
+					//Rotate and move X Axis ticks for vertical write and align
+					canvas.selectAll("g.x.axis g.tick text")
+							.style("text-anchor", "start")
+							.attr("dx", ".8em")
+            				.attr("dy", ".-35em")
+							.attr("transform", "rotate(45)")
+							;
+
+					//add Y Axis
+					canvas.append("g")
+		      			.attr("class", "y axis")
+		      			.attr("transform", "translate(-10,0)")
+		      			.call(yAxis)
+		      			.append("text")
+					      .attr("y", -40)
+					      .attr("x", -height/2 +margin.top)
+					      .attr("transform", "rotate(-90)")
+					      .style("text-anchor", "end")
+					      .text("Y Axis (%)");
+
+					//create and append paths for line data
+					var networkPath = canvas.append("g")
+      					.attr("class","line")
+						.selectAll("path")
+							.data([data.processed_result.network]) 
+							.enter().append("path")
+								.attr("d", line)
+								.attr("fill", "none")
+								.attr("stroke", "red")
+								.attr("stroke-width",3);
+
+					var networkPoints = canvas.append("g")
+						.attr("class","points")
+						.selectAll("circle")
+							.data(data.processed_result.network)
+							.enter()
+								.append("circle")
+								.attr("onmouseover", "evt.target.setAttribute('r', '10');")
+								.attr("onmouseout", "evt.target.setAttribute('r', '5');")
+								.attr("cx",function(d){return xScale(d.time);})
+								.attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+								.attr("fill","red")
+								.attr("r",5);
+
+					//create and append paths for line data
+					var clinicPath = canvas.append("g")
+      					.attr("class","line")
+						.selectAll("path")
+							.data([data.processed_result.clinic]) 
+							.enter().append("path")
+								.attr("d", line)
+								.attr("fill", "none")
+								.attr("stroke", "green")
+								.attr("stroke-width",3);
+
+					//@WiP create the tooltip div
+					var div = d3.select("body").append("div")   
+					    .attr("class", "tooltip")               
+					    .style("opacity", 0);
+
+					//TEMP
+					var formatTime = d3.time.format("%a %b %d %Y");
+
+					var clinicPoints = canvas.append("g")
+						.attr("class","points")
+						.selectAll("circle")
+							.data(data.processed_result.clinic)
+							.enter()
+								.append("circle")
+								.attr("cx",function(d){return xScale(d.time);})
+								.attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+								.attr("fill","green")
+								.attr("r",5)
+								.attr("onmouseover", "evt.target.setAttribute('r', '10');")
+								.attr("onmouseout", "evt.target.setAttribute('r', '7');")
+								.on("mouseover", function(d) {
+									div.transition()        
+										.duration(200)      
+										.style("opacity", .9);     
+									div.html("Date: "+ formatTime(d["time"])+"<br/>"+  
+										"Num of Patients:"+d["aggregate_result"]["numerator"]+"<br/>"+  
+										"Total Patients:"+d["aggregate_result"]["denominator"])  
+										.style("left", (d3.event.pageX) + "px")     
+										.style("top", (d3.event.pageY - 28) + "px");    
+								})                  
+								.on("mouseout", function(d) {       
+									div.transition()        
+										.duration(500)      
+										.style("opacity", 0);   
+								});
+
+					//create and append paths for line data
+					var clinicianPath = canvas.append("g")
+      					.attr("class","line")
+						.selectAll("path")
+							.data([data.processed_result.clinician]) 
+							.enter().append("path")
+								.attr("d", line)
+								.attr("fill", "none")
+								.attr("stroke", "blue")
+								.attr("stroke-width",5);
+
+					var clinicianPoints = canvas.append("g")
+						.attr("class","points")
+						.selectAll("circle")
+							.data(data.processed_result.clinician)
+							.enter()
+								.append("circle")
+								.attr("onmouseover", "evt.target.setAttribute('r', '10');")
+								.attr("onmouseout", "evt.target.setAttribute('r', '7');")
+								.attr("cx",function(d){return xScale(d.time);})
+								.attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+								.attr("fill","blue")
+								.attr("r",7);
+
+					//Create a rectangle the same colour as the backround
+					//and shrink it so it looks like the lines are growing
+					var cover = canvas.append("rect")
+						.attr("x",-width-10)
+						.attr("y",-height+3)
+						.attr("height",height)
+						.attr("width",width+17)
+						.attr("fill","white")//change to match bg colour
+						.attr("transform", "rotate(180)")
+						.transition()
+							.duration(2000)
+							.attr("width",0)
+							.remove();
+				});
+
+		</script>
+
+	</body>
+
+</html>
