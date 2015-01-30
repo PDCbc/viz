@@ -1,0 +1,75 @@
+{
+
+    "processed_result": 
+    {
+        "drugs": 
+        [
+            {
+                "drug_name": "Lipid-modifying agents",
+                "agg_data": 
+                [
+                    {
+                        "set": "network",
+                        "numerator": 7,
+                        "denominator": 238
+                    },
+                    {
+                        "set":"clinic",
+                        "numerator": 46,
+                        "denominator": 238
+                    },
+                    {
+                        "set":"clinician",
+                        "numerator": 70,
+                        "denominator": 238
+                    }
+                ]
+            },
+            {
+                "drug_name": "anti-depresants",
+                "agg_data": 
+                [
+                    {
+                        "set": "network",
+                        "numerator": 7,
+                        "denominator": 238
+                    },
+                    {
+                        "set":"clinic",
+                        "numerator": 46,
+                        "denominator": 238
+                    },
+                    {
+                        "set":"clinician",
+                        "numerator": 70,
+                        "denominator": 238
+                    }
+                ]
+            },
+            {
+                "drug_name": "Thyroid",
+                "agg_data": 
+                [
+                    {
+                        "set": "network",
+                        "numerator": 7,
+                        "denominator": 238
+                    },
+                    {
+                        "set":"clinic",
+                        "numerator": 46,
+                        "denominator": 238
+                    },
+                    {
+                        "set":"clinician",
+                        "numerator": 70,
+                        "denominator": 238
+                    }
+                ]
+            }
+        ],
+        "endpoint_id": "546d0365ebca1fa333000003",
+        "provider_id": "87654"
+    }
+
+}
