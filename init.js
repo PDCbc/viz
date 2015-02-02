@@ -15,7 +15,6 @@ var async = require('async'),
 async.auto({
     environment: require('./lib/environment'),
     validators:  require('./lib/validators'),
-//    database:    require('./lib/database'),
     certificate: require('./lib/certificate'),
     middleware:  require('./lib/middleware'),
     httpd:       require('./lib/httpd'),
