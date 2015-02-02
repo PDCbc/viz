@@ -1,0 +1,44 @@
+{
+
+    "processed_result": 
+    {
+        "network": 
+        [
+            {
+                "time": "Thu Nov 20 2014",
+                "aggregate_result": 
+                {
+                    "numerator": 70,
+                    "denominator": 238
+                }
+            }
+        ],
+        "clinic": 
+        [
+            {
+                "time": "Thu Nov 20 2014",
+                "aggregate_result": 
+                {
+                    "numerator": 18,
+                    "denominator": 238
+                }
+            }
+        ],
+        "clinician": 
+        [
+            {
+                "time": "Thu Nov 20 2014",
+                "aggregate_result": 
+                {
+                    "numerator": 40,
+                    "denominator": 100
+                }
+            }
+        ]
+    },
+    "network_id": "PDC",
+    "endpoint_id": "546d0365ebca1fa333000003",
+    "provider_id": "87654"
+    
+
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+	
+	<head>
+		<title>Cluster Bar Page</title>
+		<script src="http://d3js.org/d3.v3.min.js">	</script>
+		<meta charset="utf-8">
+		
+	</head>
+
+	<body>	
+		<script>	
+			//import data, later replaced with function param
+			d3.json("samplePoly.json",
+				function(error,data){
+
+			//define container constraints
+			var margin = {top: 50, right: 50, bottom: 125, left: 75},
+    			width = 600 - margin.left - margin.right,
+    			height = 400 - margin.top - margin.bottom;
+						
+			//set up SVG container to contain all components 
+			var canvas = d3.select("body")
+				.append("svg")
+				.attr("width",width + margin.left + margin.right)
+				.attr("height",height + margin.top + margin.bottom)
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			
+			//append a title
+      		canvas.append("g")
+		      	.attr("class", "title")
+		      	.append("text")
+		      		.attr("x", width/2)
+					.attr("y", -margin.top/2)
+					.style("text-anchor","middle")
+					.style("text-decoration", "underline")
+					.text("Cluster Bar Graph Prototype");
+
+					
+				//variable for descrete x axis tick headings
+				var xScaleHeadings = []
+
+				//extract data from JSON
+				data.processed_result.drugs.forEach(function(d) {
+				    xScaleHeadings.push(d.drug_name);
+					});
+
+	    		//x position scale using date data
+	    		//domain set as the first 3 keys in the JSON, 
+	    		//if structure modified must be changed.
+				var xScale = d3.scale.ordinal()
+								.rangeBands([0,width],0.2)
+								.domain(xScaleHeadings);
+
+				//define a scale to organize each cluster
+				var xClusterScale = d3.scale.ordinal()
+									.rangeBands([0,xScale.rangeBand()],0.1)
+									.domain(["network","clinic","clinician"]);
+						
+				//x axis def
+				var xAxis = d3.svg.axis()
+							.scale(xScale)
+							.orient("bottom");
+
+				//add X Axis
+				canvas.append("g")
+	      			.attr("class", "x axis")
+	      			.attr("transform", "translate(0," + height + ")")
+	      			.call(xAxis);
+
+				//Rotate and move X Axis ticks for vertical write and align
+				canvas.selectAll("g.x.axis g.tick text")
+						.style("text-anchor", "end")
+						.attr("dx", "-.8em")
+        				.attr("dy", ".-35em")
+						.attr("transform", "rotate(-90)")
+						;
+
+				//y position scaling
+				var yScale = d3.scale.linear()
+								.range([height,0]);
+
+				//function to return a ratio rounded up to the nearest 10
+				//used for scaling Y Axis
+				var trimAndScale = function(d){
+					var values = [];
+					d.agg_data.forEach(function(d){
+						var x= d.numerator/d.denominator;
+						x = Math.ceil((x*10)+1)*10;
+						if (x > 100){
+							values.push(100);
+						} else {
+							values.push(x);}
+					});
+					return d3.max(values);
+				};
+				
+				//scale Y axis @TODO fix scaling
+				yScale.domain([0,d3.max(data.processed_result.drugs,trimAndScale)]);
+
+				//y axis def
+				var yAxis = d3.svg.axis()
+							.scale(yScale)
+							.orient("left");
+
+				//add Y Axis
+				canvas.append("g")
+	      			.attr("class", "y axis")
+	      			.attr("transform", "translate(-10,0)")
+	      			.call(yAxis)
+	      			.append("text")
+				      .attr("y", -40)
+				      .attr("x", -height/2 +margin.top)
+				      .attr("transform", "rotate(-90)")
+				      .style("text-anchor", "end")
+				      .text("Y Axis (%)");
+
+				//function for selecting colour based on data set affiliation
+				var setColour = function(d){
+						if (d.set === "network"){
+							return "black";
+						}else if (d.set === "clinic"){
+							return "steelblue";
+						}else if (d.set === "clinician"){	
+							return "red";
+						} else {
+							return "White";}
+					};
+
+				//create bars in clusters by generating a set of groups with the
+				//cluster class then putting rects in each group
+				var bars = canvas.append("g")
+					.attr("class","bars")
+					.selectAll(".cluster")
+						.data(data.processed_result.drugs)
+							.enter().append("g")
+							.attr("class","cluster")
+							.attr("transform", function(d){return "translate("+xScale(d.drug_name)+",0)";})
+							.selectAll("rect")
+								.data(function(d){ return d.agg_data;})
+								.enter().append("rect")
+									.attr("y",function(d){return yScale((d.numerator/d.denominator)*100);})
+									.attr("x",function(d){return xClusterScale(d.set);})
+									.attr("width",xClusterScale.rangeBand())
+									.attr("height", function(d){return height - yScale((d.numerator/d.denominator)*100);})
+									.attr("fill",setColour);
+
+					
+
+					
+								
+
+			});
+
+		</script>
+	</body>
+</html>
+
+
