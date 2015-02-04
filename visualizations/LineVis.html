@@ -2,17 +2,17 @@
     /*
         Author: Ryan Habibi
         Date: Jan 2015
-        
+
         Line Graph Visualization
-        
+
         Creates an SVG object containing x and y axis, title, and generating 3 lines
         out of data points provided in the JSON for network, clinic, and clinician.
     */
-    
-    
+
+
     //data needs to be valid JSON in standard HUB API line graph format
     function vis(data){
-        
+
         //define container constraints
         var margin = {top: 50, right: 50, bottom: 150, left: 75},
             width = 600 - margin.left - margin.right,
@@ -137,7 +137,7 @@
                 .attr("y", -40)
                 .attr("x", -height/2 + margin.top)
                 .attr("transform", "rotate(-90)")
-                .style("text-anchor", "end")
+                .style("text-anchor", "middle")
                 .text("Percentage of Patients (%)");
 
         //style x axis
@@ -164,7 +164,7 @@
             .attr("stroke", "black")
             .attr("stroke-width",5)
             .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
-            
+
         var clinicPath = canvas.append("g")
         .attr("class","line")
         .selectAll("path")
@@ -175,7 +175,7 @@
             .attr("stroke", "blue")
             .attr("stroke-width",2)
             .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
-        
+
         var networkPath = canvas.append("g")
             .attr("class","line")
             .selectAll("path")
