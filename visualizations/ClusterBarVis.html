@@ -1,12 +1,12 @@
-<script>	
+<script>
 	 /*
 	Author: Ryan Habibi
 	Date: Jan 2015
 	Cluster Bar Graph Visualization
-	Creates groupings of bars which deplay comparisons of network, clinic, and clinician across 
-	different ordinal categories. 
+	Creates groupings of bars which deplay comparisons of network, clinic, and clinician across
+	different ordinal categories.
 	*/
-	
+
 	//function called by the visualizer
 	function vis(data){
 
@@ -14,14 +14,15 @@
 		var margin = {top: 50, right: 50, bottom: 125, left: 75},
 			width = 600 - margin.left - margin.right,
 			height = 400 - margin.top - margin.bottom;
-					
-		//set up SVG container to contain all components 
-		var canvas = d3.select("body")
+
+		//set up SVG container to contain all components
+		var canvas = d3.select("#chart")
 			.append("svg")
 			.attr("width",width + margin.left + margin.right)
 			.attr("height",height + margin.top + margin.bottom)
-			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-		
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+			.style({'overflow':'visible'});
+
 		//append a title
 		canvas.append("g")
 	  	.attr("class", "title")
@@ -32,7 +33,7 @@
 			.style("text-decoration", "underline")
 			.text("Cluster Bar Graph Prototype");
 
-			
+
 		//variable for descrete x axis tick headings
 		var xScaleHeadings = [];
 
@@ -42,7 +43,7 @@
 		    xScaleHeadings.push(d.drug_name);});
 
 		//x position scale using date data
-		//domain set as the first 3 keys in the JSON, 
+		//domain set as the first 3 keys in the JSON,
 		//if structure modified must be changed.
 		var xScale = d3.scale.ordinal()
 			.rangeBands([0,width],0.1)
@@ -52,7 +53,7 @@
 		var xClusterScale = d3.scale.ordinal()
 			.rangeBands([0,xScale.rangeBand()])
 			.domain(["network","clinic","clinician"]);
-				
+
 		//x axis def
 		var xAxis = d3.svg.axis()
 			.scale(xScale)
@@ -89,7 +90,7 @@
 			});
 			return d3.max(values);
 		};
-		
+
 		//set y axis domain dynamically based on max value
 		yScale.domain([0,d3.max(data.processed_result.drugs,trimAndScale)]);
 
@@ -118,7 +119,7 @@
 					return "black";
 				}else if (d.set === "clinic"){
 					return "steelblue";
-				}else if (d.set === "clinician"){	
+				}else if (d.set === "clinician"){
 					return "red";
 				} else {
 					return "White";}

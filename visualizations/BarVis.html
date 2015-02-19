@@ -4,11 +4,23 @@
 	Author: Ryan Habibi
 	Date: Jan 2015
 	Bar Graph (Histogram) Visualization
-	
+
 	Generates a bar graph with three bars, used to show comparisons of at a single point in time.
 	*/
 
 	function vis(data) {
+		console.log('before');
+		var dataCopy = (JSON.parse(JSON.stringify(data)));
+		console.log(dataCopy);
+
+		//use only last point
+		data.processed_result.clinician = data.processed_result.clinician.slice(-1);
+		data.processed_result.clinic = data.processed_result.clinic.slice(-1);
+		data.processed_result.network = data.processed_result.network.slice(-1);
+
+		console.log('after');
+		console.log(data);
+
 		//define container constraints
 		var margin = {top: 50, right: 50, bottom: 75, left: 75},
 			width = 600 - margin.left - margin.right,
@@ -19,7 +31,8 @@
 			.append("svg")
 			.attr("width",width + margin.left + margin.right)
 			.attr("height",height + margin.top + margin.bottom)
-			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+			.style({'overflow':'visible'});
 
 		//append a title
 		canvas.append("g")
@@ -58,7 +71,7 @@
 		canvas.selectAll("g.x.axis g.tick text")
 			.style("text-anchor", "end")
 			.attr("dx", "-.8em")
-			.attr("dy", ".-35em")
+			.attr("dy", "-.35em")
 			.attr("transform", "rotate(-90)");
 
 		//y position scaling
@@ -144,7 +157,7 @@
 					.attr("fill","darkred")
 					.transition()
 						.duration(200)
-						.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+						.attr("height", function(d){console.log('clinician'); return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
 						.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
 	}
 </script>
