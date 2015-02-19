@@ -1,0 +1,260 @@
+<body>
+
+<script>
+function vis(data)
+{
+  //use only last point
+  data.clinician = data.clinician.slice(-1);
+  data.clinic = data.clinic.slice(-1);
+  data.network = data.network.slice(-1);
+
+  //The age ranges for the y axis
+  //cannot be programtically determined thus hardcoded and
+  //subject to change if HubAPI changes served info
+  var ageRanges =[
+  "90+",
+  "80-89",
+  "70-79",
+  "60-69",
+  "50-59",
+  "40-49",
+  "30-39",
+  "20-29",
+  "10-19",
+  "0-9"];
+
+  //putting network info into tempdata, once this is working @TODO turn eveything below
+  //into some sort of function and run for all three datasets
+  var tempData = data.clinician[0];
+
+  //find max data value for scaling both x axes
+  var maxData = 0;
+
+
+  //top level sorted by group (male,female,undefferentiated)
+  for(var group in tempData) {
+    //make sure prototyping doesn't find extra keys and exclude time stamp
+    if (tempData.hasOwnProperty(group) && group != "time") {
+
+      //data at this level set by ranges eg 0-9
+      for(var range in tempData[group]){
+        //Take the max of the dataset
+        if(tempData[group][range]>maxData) {
+          maxData = tempData[group][range];
+        }
+      }
+    }
+  }
+
+
+    //define container constraints
+    var margin = {top: 50, right: 50, bottom: 75, left: 75, inner: 60},
+    //This is half width due to the two sides of a pop pyramid
+    width = 800 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom,
+    yScale = d3.scale.ordinal().domain(ageRanges).rangeBands([0, height], 0.25),
+    //Scale for right pyramid
+    x1Scale = d3.scale.linear().domain([0, maxData]).range([0, width]),
+    //scale for left pyramid
+    x2Scale = d3.scale.linear().domain([0, maxData]).range([width, 0]);
+
+    var canvas = d3.select("#chart")
+    .append("svg:svg")
+    .attr("width", 2*width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("svg:g")
+    .attr("transform", "translate(20,15)")
+    .style({'overflow':'visible'});
+
+    //append a title
+    canvas.append("g")
+    .attr("class", "title")
+    .append("text")
+    .attr("x", width)
+    .attr("y", 1)
+    .style("text-anchor","middle")
+    .style("text-decoration", "underline")
+    .text("Population Pyramid Prototype");
+
+    //text on y axis for age ranegs
+    canvas.append("g")
+    .attr("class","yTicks")
+    .selectAll("text.ages")
+    .data(ageRanges)
+    .enter("svg:text").append("text")
+    .attr("class", "ages")
+    .attr("x", width)
+    .attr("y", function(d){return yScale(d) + yScale.rangeBand() -10;})
+    .attr("fill", "#000")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "12px")
+    .text(function(d){return d;});
+
+    //append the word age to the bot mid of graph
+    canvas.append("svg:text")
+    .attr("x", width)
+    .attr("y", height+8)
+    .attr("dy", ".71em")
+    .attr("fill", "#000")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "13px")
+    .attr("font-variant", "small-caps")
+    .attr("letter-spacing", 1)
+    .text("age");
+
+
+    //bars for females on graph
+    var fbars = canvas.append("g")
+    .attr("class","fbars")
+    .selectAll("rect.female")
+    .data(ageRanges)//iterates over the age ranges not the data for completeness
+    .enter("svg:rect").append("rect")
+    .attr("class", "female")
+    .attr("fill", "red")
+    .attr("transform",
+      function(d,i)
+      {
+        return "translate(" + ( width + margin.inner/2 ) + "," + yScale(d) + ")";
+      })
+    .attr("width",
+      function(d)
+      {
+        return x1Scale(tempData.female[d]);
+      })
+    .attr("height", yScale.rangeBand())
+    .attr("y", 0)
+    .attr("opacity", 1);
+
+    //bars for males on graph
+    var mbars = canvas.append("g")
+    .attr("class","mbars")
+    .selectAll("rect.male")
+    .data(ageRanges)
+    .enter("svg:rect").append("rect")
+    .attr("class", "male")
+    .attr("fill", "blue")
+    .attr("opacity", 1)
+    .attr("transform",
+      function(d,i)
+      {
+        return "translate("+ ( x2Scale( tempData.male[d] )-margin.inner/2 ) + "," + yScale(d) + ")";
+      })
+    .attr("width", function(d){return x1Scale(tempData.male[d]);})
+    .attr("height", yScale.rangeBand())
+    .attr("y", 0)
+    .attr("opacity", 1);
+
+    //bars for undifferentiated on graph
+    var ubars = canvas.append("g")
+    .attr("class","ubars")
+    .selectAll("rect.undifferentiated")
+    .data(ageRanges)
+    .enter("svg:rect").append("rect")
+    .attr("class", "undifferentiated")
+    .attr("fill", "grey")
+    .attr("opacity", 1)
+    .attr("transform",
+      function(d,i)
+      {
+        return "translate(" + ( x2Scale( tempData.undifferentiated[d] ) - margin.inner/2 ) + "," + yScale(d) + ")";
+      })
+    .attr("width",
+      function(d)
+      {
+        return x1Scale(tempData.undifferentiated[d]);
+      })
+    .attr("height", yScale.rangeBand()/3)
+    .attr("y", yScale.rangeBand()/3)
+    .attr("opacity", 1);
+
+
+
+    //right side (female) x axis
+    var x1Axis = d3.svg.axis()
+    .scale(x1Scale)
+    .orient("bottom");
+
+    //add right X Axis to SVG
+    canvas.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate("+ (width+margin.inner/2)+"," + height + ")")
+    .call(x1Axis)
+    .append("text")
+    .attr("x", (width )/2)
+    .attr("y", margin.bottom)
+    .style("text-anchor","middle")
+    .text("Number of Patients");
+
+    //left side (male) x axis def
+    var x2Axis = d3.svg.axis()
+    .scale(x2Scale)
+    .orient("bottom");
+
+    //add left X Axis to SVG
+    canvas.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate("+(-1*margin.inner/2)+"," + height + ")")
+    .call(x2Axis)
+    .append("text")
+    .attr("x", (width )/2)
+    .attr("y", margin.bottom)
+    .style("text-anchor","middle")
+    .text("Number of Patients");
+
+    //add vertical lines to boarder y Axis on both sides
+    canvas.append("svg:line")
+    .attr("y1", 9)
+    .attr("y2", height)
+    .attr("x1", width-margin.inner/2)
+    .attr("x2", width-margin.inner/2);
+    canvas.append("svg:line")
+    .attr("y1", 9)
+    .attr("y2", height)
+    .attr("x1", width+margin.inner/2)
+    .attr("x2", width+margin.inner/2);
+
+
+    //mapping for colour selection and legend
+    var colorMap = {male:"blue",female:"red",undifferentiated:"grey"};
+
+    //size for colour suqares in legend
+    var legendRectSize = 15;
+    //shift value for each legend entry
+    var legendSpacing = 20;
+
+    //add a container for the legend
+    var legend = canvas.append('g')
+    .attr('class', 'legend');
+
+    //append a background for the legend
+    legend.append('rect')
+    //transform neg-ive so the left and top are around the legend item
+    .attr("transform","translate(-5,-5)")
+    .attr('width', 140)  //values chosen based on info being displayed
+    .attr('height', 65)
+    .style('fill', "lightgrey");
+
+    //create legend entires and for each add a colour block and text
+    legend.selectAll('.legendEntry')
+    .data(Object.keys(colorMap))
+    .enter().append("g")
+    .attr('class', 'legendEntry')
+    .attr("transform",function(d,i){return "translate(0," + legendSpacing*i +")";})
+    .call(function(d){
+
+      //append entry text
+      d.append('text')
+      .text(function(d) { return d; })
+      .attr("transform",function(d,i){return "translate("+(legendRectSize*1.5)+",12)";});
+
+      //append colour square
+      d.append('rect')
+      .attr('width', legendRectSize)
+      .attr('height', legendRectSize)
+      .style('fill', function(d){return colorMap[d];})
+      .style('stroke', function(d){return colorMap[d];});
+    });
+}
+
+
+</script>
