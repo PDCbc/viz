@@ -125,6 +125,28 @@ function vis(data)
     .attr("y", 0)
     .attr("opacity", 1);
 
+    //bars for undefined on graph
+    var dbars = canvas.append("g")
+    .attr("class","dbars")
+    .selectAll("rect.undef")
+    .data(ageRanges)//iterates over the age ranges not the data for completeness
+    .enter("svg:rect").append("rect")
+    .attr("class", "undef")
+    .attr("fill", "#FFAAAA")
+    .attr("transform",
+    function(d,i)
+    {
+      return "translate(" + ( width + margin.inner/2 ) + "," + yScale(d) + ")";
+    })
+    .attr("width",
+    function(d)
+    {
+      return x1Scale(tempData.undefined[d]);
+    })
+    .attr("height", yScale.rangeBand()/3)
+    .attr("y", yScale.rangeBand()/3)
+    .attr("opacity", 1);
+
     //bars for males on graph
     var mbars = canvas.append("g")
     .attr("class","mbars")
@@ -151,7 +173,7 @@ function vis(data)
     .data(ageRanges)
     .enter("svg:rect").append("rect")
     .attr("class", "undifferentiated")
-    .attr("fill", "grey")
+    .attr("fill", "#AAAAFF")
     .attr("opacity", 1)
     .attr("transform",
       function(d,i)
@@ -215,7 +237,7 @@ function vis(data)
 
 
     //mapping for colour selection and legend
-    var colorMap = {male:"blue",female:"red",undifferentiated:"grey"};
+    var colorMap = {male:"blue",female:"red",undifferentiated:"#8888FF", undefined:"#FF8888"};
 
     //size for colour suqares in legend
     var legendRectSize = 15;
@@ -231,7 +253,7 @@ function vis(data)
     //transform neg-ive so the left and top are around the legend item
     .attr("transform","translate(-5,-5)")
     .attr('width', 140)  //values chosen based on info being displayed
-    .attr('height', 65)
+    .attr('height', 85)
     .style('fill', "lightgrey");
 
     //create legend entires and for each add a colour block and text
