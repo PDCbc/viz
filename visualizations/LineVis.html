@@ -1,3 +1,27 @@
+<style>
+
+  .axis path,
+  .axis line {
+    stroke: Black;
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 125px;
+    height: 40px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+</style>
+
 <script>
     /*
         Author: Ryan Habibi
@@ -8,7 +32,34 @@
         Creates an SVG object containing x and y axis, title, and generating 3 lines
         out of data points provided in the JSON for network, clinic, and clinician.
     */
+    var colorMap = {clinician: 'lightSlateGray', clinic: 'royalBlue', network: 'lightCoral'};
+    //@WiP create the tooltip div
+    var div = d3.select("#chart").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
+    var formatTime = d3.time.format("%a %b %d %Y");
+
+    function toolTipMouseOver(d, src)
+    {
+        div.transition()
+        .duration(200)
+        .style("opacity", 0.9);
+        div.html(
+          "Date: "+ formatTime(d.time) + "<br/>" +
+          "Num of Patients:" + d.aggregate_result.numerator + "<br/>" +
+          "Total Patients:" + d.aggregate_result.denominator)
+        .style({"left": (d3.event.pageX) + "px",
+                "top": (d3.event.pageY - 28) + "px",
+                "background":colorMap[src]});
+    }
+
+    function toolTipMouseOut(d)
+    {
+      div.transition()
+      .duration(500)
+      .style("opacity", 0);
+    }
 
     //data needs to be valid JSON in standard HUB API line graph format
     function vis(data){
@@ -194,7 +245,9 @@
             .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
             .attr("fill","black")
             .attr("r",7)
-            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")")
+            .on("mouseover", function (d){toolTipMouseOver(d, 'clinician');})
+            .on("mouseout", toolTipMouseOut);
 
         var clinicPoints = canvas.append("g")
         .attr("class","points")
@@ -207,7 +260,9 @@
             .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
             .attr("fill","blue")
             .attr("r",4)
-            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")")
+            .on("mouseover", function (d){toolTipMouseOver(d, 'clinic');})
+            .on("mouseout", toolTipMouseOut);
 
         var networkPoints = canvas.append("g")
             .attr("class","points")
@@ -220,6 +275,53 @@
                 .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
                 .attr("fill","red")
                 .attr("r",2)
-                .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+                .attr("transform", "translate(60," + (margin.top/2 + 20) + ")")
+                .on("mouseover", function (d){toolTipMouseOver(d, 'network');})
+                .on("mouseout", toolTipMouseOut);
+
+        //mapping for colour selection and legend
+        var colorMap = {male:"blue",female:"red",undifferentiated:"#8888FF", undefined:"#FF8888"};
+
+        //size for colour suqares in legend
+        var legendRectSize = 16;
+        //shift value for each legend entry
+        var legendSpacing = 20;
+
+        var legendWidth = 180;
+        var legendHeight = 86;
+        //add a container for the legend
+        var legend = canvas.append('g')
+        .attr('class', 'legend')
+        .attr("transform","scale(0.5, 0.5) translate(" + (width*2 - 20) + ", 100)");
+
+        //append a background for the legend
+        legend.append('rect')
+        //transform neg-ive so the left and top are around the legend item
+        .attr('width', 180)  //values chosen based on info being displayed
+        .attr('height', 85)
+        .style('fill', "lightgrey");
+
+        //create legend entires and for each add a colour block and text
+        legend.selectAll('.legendEntry')
+        .data(Object.keys(colorMap))
+        .enter().append("g")
+        .attr('class', 'legendEntry')
+        .attr("transform",function(d,i){return "translate(0," + legendSpacing*i +")";})
+        .call(function(d){
+
+          //append entry text
+          d.append('text')
+          .style({"text-anchor":"start","text-decoration":"underline", "font-size":"14pt"})
+          .text(function(d) { return d; })
+          .attr("transform",function(d,i){return "translate(" + (legendRectSize*1.5 + 10) + ",17)";});
+
+          //append colour square
+          d.append('rect')
+          .attr('width', legendRectSize)
+          .attr('height', legendRectSize)
+          .attr("transform", "translate(5, 5)")
+          .style('fill', function(d){return colorMap[d];})
+          .style('stroke', function(d){return colorMap[d];});
+        });
     }
 </script>

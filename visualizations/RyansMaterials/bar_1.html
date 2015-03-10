@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-	
+
 	<head>
 		<title>Bar Page</title>
 		<script src="http://d3js.org/d3.v3.min.js">	</script>
 		<meta charset="utf-8">
-		
+
 	</head>
 
-	<body>	
-		<script>	
+	<body>
+		<script>
 
 			//define container constraints
 			var margin = {top: 50, right: 50, bottom: 75, left: 75},
     			width = 600 - margin.left - margin.right,
     			height = 400 - margin.top - margin.bottom;
-						
-			//set up SVG container to contain all components 
+
+			//set up SVG container to contain all components
 			var canvas = d3.select("body")
 				.append("svg")
 				.attr("width",width + margin.left + margin.right)
 				.attr("height",height + margin.top + margin.bottom)
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-			
+
 			//append a title
       		canvas.append("g")
 		      	.attr("class", "title")
@@ -36,14 +36,14 @@
 			//import data, later replaced with function param
 			d3.json("sampleBAR.json",
 				function(error,data){
-					
+
 		    		//x position scale using date data
-		    		//domain set as the first 3 keys in the JSON, 
+		    		//domain set as the first 3 keys in the JSON,
 		    		//if structure modified must be changed.
 					var xScale = d3.scale.ordinal()
 									.rangeBands([0,width],0.1)
 									.domain(d3.keys(data.processed_result));
-							
+
 					//x axis def
 					var xAxis = d3.svg.axis()
 								.scale(xScale)
@@ -53,7 +53,7 @@
 					canvas.append("g")
 		      			.attr("class", "x axis")
 		      			.attr("transform", "translate(0," + height + ")")
-		      			.call(xAxis) 
+		      			.call(xAxis)
 						.append("text")
 							.attr("x", (width )/2)
 							.attr("y", margin.bottom)
@@ -63,8 +63,8 @@
 					//Rotate and move X Axis ticks for vertical write and align
 					canvas.selectAll("g.x.axis g.tick text")
 							.style("text-anchor", "end")
-							.attr("dx", "-.8em")
-            				.attr("dy", ".-35em")
+							.attr("dx", "-0.8em")
+            				.attr("dy", "-0.35em")
 							.attr("transform", "rotate(-90)")
 							;
 
@@ -82,7 +82,7 @@
 						} else {
 							return x;}
 					};
-					
+
 					//scale Y axis
 					yScale.domain([0,d3.max([
 									d3.max(data.processed_result.network),
@@ -125,7 +125,7 @@
 									.duration(4000)
 									.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
 									.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
-					
+
 					var bar2 = canvas.append("g")
 						.attr("class","bars")
 						.selectAll(".bar")
@@ -155,12 +155,10 @@
 									.duration(4000)
 									.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
 									.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
-								
+
 
 			});
 
 		</script>
 	</body>
 </html>
-
-

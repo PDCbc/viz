@@ -144,5 +144,50 @@
 					.attr("height", function(d){return height - yScale((d.numerator/d.denominator)*100);})
 					.attr("fill",setColour);
 
+					//mapping for colour selection and legend
+					var colorMap = {male:"blue",female:"red",undifferentiated:"#8888FF", undefined:"#FF8888"};
+
+					//size for colour suqares in legend
+					var legendRectSize = 15;
+					//shift value for each legend entry
+					var legendSpacing = 20;
+
+					var legendWidth = 180;
+					var legendHeight = 85;
+					//add a container for the legend
+					var legend = canvas.append('g')
+					.attr('class', 'legend')
+					.attr("transform","translate(" + (width-legendWidth-5) + ", 25)");
+
+					//append a background for the legend
+					legend.append('rect')
+					//transform neg-ive so the left and top are around the legend item
+					.attr('width', 180)  //values chosen based on info being displayed
+					.attr('height', 85)
+					.style('fill', "lightgrey");
+
+					//create legend entires and for each add a colour block and text
+					legend.selectAll('.legendEntry')
+					.data(Object.keys(colorMap))
+					.enter().append("g")
+					.attr('class', 'legendEntry')
+					.attr("transform",function(d,i){return "translate(0," + legendSpacing*i +")";})
+					.call(function(d){
+
+						//append entry text
+						d.append('text')
+						.style({"text-anchor":"start","text-decoration":"underline", "font-size":"14pt"})
+						.text(function(d) { return d; })
+						.attr("transform",function(d,i){return "translate(" + (legendRectSize*1.5 + 10) + ",17)";});
+
+						//append colour square
+						d.append('rect')
+						.attr('width', legendRectSize)
+						.attr('height', legendRectSize)
+						.attr("transform", "translate(5, 5)")
+						.style('fill', function(d){return colorMap[d];})
+						.style('stroke', function(d){return colorMap[d];});
+					});
+
 	}
 </script>

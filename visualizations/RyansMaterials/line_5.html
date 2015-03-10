@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-	
+
 	<head>
 		<title>Line Page</title>
 		<script src="http://d3js.org/d3.v3.min.js">	</script>
 		<meta charset="utf-8">
-		
+
 	</head>
 
 	<style>
@@ -18,17 +18,17 @@
   		shape-rendering: crispEdges;
   	}
 
-	div.tooltip {   
-		position: absolute;           
-		text-align: center;           
-		width: 125px;                  
-		height: 40px;                 
-		padding: 2px;             
-		font: 12px sans-serif;        
-		background: lightsteelblue;   
-		border: 0px;      
-		border-radius: 8px;           
-		pointer-events: none;         
+	div.tooltip {
+		position: absolute;
+		text-align: center;
+		width: 125px;
+		height: 40px;
+		padding: 2px;
+		font: 12px sans-serif;
+		background: lightsteelblue;
+		border: 0px;
+		border-radius: 8px;
+		pointer-events: none;
 	}
 
 	</style>
@@ -37,7 +37,7 @@
 
 		<script>
 
-			//@TODO 
+			//@TODO
 			//count entries and set X Axis ticks to highest entry count
 
 			// d3.selectAll("g.x.axis g.tick text")
@@ -68,14 +68,14 @@
 			var yAxis = d3.svg.axis()
 						.scale(yScale)
 						.orient("left");
-						
-			//set up SVG container to contain all components 
+
+			//set up SVG container to contain all components
 			var canvas = d3.select("body")
 				.append("svg")
 				.attr("width",width + margin.left + margin.right)
 				.attr("height",height + margin.top + margin.bottom)
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-			
+
 			//append a title
       		canvas.append("g")
 		      	.attr("class", "title")
@@ -89,7 +89,7 @@
 
 			//Line functions to build path from JSON
 			var line = d3.svg.line()
-						.x(function(d){return xScale(d.time);}) 
+						.x(function(d){return xScale(d.time);})
 						.y(function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);});
 
 			d3.json("sampleBMI.json",
@@ -113,7 +113,7 @@
   							Object.keys(data.processed_result.clinic).length,
   							Object.keys(data.processed_result.clinician).length
   						));
-  					
+
 					//set the domain to the absolute min and max of the 3 data sets
 					xScale.domain(
 							[
@@ -123,8 +123,7 @@
 									d3.min(data.processed_result.clinic,function(d){return d.time;}),
 									d3.min(data.processed_result.clinician,function(d){return d.time;})
 									]
-								)
-							,
+								),
 								d3.max(
 									[
 									d3.max(data.processed_result.network,function(d){return d.time;}),
@@ -145,7 +144,7 @@
 						} else {
 							return x;}
 					};
-					
+
 
 					//scale Y axis
 					yScale.domain([0,d3.max([
@@ -158,13 +157,13 @@
 					canvas.append("g")
 		      			.attr("class", "x axis")
 		      			.attr("transform", "translate(0," + height + ")")
-		      			.call(xAxis) 
+		      			.call(xAxis)
 						.append("text")
 							.attr("x", (width )/2)
 							.attr("y", margin.bottom)
 							.style("text-anchor","middle")
 							.text("X Axis (Time)");
-					
+
 					//Rotate and move X Axis ticks for vertical write and align
 					canvas.selectAll("g.x.axis g.tick text")
 							.style("text-anchor", "start")
@@ -189,7 +188,7 @@
 					var networkPath = canvas.append("g")
       					.attr("class","line")
 						.selectAll("path")
-							.data([data.processed_result.network]) 
+							.data([data.processed_result.network])
 							.enter().append("path")
 								.attr("d", line)
 								.attr("fill", "none")
@@ -213,7 +212,7 @@
 					var clinicPath = canvas.append("g")
       					.attr("class","line")
 						.selectAll("path")
-							.data([data.processed_result.clinic]) 
+							.data([data.processed_result.clinic])
 							.enter().append("path")
 								.attr("d", line)
 								.attr("fill", "none")
@@ -221,8 +220,8 @@
 								.attr("stroke-width",3);
 
 					//@WiP create the tooltip div
-					var div = d3.select("body").append("div")   
-					    .attr("class", "tooltip")               
+					var div = d3.select("body").append("div")
+					    .attr("class", "tooltip")
 					    .style("opacity", 0);
 
 					//TEMP
@@ -241,26 +240,26 @@
 								.attr("onmouseover", "evt.target.setAttribute('r', '10');")
 								.attr("onmouseout", "evt.target.setAttribute('r', '7');")
 								.on("mouseover", function(d) {
-									div.transition()        
-										.duration(200)      
-										.style("opacity", .9);     
-									div.html("Date: "+ formatTime(d["time"])+"<br/>"+  
-										"Num of Patients:"+d["aggregate_result"]["numerator"]+"<br/>"+  
-										"Total Patients:"+d["aggregate_result"]["denominator"])  
-										.style("left", (d3.event.pageX) + "px")     
-										.style("top", (d3.event.pageY - 28) + "px");    
-								})                  
-								.on("mouseout", function(d) {       
-									div.transition()        
-										.duration(500)      
-										.style("opacity", 0);   
+									div.transition()
+										.duration(200)
+										.style("opacity", .9);
+									div.html("Date: "+ formatTime(d["time"])+"<br/>"+
+										"Num of Patients:"+d["aggregate_result"]["numerator"]+"<br/>"+
+										"Total Patients:"+d["aggregate_result"]["denominator"])
+										.style("left", (d3.event.pageX) + "px")
+										.style("top", (d3.event.pageY - 28) + "px");
+								})
+								.on("mouseout", function(d) {
+									div.transition()
+										.duration(500)
+										.style("opacity", 0);
 								});
 
 					//create and append paths for line data
 					var clinicianPath = canvas.append("g")
       					.attr("class","line")
 						.selectAll("path")
-							.data([data.processed_result.clinician]) 
+							.data([data.processed_result.clinician])
 							.enter().append("path")
 								.attr("d", line)
 								.attr("fill", "none")
