@@ -15,7 +15,6 @@
     height: 40px;
     padding: 2px;
     font: 12px sans-serif;
-    background: lightsteelblue;
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
@@ -36,7 +35,7 @@
     //@WiP create the tooltip div
     var div = d3.select("#chart").append("div")
     .attr("class", "tooltip")
-    .style("opacity", 0);
+    .style({"opacity":0, "width":"150"});
 
     var formatTime = d3.time.format("%a %b %d %Y");
 
@@ -192,6 +191,12 @@
                 .style({"text-anchor":"middle", "font-size":"12pt"})
                 .text("Percentage of Patients (%)");
 
+        //rotate and move Y Axis ticks for vertical write and align
+        canvas.selectAll("g.yaxis g.tick text")
+        .style({"text-anchor":"start", "font-size":"12pt"})
+        .attr("dx", "-20px")
+        .attr("dy", "0px");
+
         //rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.xaxis g.tick text")
         .style({"text-anchor":"start", "font-size":"12pt"})
@@ -280,7 +285,7 @@
                 .on("mouseout", toolTipMouseOut);
 
         //mapping for colour selection and legend
-        var colorMap = {male:"blue",female:"red",undifferentiated:"#8888FF", undefined:"#FF8888"};
+        var colorMap = {network:"red", clinic:"blue", clinician:"black"};
 
         //size for colour suqares in legend
         var legendRectSize = 16;
@@ -298,7 +303,7 @@
         legend.append('rect')
         //transform neg-ive so the left and top are around the legend item
         .attr('width', 180)  //values chosen based on info being displayed
-        .attr('height', 85)
+        .attr('height', 65)
         .style('fill', "lightgrey");
 
         //create legend entires and for each add a colour block and text
