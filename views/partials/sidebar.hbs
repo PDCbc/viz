@@ -4,7 +4,7 @@
     <ul class="nav navmenu-nav">
       <li>
         <a class="navmenu-header" href="#/queries">
-          <i class="fa fa-bullseye">PDC Visualizations</i>
+          PDC Visualizations
         </a>
       </li>
     </ul>
@@ -12,7 +12,7 @@
     <ul id="queries" class="nav navmenu-nav">
       {{#each pdc_queries}}
         <li>
-          <i class="fa fa-eye" style="color:#AAAAAA">
+          <i class="fa fa-bar-chart" style="color:#AAAAAA">
             <a href="/visualization/{{title}}/{{../user.clinic}}/{{../user.clinician}}/"  data-toggle="tooltip" data-placement="right" title="{{title}}">{{description}}</a>
           </i>
         </li>
@@ -22,7 +22,7 @@
     <ul class="nav navmenu-nav">
       <li>
         <a class="navmenu-header" href="#/queries">
-          <i class="fa fa-bullseye">Integrity Visualizations</i>
+          Integrity Visualizations
         </a>
       </li>
     </ul>
@@ -30,7 +30,7 @@
     <ul id="queries" class="nav navmenu-nav">
       {{#each integrity_queries}}
       <li>
-        <i class="fa fa-eye" style="color:#AAAAAA">
+        <i class="fa fa-bar-chart" style="color:#AAAAAA">
           <a href="/integrity_visualization/{{title}}/{{../user.clinic}}/{{../user.clinician}}/36"  data-toggle="tooltip" data-placement="right" title="{{title}}">{{description}}</a>
         </i>
       </li>
