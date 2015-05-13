@@ -156,6 +156,18 @@ div.tooltip {
 		//Bars(rects) for display. Due to JSON formatting the easiest way is
 		//to create them seperatly.
 
+		function getDelta(d)
+		{
+			if(d.aggregate_result.denominator === 0)
+			{
+				return height;
+			}
+			else
+			{
+				return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);
+			}
+		}
+
 		var bar3 = canvas.append("g")
 			.attr("class","bars")
 			.selectAll(".bar")
@@ -166,8 +178,11 @@ div.tooltip {
 			.attr("width", xScale.rangeBand())
 			.attr("height", 0)
 			.attr("fill","black")
-			.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-			.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+			.attr("height",
+				function(d){
+					return height - getDelta(d);
+				})
+			.attr("y", function(d){return getDelta(d);})
 			.on("mouseover", function (d){toolTipMouseOver(d, 'clinician');})
 			.on("mouseout", toolTipMouseOut);
 
@@ -181,8 +196,8 @@ div.tooltip {
 					.attr("width", xScale.rangeBand())
 					.attr("height", 0)
 					.attr("fill","steelblue")
-					.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-					.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+					.attr("height", function(d){return height - getDelta(d);})
+					.attr("y", function(d){return getDelta(d);})
 					.on("mouseover", function (d){toolTipMouseOver(d, 'clinic');})
 					.on("mouseout", toolTipMouseOut);
 
@@ -196,8 +211,8 @@ div.tooltip {
 			.attr("width", xScale.rangeBand())
 			.attr("height", 0)
 			.attr("fill","red")
-			.attr("y", function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
-			.attr("height", function(d){return height - yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+			.attr("y", function(d){return getDelta(d);})
+			.attr("height", function(d){return height - getDelta(d);})
 			.on("mouseover", function (d){toolTipMouseOver(d, 'network');})
 			.on("mouseout", toolTipMouseOut);
 

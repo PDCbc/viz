@@ -124,7 +124,7 @@ div.tooltip {
 		var trimAndScale = function(d){
 			var values = [];
 			d.agg_data.forEach(function(d){
-				var x= d.numerator/d.denominator;
+				var x= (d.denominator===0) ? 0 : d.numerator/d.denominator;
 				x = Math.ceil((x*10)+1)*10;
 				if (x > 100){
 					values.push(100);

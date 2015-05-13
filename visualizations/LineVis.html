@@ -205,38 +205,59 @@
         .attr("transform", "rotate(90)");
 
         //create and append paths using line data
-        var clinicianPath = canvas.append("g")
-        .attr("class","line")
-        .selectAll("path")
-        .data([data.processed_result.clinician])
-        .enter().append("path")
-            .attr("d", line)
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width",5)
-            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        if(data.processed_result.clinician.length>1)
+        {
+          var clinicianPath = canvas.append("g")
+          .attr("class","line")
+          .selectAll("path")
+          .data([data.processed_result.clinician])
+          .enter().append("path")
+              .attr("d", line)
+              .attr("fill", "none")
+              .attr("stroke", "black")
+              .attr("stroke-width",5)
+              .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        }
 
-        var clinicPath = canvas.append("g")
-        .attr("class","line")
-        .selectAll("path")
-        .data([data.processed_result.clinic])
-        .enter().append("path")
-            .attr("d", line)
-            .attr("fill", "none")
-            .attr("stroke", "blue")
-            .attr("stroke-width",2)
-            .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        if(data.processed_result.clinic.length>1)
+        {
+          var clinicPath = canvas.append("g")
+          .attr("class","line")
+          .selectAll("path")
+          .data([data.processed_result.clinic])
+          .enter().append("path")
+              .attr("d", line)
+              .attr("fill", "none")
+              .attr("stroke", "blue")
+              .attr("stroke-width",2)
+              .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        }
 
-        var networkPath = canvas.append("g")
-            .attr("class","line")
-            .selectAll("path")
-            .data([data.processed_result.network])
-            .enter().append("path")
-                .attr("d", line)
-                .attr("fill", "none")
-                .attr("stroke", "red")
-                .attr("stroke-width",1)
-                .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        if(data.processed_result.clinician.length>1)
+        {
+          var networkPath = canvas.append("g")
+              .attr("class","line")
+              .selectAll("path")
+              .data([data.processed_result.network])
+              .enter().append("path")
+                  .attr("d", line)
+                  .attr("fill", "none")
+                  .attr("stroke", "red")
+                  .attr("stroke-width",1)
+                  .attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+        }
+        
+        function getDelta(d)
+    		{
+    			if(d.aggregate_result.denominator === 0)
+    			{
+    				return height;
+    			}
+    			else
+    			{
+    				return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);
+    			}
+    		}
 
         //add circles for points to make clear when there is a recorded value
         var clinicianPoints = canvas.append("g")
@@ -247,7 +268,7 @@
             .attr("onmouseover", "evt.target.setAttribute('r', '10');")
             .attr("onmouseout", "evt.target.setAttribute('r', '7');")
             .attr("cx",function(d){return xScale(d.time);})
-            .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+            .attr("cy",function(d){return getDelta(d);})
             .attr("fill","black")
             .attr("r",7)
             .attr("transform", "translate(60," + (margin.top/2 + 20) + ")")
@@ -262,7 +283,7 @@
             .attr("onmouseover", "evt.target.setAttribute('r', '10');")
             .attr("onmouseout", "evt.target.setAttribute('r', '5');")
             .attr("cx",function(d){return xScale(d.time);})
-            .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+            .attr("cy",function(d){return getDelta(d);})
             .attr("fill","blue")
             .attr("r",4)
             .attr("transform", "translate(60," + (margin.top/2 + 20) + ")")
@@ -277,7 +298,7 @@
                 .attr("onmouseover", "evt.target.setAttribute('r', '10');")
                 .attr("onmouseout", "evt.target.setAttribute('r', '2');")
                 .attr("cx",function(d){return xScale(d.time);})
-                .attr("cy",function(d){return yScale((d.aggregate_result.numerator/d.aggregate_result.denominator)*100);})
+                .attr("cy",function(d){return getDelta(d);})
                 .attr("fill","red")
                 .attr("r",2)
                 .attr("transform", "translate(60," + (margin.top/2 + 20) + ")")
