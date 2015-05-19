@@ -22,6 +22,24 @@
     <ul class="nav navmenu-nav">
       <li>
         <a class="navmenu-header" href="#/queries">
+          Reports
+        </a>
+      </li>
+    </ul>
+
+    <ul id="queries" class="nav navmenu-nav">
+      {{#each reports}}
+      <li>
+        <i class="fa fa-bar-chart" style="color:#AAAAAA">
+          <a href="/report/{{shortTitle}}"  data-toggle="tooltip" data-placement="right" title="{{title}}">{{title}}</a>
+        </i>
+      </li>
+      {{/each}}
+    </ul>
+
+    <ul class="nav navmenu-nav">
+      <li>
+        <a class="navmenu-header" href="#/queries">
           Integrity Visualizations
         </a>
       </li>
