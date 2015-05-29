@@ -35,7 +35,7 @@ div.tooltip {
 		.duration(200)
 		.style("opacity", 0.9);
 		div.html(
-			"Date: "+ formatTime(new Date(d.time)) + "<br/>" +
+			"Date: "+ formatTime(new Date(d.time*1000)) + "<br/>" +
 			"Num of Patients:" + d.numerator + "<br/>" +
 			"Total Patients:" + d.denominator)
 			.style({"left": (d3.event.pageX) + "px",
@@ -52,6 +52,8 @@ div.tooltip {
 
 	//function called by the visualizer
 	function vis(data){
+
+		console.log(JSON.stringify(data));
 
 		//define container constraints
 		var margin = {top: 50, right: 50, bottom: 125, left: 75},
