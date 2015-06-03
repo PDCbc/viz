@@ -21,7 +21,7 @@ div.tooltip {
 	different ordinal categories.
 	*/
 
-	var toolTipColorMap = {clinician: 'lightSlateGray', clinic: 'royalBlue', network: 'lightCoral'};
+	var toolTipColorMap = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
 	//@WiP create the tooltip div
 	var div = d3.select("#chart").append("div")
 	.attr("class", "tooltip")
@@ -97,7 +97,7 @@ div.tooltip {
 		//define a scale to organize within each cluster
 		var xClusterScale = d3.scale.ordinal()
 			.rangeBands([0,xScale.rangeBand()])
-			.domain(["network","clinic","clinician"]);
+			.domain(["network","group","clinician"]);
 
 		//x axis def
 		var xAxis = d3.svg.axis()
@@ -163,7 +163,7 @@ div.tooltip {
 		var setColour = function(d){
 				if (d.set === "clinician"){
 					return "black";
-				}else if (d.set === "clinic"){
+				}else if (d.set === "group"){
 					return "steelblue";
 				}else if (d.set === "network"){
 					return "red";
@@ -192,7 +192,7 @@ div.tooltip {
 					.on("mouseout", toolTipMouseOut);
 
 		//mapping for colour selection and legend
-		var colorMap = {network:"red", clinic:"blue", clinician:"black"};
+		var colorMap = {network:"red", group:"blue", clinician:"black"};
 
 		//size for colour suqares in legend
 		var legendRectSize = 15;
