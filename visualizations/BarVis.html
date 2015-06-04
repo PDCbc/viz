@@ -2,9 +2,9 @@
 div.tooltip {
 	position: absolute;
 	text-align: center;
-	width: 125px;
-	height: 44px;
-	padding: 2px;
+	width: 130px;
+	height: 75px;
+	padding: 5px;
 	font: 12px sans-serif;
 	border: 0px;
 	border-radius: 8px;
@@ -28,15 +28,17 @@ div.tooltip {
 	.attr("class", "tooltip")
 	.style({"opacity":0, "width":"150"});
 
-	var formatTime = d3.time.format("%a %b %d %Y");
+	var formatTime = d3.time.format("%Y-%M-%d");
 
-	function toolTipMouseOver(d, src)
+	function toolTipMouseOver(d, src, name)
 	{
 		div.transition()
 		.duration(200)
 		.style("opacity", 0.9);
 		div.html(
-			"Date: "+ formatTime(new Date(d.time)) + "<br/>" +
+			name + "<br/>"+
+			"Date: "+ formatTime(new Date(d.time*1000)) + "<br/>" +
+			"Ratio: "+ ( (d.aggregate_result.numerator / d.aggregate_result.denominator )*100).toFixed(2) + " %<br/>" +
 			"Num of Patients:" + d.aggregate_result.numerator + "<br/>" +
 			"Total Patients:" + d.aggregate_result.denominator)
 			.style({"left": (d3.event.pageX) + "px",
@@ -82,12 +84,19 @@ div.tooltip {
 				.style({"text-anchor":"middle","text-decoration":"underline","font-size":"18pt"})
 				.text(data.description);
 
+
+		tmpXScale = [
+			data.processed_result.network[0].display_name,
+			data.processed_result.group[0].display_name,
+			data.processed_result.clinician[0].display_name
+		];	
+
 		//x position scale using date data
 		//domain set as the first 3 keys in the JSON,
 		//if structure modified must be changed.
 		var xScale = d3.scale.ordinal()
 			.rangeBands([0,width],0.1)
-			.domain(d3.keys(data.processed_result).reverse());
+			.domain(tmpXScale);
 
 		//x axis scale
 		var xAxis = d3.svg.axis()
@@ -101,7 +110,7 @@ div.tooltip {
 			.call(xAxis)
 			.append("text")
 				.attr("x", (width )/2)
-				.attr("y", margin.bottom)
+				.attr("y", margin.bottom+50)
 				.style({"text-anchor":"middle","font-size":"14pt"})
 				.text("Perspective");
 
@@ -109,8 +118,8 @@ div.tooltip {
 		canvas.selectAll("g.x.axis g.tick text")
 			.style({"text-anchor":"end","font-size":"14pt"})
 			.attr("dx", "-0.5em")
-			.attr("dy", "-.35em")
-			.attr("transform", "rotate(-90)");
+			.attr("dy", "1em")
+			.attr("transform", "rotate(-45)");
 
 		//y position scaling
 		var yScale = d3.scale.linear()
@@ -174,7 +183,7 @@ div.tooltip {
 			.selectAll(".bar")
 			.data(data.processed_result.clinician)
 			.enter().append("rect")
-			.attr("x", xScale("clinician"))
+			.attr("x", xScale(data.processed_result.clinician[0].display_name))
 			.attr("y",yScale(0))
 			.attr("width", xScale.rangeBand())
 			.attr("height", 0)
@@ -184,7 +193,7 @@ div.tooltip {
 					return height - getDelta(d);
 				})
 			.attr("y", function(d){return getDelta(d);})
-			.on("mouseover", function (d){toolTipMouseOver(d, 'clinician');})
+			.on("mouseover", function (d){toolTipMouseOver(d, 'clinician', data.processed_result.clinician[0].display_name);})
 			.on("mouseout", toolTipMouseOut);
 
 		var bar2 = canvas.append("g")
@@ -192,14 +201,14 @@ div.tooltip {
 			.selectAll(".bar")
 				.data(data.processed_result.group)
 				.enter().append("rect")
-					.attr("x", xScale("group"))
+					.attr("x", xScale(data.processed_result.group[0].display_name))
 					.attr("y",yScale(0))
 					.attr("width", xScale.rangeBand())
 					.attr("height", 0)
 					.attr("fill","steelblue")
 					.attr("height", function(d){return height - getDelta(d);})
 					.attr("y", function(d){return getDelta(d);})
-					.on("mouseover", function (d){toolTipMouseOver(d, 'group');})
+					.on("mouseover", function (d){toolTipMouseOver(d, 'group',data.processed_result.group[0].display_name);})
 					.on("mouseout", toolTipMouseOut);
 
 		var bar1 = canvas.append("g")
@@ -207,14 +216,14 @@ div.tooltip {
 			.selectAll(".bar")
 			.data(data.processed_result.network)
 			.enter().append("rect")
-			.attr("x", xScale("network"))
+			.attr("x", xScale(data.processed_result.network[0].display_name))
 			.attr("y",yScale(0))
 			.attr("width", xScale.rangeBand())
 			.attr("height", 0)
 			.attr("fill","red")
 			.attr("y", function(d){return getDelta(d);})
 			.attr("height", function(d){return height - getDelta(d);})
-			.on("mouseover", function (d){toolTipMouseOver(d, 'network');})
+			.on("mouseover", function (d){toolTipMouseOver(d, 'network',data.processed_result.network[0].display_name);})
 			.on("mouseout", toolTipMouseOut);
 
 			//mapping for colour selection and legend
@@ -250,7 +259,7 @@ div.tooltip {
 				//append entry text
 				d.append('text')
 				.style({"text-anchor":"start","text-decoration":"underline", "font-size":"14pt"})
-				.text(function(d) { return d; })
+				.text(function(d) { return data.processed_result[d][0].display_name; })
 				.attr("transform",function(d,i){return "translate(" + (legendRectSize*1.5 + 10) + ",17)";});
 
 				//append colour square

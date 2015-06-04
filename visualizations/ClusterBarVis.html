@@ -2,9 +2,9 @@
 div.tooltip {
 	position: absolute;
 	text-align: center;
-	width: 125px;
-	height: 40px;
-	padding: 2px;
+	width: 130px;
+	height: 75px;
+	padding: 6px;
 	font: 12px sans-serif;
 	border: 0px;
 	border-radius: 8px;
@@ -21,21 +21,23 @@ div.tooltip {
 	different ordinal categories.
 	*/
 
-	var toolTipColorMap = {clinician: 'lightSlateGray', clinic: 'royalBlue', network: 'lightCoral'};
+	var toolTipColorMap = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
 	//@WiP create the tooltip div
 	var div = d3.select("#chart").append("div")
 	.attr("class", "tooltip")
 	.style({"opacity":0, "width":"150"});
 
-	var formatTime = d3.time.format("%a %b %d %Y");
+	var formatTime = d3.time.format("%Y-%M-%d");
 
-	function toolTipMouseOver(d, src)
+	function toolTipMouseOver(d, src, name)
 	{
 		div.transition()
 		.duration(200)
 		.style("opacity", 0.9);
 		div.html(
-			"Date: "+ formatTime(new Date(d.time)) + "<br/>" +
+			name + "<br/>"+
+			"Date: "+ formatTime(new Date(d.time*1000)) + "<br/>" +
+			"Ratio: "+ ( (d.numerator / d.denominator )*100).toFixed(2) + " % <br/>" +
 			"Num of Patients:" + d.numerator + "<br/>" +
 			"Total Patients:" + d.denominator)
 			.style({"left": (d3.event.pageX) + "px",
@@ -52,6 +54,8 @@ div.tooltip {
 
 	//function called by the visualizer
 	function vis(data){
+
+		console.log(JSON.stringify(data));
 
 		//define container constraints
 		var margin = {top: 50, right: 50, bottom: 125, left: 75},
@@ -95,7 +99,7 @@ div.tooltip {
 		//define a scale to organize within each cluster
 		var xClusterScale = d3.scale.ordinal()
 			.rangeBands([0,xScale.rangeBand()])
-			.domain(["network","clinic","clinician"]);
+			.domain(["network","group","clinician"]);
 
 		//x axis def
 		var xAxis = d3.svg.axis()
@@ -161,7 +165,7 @@ div.tooltip {
 		var setColour = function(d){
 				if (d.set === "clinician"){
 					return "black";
-				}else if (d.set === "clinic"){
+				}else if (d.set === "group"){
 					return "steelblue";
 				}else if (d.set === "network"){
 					return "red";
@@ -186,11 +190,11 @@ div.tooltip {
 					.attr("width",xClusterScale.rangeBand())
 					.attr("height", function(d){return height - yScale((d.numerator/d.denominator)*100);})
 					.attr("fill",setColour)
-					.on("mouseover", function (d){toolTipMouseOver(d, d.set);})
+					.on("mouseover", function (d){toolTipMouseOver(d, d.set, data.processed_result.display_names[d.set]);})
 					.on("mouseout", toolTipMouseOut);
 
 		//mapping for colour selection and legend
-		var colorMap = {network:"red", clinic:"blue", clinician:"black"};
+		var colorMap = {network:"red", group:"blue", clinician:"black"};
 
 		//size for colour suqares in legend
 		var legendRectSize = 15;
@@ -222,7 +226,7 @@ div.tooltip {
 			//append entry text
 			d.append('text')
 			.style({"text-anchor":"start","text-decoration":"underline", "font-size":"14pt"})
-			.text(function(d) { return d; })
+			.text(function(d) { return data.processed_result.display_names[d]; })
 			.attr("transform",function(d,i){return "translate(" + (legendRectSize*1.5 + 10) + ",17)";});
 
 			//append colour square
