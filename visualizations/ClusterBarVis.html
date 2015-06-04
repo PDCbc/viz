@@ -2,9 +2,9 @@
 div.tooltip {
 	position: absolute;
 	text-align: center;
-	width: 125px;
-	height: 40px;
-	padding: 2px;
+	width: 130px;
+	height: 75px;
+	padding: 6px;
 	font: 12px sans-serif;
 	border: 0px;
 	border-radius: 8px;
@@ -27,15 +27,17 @@ div.tooltip {
 	.attr("class", "tooltip")
 	.style({"opacity":0, "width":"150"});
 
-	var formatTime = d3.time.format("%a %b %d %Y");
+	var formatTime = d3.time.format("%Y-%M-%d");
 
-	function toolTipMouseOver(d, src)
+	function toolTipMouseOver(d, src, name)
 	{
 		div.transition()
 		.duration(200)
 		.style("opacity", 0.9);
 		div.html(
+			name + "<br/>"+
 			"Date: "+ formatTime(new Date(d.time*1000)) + "<br/>" +
+			"Ratio: "+ ( (d.numerator / d.denominator )*100).toFixed(2) + " % <br/>" +
 			"Num of Patients:" + d.numerator + "<br/>" +
 			"Total Patients:" + d.denominator)
 			.style({"left": (d3.event.pageX) + "px",
@@ -188,7 +190,7 @@ div.tooltip {
 					.attr("width",xClusterScale.rangeBand())
 					.attr("height", function(d){return height - yScale((d.numerator/d.denominator)*100);})
 					.attr("fill",setColour)
-					.on("mouseover", function (d){toolTipMouseOver(d, d.set);})
+					.on("mouseover", function (d){toolTipMouseOver(d, d.set, data.processed_result.display_names[d.set]);})
 					.on("mouseout", toolTipMouseOut);
 
 		//mapping for colour selection and legend

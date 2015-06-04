@@ -2,9 +2,9 @@
 div.tooltip {
 	position: absolute;
 	text-align: center;
-	width: 125px;
-	height: 44px;
-	padding: 2px;
+	width: 130px;
+	height: 75px;
+	padding: 5px;
 	font: 12px sans-serif;
 	border: 0px;
 	border-radius: 8px;
@@ -28,15 +28,17 @@ div.tooltip {
 	.attr("class", "tooltip")
 	.style({"opacity":0, "width":"150"});
 
-	var formatTime = d3.time.format("%a %b %d %Y");
+	var formatTime = d3.time.format("%Y-%M-%d");
 
-	function toolTipMouseOver(d, src)
+	function toolTipMouseOver(d, src, name)
 	{
 		div.transition()
 		.duration(200)
 		.style("opacity", 0.9);
 		div.html(
-			"Date: "+ formatTime(new Date(d.time)) + "<br/>" +
+			name + "<br/>"+
+			"Date: "+ formatTime(new Date(d.time*1000)) + "<br/>" +
+			"Ratio: "+ ( (d.aggregate_result.numerator / d.aggregate_result.denominator )*100).toFixed(2) + " %<br/>" +
 			"Num of Patients:" + d.aggregate_result.numerator + "<br/>" +
 			"Total Patients:" + d.aggregate_result.denominator)
 			.style({"left": (d3.event.pageX) + "px",
@@ -191,7 +193,7 @@ div.tooltip {
 					return height - getDelta(d);
 				})
 			.attr("y", function(d){return getDelta(d);})
-			.on("mouseover", function (d){toolTipMouseOver(d, 'clinician');})
+			.on("mouseover", function (d){toolTipMouseOver(d, 'clinician', data.processed_result.clinician[0].display_name);})
 			.on("mouseout", toolTipMouseOut);
 
 		var bar2 = canvas.append("g")
@@ -206,7 +208,7 @@ div.tooltip {
 					.attr("fill","steelblue")
 					.attr("height", function(d){return height - getDelta(d);})
 					.attr("y", function(d){return getDelta(d);})
-					.on("mouseover", function (d){toolTipMouseOver(d, 'group');})
+					.on("mouseover", function (d){toolTipMouseOver(d, 'group',data.processed_result.group[0].display_name);})
 					.on("mouseout", toolTipMouseOut);
 
 		var bar1 = canvas.append("g")
@@ -221,7 +223,7 @@ div.tooltip {
 			.attr("fill","red")
 			.attr("y", function(d){return getDelta(d);})
 			.attr("height", function(d){return height - getDelta(d);})
-			.on("mouseover", function (d){toolTipMouseOver(d, 'network');})
+			.on("mouseover", function (d){toolTipMouseOver(d, 'network',data.processed_result.network[0].display_name);})
 			.on("mouseout", toolTipMouseOut);
 
 			//mapping for colour selection and legend
