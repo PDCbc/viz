@@ -1,0 +1,37 @@
+<html>
+{{> head}}
+<body>
+
+    <div class="container">
+        <div class="row text-center">
+          <img src="/assets/images/PDC-Logo.png" alt="PDC Logo" width="300px" align="middle" style="padding:20px">
+          <hr>
+          <h1>Visualizer</h1>
+  <!--
+            <h3 class="text-muted">Physicians Data Collaborative of British Columbia</h3>
+  -->
+        </div> <!-- row text-center -->
+
+        <div class="row">
+            <p> Opps, looks like there was an error! Sorry for the inconvenience. </p>
+
+            <br>
+            
+            <a href='/'>
+                <button class="btn btn-primary btn-labeled">
+                    Take Me Back!
+                </button>
+            </a>
+
+            <br>
+            <br>
+
+            {{#if message }}
+                <p><b>There was the following message:</b> <br> {{ message }}</p>
+            {{/if}}
+           
+        </div>
+    </div>
+</body>
+</html>
+

@@ -13,13 +13,28 @@
   -->
         </div> <!-- row text-center -->
 
+        <div class= 'row text-center'>
+            <div class='col-sm-3'></div>
+            <div class='col-sm-6'>
+                {{#if user }}
+                    <div class="alert alert-warning" role="alert">
+                        <p>You're currently logged in as {{ user.username }}. Logging in again will log you out of your current identity and into the new one.</p>
+                    </div>
+                {{/if}}
+
+                {{#if message }}
+
+                <div class="alert alert-danger" role="alert">
+                    
+                    <p>{{ message }}</p>
+
+                </div>
+                {{/if}}
+            </div>
+            <div class='col-sm-3'></div>
+        </div>
         <div class="row">
-            {{#if user }}
-                <p>You're currently logged in as {{ user.username }}. Logging in again will log you out of your current identity and into the new one.</p>
-            {{/if}}
-            {{#if message }}
-                <p>There was the following message: {{ message }}</p>
-            {{/if}}
+
             <form action="/auth" method="POST" role="form" class="form-horizontal">
 
                 <div class="form-group">
