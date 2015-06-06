@@ -17,7 +17,11 @@
 
             <br>
             
-            <a href='/'>
+            {{#if redirect }}
+                <a href='{{redirect}}'>
+            {{else}}
+                <a href='/auth'>
+            {{/if}}
                 <button class="btn btn-primary btn-labeled">
                     Take Me Back!
                 </button>
