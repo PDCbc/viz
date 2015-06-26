@@ -3,3 +3,4 @@ cert/
 .vagrant/
 runme.sh
 *.log
+.idea/
