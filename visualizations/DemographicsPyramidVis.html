@@ -361,9 +361,9 @@
 
     function vis(data) {
         //use only last point
-        data.clinician = data.clinician.slice(-1);
-        data.group     = data.group.slice(-1);
-        data.network   = data.network.slice(-1);
+        data.clinician = data.processed_result.clinician.slice(-1);
+        data.group     = data.processed_result.group.slice(-1);
+        data.network   = data.processed_result.network.slice(-1);
 
         //The age ranges for the y axis
         //cannot be programtically determined thus hardcoded and
