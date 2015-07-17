@@ -1,3 +1,13 @@
+# Developer Notes
+
+## Security 
+
+### Preventing HTML Injection
+
+* To prevent HTML injection attacks, ensure that all text rendered to the page has any special html characters escaped. 
+* See disscussion on HTML injection: [http://stackoverflow.com/a/3793406](http://stackoverflow.com/a/3793406)
+* When using handlebarjs to render text, if the `{{ text }}` syntax is used, the `text` will be passed through an `escapeExpression()` function that replaces HTML special characters. When using the `{{{ text }}}` no escape function is called. When in doubt, use `{{ }}`. 
+  * See discussion about `handlebars.escapeExpression(String)` at [http://handlebarsjs.com/reference.html](http://handlebarsjs.com/reference.html). 
 # Setup
 
 ## Dependencies
