@@ -7,10 +7,14 @@ body {
     font-family: "HelveticaNeue-Light", "Helvetica Neue Thin", "Helvetica Neue";
 }
 
-p,span {
+span {
     font-weight: 200;
     font-style: normal;
     font-size: 16px;
+}
+
+h1, h2, h3, h4, h5, h6{
+    font-weight: 200;
 }
 
 .navbar-toggle {
@@ -69,6 +73,7 @@ p,span {
 
     width: 60%;
     min-width: 317px;
+    max-width: 317px;
     min-height: 48px;
 
 }
@@ -87,10 +92,36 @@ p,span {
 
 }
 
+.wrapper {
+    margin-left:auto;
+    margin-right:auto;
+    min-width:750px;
+    margin-top:10px;
+}
+
+
 .welcome-message {
 
     font-size: 36px;
     font-style: normal;
     font-weight: 200;
 
+}
+
+.user-dropdown{
+   margin-top:10px;
+}
+
+.initiative-title-wrap {
+    padding-left:0px;
+    margin-top:10px;
+}
+
+.initiative-logo-wrap {
+    padding-right:0;
+    opacity: 0.5;
+}
+
+.initiative-logo-wrap:hover{
+    opacity:1;
 }

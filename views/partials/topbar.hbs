@@ -1,0 +1,27 @@
+{{#if user}}
+
+    <div class="wrapper">
+
+        <div class="row">
+            <div class="col-sm-11">
+                <img src="/assets/images/PDC-LogoLeft.png" class="left-logo"/>
+            </div>
+
+            <div class="col-sm-1">
+
+                <div class="dropdown user-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id='userDropdown' data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{user.username}} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div> <!-- end .wrapper -->
+
+{{/if}}
