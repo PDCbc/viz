@@ -59,6 +59,7 @@
 
     function showVis(tempData) {
 
+        console.log(tempData);
         tempData.totalPatients = reduceTempData();
 
         function reduceTempData() {
@@ -168,7 +169,7 @@
                 })
                 .attr("width",
                 function (d) {
-                    return x1Scale(tempData.female[d]);
+                    return x1Scale(tempData["female"][d]);
                 })
                 .attr("height", yScale.rangeBand())
                 .attr("y", 0)
@@ -361,6 +362,9 @@
 
     function vis(data) {
         //use only last point
+
+        console.log(data);
+
         data.clinician = data.processed_result.clinician.slice(-1);
         data.group     = data.processed_result.group.slice(-1);
         data.network   = data.processed_result.network.slice(-1);
