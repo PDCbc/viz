@@ -95,7 +95,7 @@ h1, h2, h3, h4, h5, h6{
 .wrapper {
     margin-left:auto;
     margin-right:auto;
-    min-width:750px;
+    min-width:900px;
     margin-top:10px;
 }
 
@@ -125,3 +125,39 @@ h1, h2, h3, h4, h5, h6{
 .initiative-logo-wrap:hover{
     opacity:1;
 }
+
+.navbar-box > img{
+    width:30px;
+    height:30px;
+}
+
+.navbar-box{
+    border-right:1px solid dimgray;
+    padding:10px;
+    text-align: center;
+}
+
+.navbar-box:hover{
+    background-color:#e5e5e5;
+}
+
+.navbar-box > span{
+    margin-top:1px;
+    margin-left:5px;
+    text-decoration: none;
+    color:black; /** remove color from the hyperlinking */
+
+}
+
+.navbar-outer {
+    margin-top:20px;
+    border:1px solid dimgray;
+    border-radius: 5px;
+}
+
+.navbar-box.far-right{
+
+   border-right:none;
+
+}
+
