@@ -1,3 +1,4 @@
+{{#if user}}
 <html>
 {{> head}}
 <body>
@@ -22,20 +23,30 @@
                 <h4>Polypharmacy Graphs</h4>
 
                 <ul class="query-list">
-                    <li> <a href="#">Polypharmacy > 5 Medications</a> - the number of active patients that are currently on more than 5 medications that 65 years of age or older.</li>
-                    <li> <a href="#">Polypharmacy > 10 Medications</a> - the number of active patients that are currently on more than 10 medications that 65 years of age or older.</li>
-                    <li> <a href="#">Top 10 Most Frequently Prescribed Medication Classes</a> - the top ten medication classes prescribed by individual physicians for their active patients.</li>
-                    <li> <a href="#">Digoxin Medication Use</a> - the use of Digoxin (> 125 mcg/day) in those active patients with impaired renal function who are 65 years of age or older.</li>
-                    <li> <a href="#">Statins for Primary Prevention</a> - the percentage of active patients, 65 years old and older, on statins for primary prevention, whereby primary prevention is the absence of documented myocardial infarction (MI), acute MI or stroke.</li>
-                    <li> <a href="#">Statins for Secondary Prevention</a> -  the percentage of active patients, 65 years old and older, on statins for secondary prevention, whereby secondary prevention is the presence of documented myocardial infarction (MI), acute MI or stroke. </li>
+                    <li> <a href="/visualization/PDC-053/{{user.clinic}}/{{user.clinician}}">Polypharmacy > 5 Medications</a> - the number of active patients that are currently on more than 5 medications that 65 years of age or older.</li>
+                    <li> <a href="/visualization/PDC-054/{{user.clinic}}/{{user.clinician}}">Polypharmacy > 10 Medications</a> - the number of active patients that are currently on more than 10 medications that 65 years of age or older.</li>
+                    <li> <a href="/visualization/PDC-055/{{user.clinic}}/{{user.clinician}}">Top 10 Most Frequently Prescribed Medication Classes</a> - the top ten medication classes prescribed by individual physicians for their active patients.</li>
+                    <li> <a href="/visualization/PDC-057/{{user.clinic}}/{{user.clinician}}">Digoxin Medication Use</a> - the use of Digoxin (> 125 mcg/day) in those active patients with impaired renal function who are 65 years of age or older.</li>
+                    <li> <a href="/visualization/PDC-057/{{user.clinic}}/{{user.clinician}}">Statins for Primary Prevention</a> - the percentage of active patients, 65 years old and older, on statins for primary prevention, whereby primary prevention is the absence of documented myocardial infarction (MI), acute MI or stroke.</li>
+                    <li> <a href="/visualization/PDC-058/{{user.clinic}}/{{user.clinician}}">Statins for Secondary Prevention</a> -  the percentage of active patients, 65 years old and older, on statins for secondary prevention, whereby secondary prevention is the presence of documented myocardial infarction (MI), acute MI or stroke. </li>
                 </ul>
 
                 <h4>Downloadable Reports</h4>
 
                 <ul class="query-list">
-                    <li><a href="#">Polypharmacy</a> - the number of active patients that are currently on more than 5 AND 10 medications for patients that are 65 years of age or older.</li>
-                    <li><a href="#">Top 10 Most Frequently Prescribed Medication Classes</a> - the top ten medication classes prescribed by individual physicians for their active patients.</li>
-                    <li><a href="#">Statins Use</a> - the percentage of active patients, 65 years old and older, on statins for both primary and secondary prevention.</li>
+
+                    {{#if reports.polypharmacy-report}}
+                        <li><a href="/report/{{reports.polypharmacy-report.shortTitle}}">Polypharmacy Report</a> - the number of active patients that are currently on more than 5 AND 10 medications for patients that are 65 years of age or older.</li>
+                    {{/if}}
+
+                    {{#if reports.medclass-report}}
+                        <li><a href="/report/{{reports.medclass-report.shortTitle}}">Top 10 Most Frequently Prescribed Medication Classes</a> - the top ten medication classes prescribed by individual physicians for their active patients.</li>
+                    {{/if}}
+
+                    {{#if reports.statin-report}}
+                        <li><a href="/report/{{reports.statin-report.shortTitle}}">Statins Use</a> - the percentage of active patients, 65 years old and older, on statins for both primary and secondary prevention.</li>
+                    {{/if}}
+
                 </ul>
 
             </div>
@@ -54,3 +65,4 @@
 
 </body>
 </html>
+{{/if}}
