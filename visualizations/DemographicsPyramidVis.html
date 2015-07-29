@@ -3,8 +3,8 @@
         position: absolute;
         text-align: center;
         width: 125px;
-        height: 40px;
-        padding: 2px;
+        height: 50px;
+        padding: 6px;
         font: 12px sans-serif;
         border: 0px;
         border-radius: 8px;
@@ -61,6 +61,11 @@
 
 
         function toolTipMouseOver(d, src, tempData) {
+
+            var p = $(elemId+" svg").position();
+
+            console.log(p);
+
             div.transition()
                     .duration(200)
                     .style({"opacity": 0.9, "background": toolTipColorMap[src]});
@@ -70,8 +75,8 @@
                     "Num of Patients:" + tempData[src][d] + "<br/>" +
                     "Total Patients:" + tempData.totalPatients)
                     .style({
-                        "left": (d3.event.pageX) + "px",
-                        "top" : (d3.event.pageY - 28) + "px"
+                        "left": (d3.event.pageX - p.left) + "px",
+                        "top" : (d3.event.pageY - p.top - 28) + "px"
                     });
         }
 
