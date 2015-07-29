@@ -3,17 +3,17 @@
     <div class="wrapper">
 
         <div class="row">
-            <div class="col-sm-11">
+            <div class="col-sm-10">
                 <a href="/"><img src="/assets/images/PDC-LogoLeft.png" class="left-logo"/></a>
             </div>
 
-            <div class="col-sm-1">
+            <div class="col-sm-2">
 
-                <div class="dropdown user-dropdown">
+                <div class="dropdown user-dropdown text-center">
                     <button class="btn btn-default dropdown-toggle" type="button" id='userDropdown' data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{user.username}} <span class="caret"></span>
+                        {{user.username}} <span class="caret pull-right" style="margin-top:-10px;"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                    <ul class="dropdown-menu user-dropdown-item" aria-labelledby="userDropdown">
                         <li><a href="/logout">Logout</a></li>
                     </ul>
                 </div>

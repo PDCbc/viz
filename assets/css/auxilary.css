@@ -13,7 +13,7 @@ span {
     font-size: 16px;
 }
 
-h1, h2, h3, h4, h5, h6{
+h1, h2, h3, h4, h5, h6 {
     font-weight: 200;
 }
 
@@ -62,11 +62,11 @@ h1, h2, h3, h4, h5, h6{
     display: inline-block;
 }
 
-.login-wrapper{
-    margin-left:auto;
-    margin-right:auto;
-    max-width:900px;
-    min-width:750px;
+.login-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 900px;
+    min-width: 750px;
 }
 
 .left-logo {
@@ -86,19 +86,18 @@ h1, h2, h3, h4, h5, h6{
 .login-row {
 
     margin-top: 10px;
-    width:100%;
+    width: 100%;
     background-color: #F0F0F0;
     border-radius: 5px;
 
 }
 
 .wrapper {
-    margin-left:auto;
-    margin-right:auto;
-    min-width:900px;
-    margin-top:10px;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 900px;
+    margin-top: 10px;
 }
-
 
 .welcome-message {
 
@@ -108,58 +107,72 @@ h1, h2, h3, h4, h5, h6{
 
 }
 
-.user-dropdown{
-   margin-top:10px;
+.user-dropdown {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.user-dropdown-item {
+    text-align: left;
+
+}
+
+#userDropdown {
+    min-width: 120px;
+    text-align: left;
+
 }
 
 .initiative-title-wrap {
-    padding-left:0px;
-    margin-top:10px;
+    padding-left: 0px;
+    margin-top: 10px;
 }
 
 .initiative-logo-wrap {
-    padding-right:0;
+    padding-right: 0;
     opacity: 0.5;
 }
 
-.initiative-logo-wrap:hover{
-    opacity:1;
+.initiative-logo-wrap:hover {
+    opacity: 1;
 }
 
-.navbar-box > img{
-    width:30px;
-    height:30px;
+.navbar-box > img {
+    width: 30px;
+    height: 30px;
 }
 
-.navbar-box{
-    border-right:1px solid dimgray;
-    padding:10px;
+.navbar-box {
+    border-right: 1px solid dimgray;
+    padding: 10px;
     text-align: center;
 }
 
-.navbar-box:hover{
-    background-color:#e6e6e6;
+.navbar-box:hover {
+    background-color: #e6e6e6;
 }
 
-.navbar-box > span{
-    margin-top:1px;
-    margin-left:5px;
+.navbar-box > span {
+    margin-top: 1px;
+    margin-left: 5px;
     text-decoration: none;
-    color:black; /** remove color from the hyperlinking */
+    color: black; /** remove color from the hyperlinking */
 
 }
 
 .navbar-outer {
-    margin-top:20px;
-    border:1px solid dimgray;
+    margin-top: 20px;
+    border: 1px solid dimgray;
     border-radius: 5px;
 }
 
-.navbar-box.far-right{
+.navbar-box.far-right {
 
-   border-right:none;
+    border-right: none;
 
 }
 
-svg { text-algin:center }
+svg {
+    text-algin: center
+}
 
