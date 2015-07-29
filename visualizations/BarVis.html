@@ -34,7 +34,7 @@
 
         var units = d.units || "Patients";
         //var p = $(".container").position();
-        var p = $("#row").position();
+        var p = $("svg").position();
 
         console.log(d3.event.pageX);
         console.log(d3.event.pageY);
@@ -51,8 +51,8 @@
                 "Num of "+units+": " + d.aggregate_result.numerator + "<br/>" +
                 "Total "+units+": " + d.aggregate_result.denominator)
                 .style("background", colorMap[src])
-                .style("top", (d3.event.pageY - p.top - 75) + "px")
-                .style("left", (d3.event.pageX - p.left) + "px");
+                .style("top", (d3.event.pageY - p.top) + "px")
+                .style("left", (d3.event.pageX - p.left + 100) + "px");
     }
 
     function toolTipMouseOut(d) {
