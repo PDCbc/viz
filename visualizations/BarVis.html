@@ -1,6 +1,6 @@
 <style>
     div.tooltip {
-        position: absolute;
+        position: relative;
         text-align: center;
         width: 130px;
         height: 75px;
@@ -28,9 +28,19 @@
             .attr("class", "tooltip")
             .style({"opacity": 0, "width": "150"});
 
-    var formatTime = d3.time.format("%Y-%M-%d");
+    var formatTime = d3.time.format("%Y-%m-%d");
 
     function toolTipMouseOver(d, src, name) {
+
+        var units = d.units || "Patients";
+        //var p = $(".container").position();
+        var p = $("#row").position();
+
+        console.log(d3.event.pageX);
+        console.log(d3.event.pageY);
+        console.log(p);
+
+
         div.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -38,13 +48,11 @@
                 name + "<br/>" +
                 "Date: " + formatTime(new Date(d.time * 1000)) + "<br/>" +
                 "Ratio: " + ( (d.aggregate_result.numerator / d.aggregate_result.denominator ) * 100).toFixed(2) + " %<br/>" +
-                "Num of Patients:" + d.aggregate_result.numerator + "<br/>" +
-                "Total Patients:" + d.aggregate_result.denominator)
-                .style({
-                    "left"      : (d3.event.pageX) + "px",
-                    "top"       : (d3.event.pageY - 28) + "px",
-                    "background": colorMap[src]
-                });
+                "Num of "+units+": " + d.aggregate_result.numerator + "<br/>" +
+                "Total "+units+": " + d.aggregate_result.denominator)
+                .style("background", colorMap[src])
+                .style("top", (d3.event.pageY - p.top - 75) + "px")
+                .style("left", (d3.event.pageX - p.left) + "px");
     }
 
     function toolTipMouseOut(d) {
@@ -76,14 +84,6 @@
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ") scale(0.75, 0.75)");
 
         //append a title
-        canvas.append("g")
-                .attr("class", "title")
-                .append("text")
-                .attr("x", width / 2)
-                .attr("y", -margin.top / 2)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "18pt"})
-                .text(data.description);
-
 
         tmpXScale = [
             data.processed_result.network[0].display_name,
@@ -151,6 +151,8 @@
                 .scale(yScale)
                 .orient("left");
 
+        var units = data.units || "Patients";
+
         //add Y Axis to canvas
         canvas.append("g")
                 .attr("class", "y axis")
@@ -162,7 +164,7 @@
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-50, 0)")
                 .style({"text-anchor": "middle", "font-size": "14pt"})
-                .text("Eligible Patients (%)");
+                .text(units+" (%)");
 
         //Bars(rects) for display. Due to JSON formatting the easiest way is
         //to create them seperatly.

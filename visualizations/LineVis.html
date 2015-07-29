@@ -96,16 +96,6 @@
             .append("svg:g")
             .attr("transform", "translate(20,0)");
 
-        //append title text to the top of the page
-        canvas.append("g")
-            .attr("class", "title")
-            .append("text")
-            .attr("x", width/2 + 60)
-            .attr("y", margin.top/2)
-            .style({"text-anchor":"middle", "text-decoration":"underline", "font-size":"14pt"})
-            .text(data.description);
-
-
         //Line functions to build path from JSON data
         var line = d3.svg.line()
             .x(function(d){return xScale(d.time);})

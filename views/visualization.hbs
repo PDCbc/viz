@@ -1,20 +1,206 @@
-<html>
-{{> head}}
-<body>
-{{> sidebar}}
-<div class="container">
-  <div class="row text-center">
-      <div class="panel panel-default">
-      <div class="panel-body">
-        <div id="chart"></div>
-      </div>
-      {{{ script }}}
-      <script>
-        var data = {{{json visualization}}};
-        vis(data); // Render.
-      </script>
-    </div> <!-- panel -->
-</div> <!-- container -->
+{{# if user}}
+    <html>
+    {{> head}}
 
-</body>
-</html>
+    <script>
+        /**
+         * Changes the perspective of the visualization to show either clinician, group, or network
+         */
+        function changePerspective(event) {
+
+            console.log(event.delegateTarget.id);
+
+            $("#clinicianToggle").removeClass("btn-warning");
+            $("#groupToggle").removeClass("btn-warning");
+            $("#networkToggle").removeClass("btn-warning");
+
+            $("#"+event.delegateTarget.id).addClass("btn-warning");
+
+            switch (event.delegateTarget.id) {
+
+                case "clinicianToggle":
+                    $("#c1").show();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                case "groupToggle":
+                    $("#c1").hide();
+                    $("#c2").show();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                case "networkToggle":
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").show();
+                    $("#chart").hide();
+                    break;
+                default:
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+
+            }
+        }
+    </script>
+    <body>
+    <div class="container">
+
+        {{> topbar}}
+
+        {{> navbar}}
+
+        <br>
+
+        <div class="wrapper">
+
+            <div class="row">
+
+                <div class="col-xs-12">
+
+                    <div class="row"> <!-- title block -->
+                        <div class="col-xs-12">
+
+                            <h2 id="title"></h2>
+
+                        </div>
+                    </div>
+                    <!-- end title block -->
+
+                    <div id='row' class="row"> <!-- viz block -->
+
+                        <div id="viz-panel" class="col-xs-10 text-center">
+
+                            <div class="panel">
+                                <div class="panel-body" id="foobar">
+
+                                    <div id="chart"></div>
+                                    <!-- this is the anchor for the d3 visualization, must have id=chart -->
+
+                                    <div id="tripleGraph" class="row">
+
+                                        <div class="panel">
+                                            <div class="panel-body text-center">
+                                                <div id="c1" class="col-xs-12 text-center"></div>
+                                                <div id="c2" class="col-xs-12 text-center"></div>
+                                                <div id="c3" class="col-xs-12 text-center"></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-2" id="perspectiveToggle"> <!-- side bar -->
+
+                            <div class="panel panel-default">
+                                <div class="panel-body text-left">
+
+                                    <h4>Perspective</h4>
+
+                                    <ul class="nav nav-pills nav-stacked">
+
+                                        <li role="presentation"><button id="clinicianToggle" class="btn btn-primary btn-warning">Clinician</button></li>
+                                        <li role="presentation"><button id="groupToggle" class="btn btn-primary">Group</button></li>
+                                        <li role="presentation"><button id="networkToggle" class="btn btn-primary">Network</button></li>
+
+                                    </ul>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!-- end viz block -->
+
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-xs-12 panel panel-default" id="description-panel">
+
+                    <h4>Description:</h4>
+
+                    <p id="description"></p>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+
+
+    </div>
+
+    </body>
+
+    {{{ script }}}
+    <script>
+
+        var data = {{{json visualization}}};
+
+        var s = data.description.split(":");
+
+        if (s.length > 1) {
+
+            //we expect that the description field will
+            //have a human readable title and description
+            //separated by a comma, e.g. "someTItle:SomeDescriptionAboutTHeQuery"
+
+            $("#title").text(s[0]);
+            $("#description").text(s[1]);
+            $("#description-panel").show();
+
+        } else {
+
+            $("#title").text(s[0]);
+            $("#description").hide();
+            $("#description-panel").hide();
+
+        }
+
+        vis(data); // Render the actual visualiztion;
+
+        if (data.script === "DemographicsPyramidVis") {
+
+            $("#perspectiveToggle").show();
+            $("#viz-panel").removeClass("col-xs-12").addClass("col-xs-10");
+
+            $("#c1").show();
+            $("#c2").hide();
+            $("#c3").hide();
+
+            $("#chart").hide();
+
+        } else {
+
+            $("#perspectiveToggle").hide();
+            $("#viz-panel").removeClass("col-xs-10").addClass("col-xs-12");
+
+            $("#c1").hide();
+            $("#c2").hide();
+            $("#c3").hide();
+
+            $("#chart").show();
+
+        }
+
+        $("#clinicianToggle").bind('click', changePerspective);
+        $("#groupToggle").bind('click', changePerspective);
+        $("#networkToggle").bind('click', changePerspective);
+
+    </script>
+    </html>
+{{/if}}
