@@ -51,6 +51,18 @@
 
                 </div>
 
+                {{#if message}}
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="alert alert-danger" role="alert">
+                                <p>{{message}}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                {{/if}}
+
                 <div class="row">
 
                     <div class="col-xs-9">
@@ -71,7 +83,8 @@
                                 <label for="password" class="col-xs-3 control-label"><span>Password:</span></label>
 
                                 <div class="col-xs-8">
-                                    <input type="password" class="form-control" id="password" name='password' placeholder="">
+                                    <input type="password" class="form-control" id="password" name='password'
+                                           placeholder="">
                                 </div>
 
                                 <div class="col-xs-1">

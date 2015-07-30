@@ -121,7 +121,7 @@
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(100,50) scale(0.75, 0.75)");
+                .attr("transform", "translate(30,50) scale(0.9, 0.9)");
 
         var t = title || "";
 
@@ -130,8 +130,8 @@
                 .attr("class", "title")
                 .append("text")
                 .attr("x", width / 2)
-                .attr("y", 1)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "18pt"})
+                .attr("y", -5)
+                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "14pt"})
                 .text(t);
 
         //text on y axis for age ranges
@@ -148,7 +148,7 @@
                 .attr("fill", "#000")
                 .attr("text-anchor", "middle")
                 .attr("font-size", "12px")
-                .style({"text-anchor": "middle", "font-size": "14pt"})
+                .style({"text-anchor": "middle", "font-size": "12pt"})
                 .text(function (d) {
                     return d;
                 });
@@ -161,7 +161,7 @@
                 .attr("fill", "#000")
                 .attr("text-anchor", "middle")
                 .attr("letter-spacing", 1)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "18pt"})
+                .style({"text-anchor": "middle", "text-decoration": "none", "font-size": "14pt"})
                 .text("Age");
 
 
@@ -277,7 +277,7 @@
                 .append("text")
                 .attr("x", width / 4)
                 .attr("y", margin.bottom)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "18pt"})
+                .style({"text-anchor": "middle", "text-decoration": "none", "font-size": "14pt"})
                 .text("Number of Patients");
 
         //left side (male) x axis def
@@ -295,7 +295,7 @@
                 .append("text")
                 .attr("x", width / 4)
                 .attr("y", margin.bottom)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "18pt"})
+                .style({"text-anchor": "middle", "text-decoration": "none", "font-size": "14pt"})
                 .text("Number of Patients");
 
         //add vertical lines to boarder y Axis on both sides
@@ -335,7 +335,7 @@
                 .attr("transform", "translate(-5,-5)")
                 .attr('width', 180)  //values chosen based on info being displayed
                 .attr('height', 85)
-                .style('fill', "lightgrey");
+                .style('fill', "#e6e6e6");
 
         //create legend entires and for each add a colour block and text
         legend.selectAll('.legendEntry')
@@ -349,7 +349,7 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "underline", "font-size": "14pt"})
+                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": "14pt"})
                             .text(function (d) {
                                 return d;
                             })
