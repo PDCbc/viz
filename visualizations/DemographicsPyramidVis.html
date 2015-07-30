@@ -3,8 +3,8 @@
         position: absolute;
         text-align: center;
         width: 125px;
-        height: 40px;
-        padding: 2px;
+        height: 50px;
+        padding: 6px;
         font: 12px sans-serif;
         border: 0px;
         border-radius: 8px;
@@ -13,6 +13,7 @@
 </style>
 
 <script>
+
     var ageRanges = [
         "90+",
         "80-89",
@@ -27,39 +28,20 @@
 
     var toolTipColorMap = {male: '#8888FF', female: '#FF8888', undifferentiated: '#CCCCFF', undefined: '#FFCCCC'};
     //@WiP create the tooltip div
-    var div = d3.select("#chart").append("div")
-            .attr("class", "tooltip")
-            .style({"opacity": 0, "width": "150"});
 
     var formatTime = d3.time.format("%a %b %d %Y");
 
     var tempData;
 
-    function toolTipMouseOver(d, src, tempData) {
-        console.log(d, src);
-        div.transition()
-                .duration(200)
-                .style({"opacity": 0.9, "background": toolTipColorMap[src]});
 
-        div.html(
-                "Date: " + formatTime(new Date(tempData.time)) + "<br/>" +
-                "Num of Patients:" + tempData[src][d] + "<br/>" +
-                "Total Patients:" + tempData.totalPatients)
-                .style({
-                    "left": (d3.event.pageX) + "px",
-                    "top" : (d3.event.pageY - 28) + "px"
-                });
-    }
-
-    function toolTipMouseOut(d) {
-        div.transition()
-                .duration(500)
-                .style("opacity", 0);
-    }
-
-    function showVis(tempData) {
+    function showVis(tempData, elemId, title) {
 
         tempData.totalPatients = reduceTempData();
+
+        var div = d3.select(elemId).append("div")
+                .attr("class", "tooltip")
+                .attr("id", title + "-tooltip")
+                .style({"opacity": 0, "width": "150"});
 
         function reduceTempData() {
             var totalPatients = 0;
@@ -75,6 +57,33 @@
             }
 
             return totalPatients;
+        }
+
+
+        function toolTipMouseOver(d, src, tempData) {
+
+            var p = $(elemId+" svg").position();
+
+            console.log(p);
+
+            div.transition()
+                    .duration(200)
+                    .style({"opacity": 0.9, "background": toolTipColorMap[src]});
+
+            div.html(
+                    "Date: " + formatTime(new Date(tempData.time)) + "<br/>" +
+                    "Num of Patients:" + tempData[src][d] + "<br/>" +
+                    "Total Patients:" + tempData.totalPatients)
+                    .style({
+                        "left": (d3.event.pageX - p.left) + "px",
+                        "top" : (d3.event.pageY - p.top - 28) + "px"
+                    });
+        }
+
+        function toolTipMouseOut(d) {
+            div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
         }
 
         //find max data value for scaling both x axes
@@ -107,12 +116,14 @@
             //scale for left pyramid
             x2Scale = d3.scale.linear().domain([0, Math.floor(maxData * 1.5)]).range([width / 2, 0]);
 
-        var canvas = d3.select("#chart")
+        var canvas = d3.select(elemId)
                 .append("svg:svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(0,50) scale(0.5, 0.5)");
+                .attr("transform", "translate(100,50) scale(0.75, 0.75)");
+
+        var t = title || "";
 
         //append a title
         canvas.append("g")
@@ -121,7 +132,7 @@
                 .attr("x", width / 2)
                 .attr("y", 1)
                 .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "18pt"})
-                .text("Population Pyramid");
+                .text(t);
 
         //text on y axis for age ranges
         canvas.append("g")
@@ -168,7 +179,7 @@
                 })
                 .attr("width",
                 function (d) {
-                    return x1Scale(tempData.female[d]);
+                    return x1Scale(tempData["female"][d]);
                 })
                 .attr("height", yScale.rangeBand())
                 .attr("y", 0)
@@ -361,9 +372,10 @@
 
     function vis(data) {
         //use only last point
-        data.clinician = data.clinician.slice(-1);
-        data.group     = data.group.slice(-1);
-        data.network   = data.network.slice(-1);
+
+        data.clinician = data.processed_result.clinician.slice(-1);
+        data.group     = data.processed_result.group.slice(-1);
+        data.network   = data.processed_result.network.slice(-1);
 
         //The age ranges for the y axis
         //cannot be programtically determined thus hardcoded and
@@ -371,8 +383,9 @@
 
         //putting network info into tempdata, once this is working @TODO turn eveything below
         //into some sort of function and run for all three datasets
-        showVis(data.clinician[0]);
-        showVis(data.group[0]);
-        showVis(data.network[0]);
+        showVis(data.clinician[0], "#c1", "Clinician");
+        showVis(data.group[0], "#c2", "Group");
+        showVis(data.network[0], "#c3", "Network");
     }
+
 </script>

@@ -1,242 +1,268 @@
 <style>
-div.tooltip {
-	position: absolute;
-	text-align: center;
-	width: 130px;
-	height: 75px;
-	padding: 6px;
-	font: 12px sans-serif;
-	border: 0px;
-	border-radius: 8px;
-	pointer-events: none;
-}
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 130px;
+        height: 75px;
+        padding: 6px;
+        font: 12px sans-serif;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
 </style>
 
 <script>
-	 /*
-	Author: Ryan Habibi
-	Date: Jan 2015
-	Cluster Bar Graph Visualization
-	Creates groupings of bars which deplay comparisons of network, clinic, and clinician across
-	different ordinal categories.
-	*/
+    /*
+     Author: Ryan Habibi
+     Date: Jan 2015
+     Cluster Bar Graph Visualization
+     Creates groupings of bars which deplay comparisons of network, clinic, and clinician across
+     different ordinal categories.
+     */
 
-	var toolTipColorMap = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
-	//@WiP create the tooltip div
-	var div = d3.select("#chart").append("div")
-	.attr("class", "tooltip")
-	.style({"opacity":0, "width":"150"});
+    var toolTipColorMap = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
+    //@WiP create the tooltip div
+    var div = d3.select("#chart").append("div")
+            .attr("class", "tooltip")
+            .style({"opacity": 0, "width": "150"});
 
-	var formatTime = d3.time.format("%Y-%M-%d");
+    var formatTime = d3.time.format("%Y-%m-%d");
 
-	function toolTipMouseOver(d, src, name)
-	{
-		div.transition()
-		.duration(200)
-		.style("opacity", 0.9);
-		div.html(
-			name + "<br/>"+
-			"Date: "+ formatTime(new Date(d.time*1000)) + "<br/>" +
-			"Ratio: "+ ( (d.numerator / d.denominator )*100).toFixed(2) + " % <br/>" +
-			"Num of Patients:" + d.numerator + "<br/>" +
-			"Total Patients:" + d.denominator)
-			.style({"left": (d3.event.pageX) + "px",
-			"top": (d3.event.pageY - 28) + "px",
-			"background":toolTipColorMap[src]});
-	}
+    function toolTipMouseOver(d, src, name) {
 
-	function toolTipMouseOut(d)
-	{
-		div.transition()
-		.duration(500)
-		.style("opacity", 0);
-	}
+        var p = $("svg").position();
 
-	//function called by the visualizer
-	function vis(data){
+        div.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+        div.html(
+                name + "<br/>" +
+                "Date: " + formatTime(new Date(d.time * 1000)) + "<br/>" +
+                "Ratio: " + ( (d.numerator / d.denominator ) * 100).toFixed(2) + " % <br/>" +
+                "Num of Prescriptions" + d.numerator + "<br/>" +
+                "Total Prescriptions:" + d.denominator)
+                .style({
+                    "left"      : (d3.event.pageX - p.top) + "px",
+                    "top"       : (d3.event.pageY - p.left - 28) + "px",
+                    "background": toolTipColorMap[src]
+                });
+    }
 
-		console.log(JSON.stringify(data));
+    function toolTipMouseOut(d) {
+        div.transition()
+                .duration(500)
+                .style("opacity", 0);
+    }
 
-		//define container constraints
-		var margin = {top: 50, right: 50, bottom: 125, left: 75},
-			width = 600 + margin.left + margin.right,
-			height = 400 + margin.top + margin.bottom;
+    //function called by the visualizer
+    function vis(data) {
 
-		//set up SVG container to contain all components
-		var canvas = d3.select("#chart")
-			.append("svg:svg")
-			.attr("width",width + margin.left + margin.right)
-			.attr("height",height + margin.top + margin.bottom)
-			.append("svg:g")
-			.attr("transform", "translate(150,50) scale(0.5, 0.5)");
-			//.style({'overflow':'visible'});//translate(" + margin.left + "," + margin.top + ");
+        //define container constraints
+        var margin = {top: 50, right: 50, bottom: 125, left: 75},
+            width  = 600 + margin.left + margin.right,
+            height = 400 + margin.top + margin.bottom;
 
-		//append a title
-		canvas.append("g")
-	  	.attr("class", "title")
-	  	.append("text")
-	  	.attr("x", width/2)
-			.attr("y", 0)
-			.style({"text-anchor":"middle", "text-decoration":"underline", "font-size":"20pt"})
-			.text("Top Ten Most Commonly Prescribed Medication Classes");
+        //set up SVG container to contain all components
+        var canvas = d3.select("#chart")
+                .append("svg:svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("svg:g")
+                .attr("transform", "translate(150,50) scale(0.75, 0.75)");
+        //.style({'overflow':'visible'});//translate(" + margin.left + "," + margin.top + ");
+
+        //append a title
+        canvas.append("g")
+                .attr("class", "title")
+                .append("text")
+                .attr("x", width / 2)
+                .attr("y", 0)
+                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "20pt"})
+                .text("Top Ten Most Commonly Prescribed Medication Classes");
 
 
-		//variable for descrete x axis tick headings
-		var xScaleHeadings = [];
+        //variable for descrete x axis tick headings
+        var xScaleHeadings = [];
 
-		//extract data from JSON to define cluster categories
-		//expect network, clinic, and clinician
-		data.processed_result.drugs.forEach(function(d) {
-		    xScaleHeadings.push(d.drug_name);});
+        //extract data from JSON to define cluster categories
+        //expect network, clinic, and clinician
+        data.processed_result.drugs.forEach(function (d) {
+            xScaleHeadings.push(d.drug_name);
+        });
 
-		//x position scale using date data
-		//domain set as the first 3 keys in the JSON,
-		//if structure modified must be changed.
-		var xScale = d3.scale.ordinal()
-			.rangeBands([0,width],0.1)
-			.domain(xScaleHeadings);
+        //x position scale using date data
+        //domain set as the first 3 keys in the JSON,
+        //if structure modified must be changed.
+        var xScale = d3.scale.ordinal()
+                .rangeBands([0, width], 0.1)
+                .domain(xScaleHeadings);
 
-		//define a scale to organize within each cluster
-		var xClusterScale = d3.scale.ordinal()
-			.rangeBands([0,xScale.rangeBand()])
-			.domain(["network","group","clinician"]);
+        //define a scale to organize within each cluster
+        var xClusterScale = d3.scale.ordinal()
+                .rangeBands([0, xScale.rangeBand()])
+                .domain(["network", "group", "clinician"]);
 
-		//x axis def
-		var xAxis = d3.svg.axis()
-			.scale(xScale)
-			.orient("bottom");
+        //x axis def
+        var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom");
 
-		//add X Axis
-		canvas.append("g")
-  			.attr("class", "x axis")
-  			.attr("transform", "translate(0," + height + ")")
-  			.call(xAxis);
+        //add X Axis
+        canvas.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
 
-		//Rotate and move X Axis ticks for vertical write and align
-		canvas.selectAll("g.x.axis g.tick text")
-			.style({"text-anchor":"start","font-size":"14pt", "text-transform":"lowercase"})
-			.attr("dx", "0.25em")
-			.attr("dy", "1em")
-			.attr("transform", "rotate(45)");
+        //Rotate and move X Axis ticks for vertical write and align
+        canvas.selectAll("g.x.axis g.tick text")
+                .style({"text-anchor": "start", "font-size": "14pt", "text-transform": "lowercase"})
+                .attr("dx", "0.25em")
+                .attr("dy", "1em")
+                .attr("transform", "rotate(45)");
 
-		//y position scale
-		var yScale = d3.scale.linear()
-			.range([height,0]);
+        //y position scale
+        var yScale = d3.scale.linear()
+                .range([height, 0]);
 
-		//function to return a ratio rounded up to the nearest 10
-		//used for scaling Y Axis dynamically
-		var trimAndScale = function(d){
-			var values = [];
-			d.agg_data.forEach(function(d){
-				var x= (d.denominator===0) ? 0 : d.numerator/d.denominator;
-				x = Math.ceil((x*10)+1)*10;
-				if (x > 100){
-					values.push(100);
-				} else {
-					values.push(x);}
-			});
-			return d3.max(values);
-		};
+        //function to return a ratio rounded up to the nearest 10
+        //used for scaling Y Axis dynamically
+        var trimAndScale = function (d) {
+            var values = [];
+            d.agg_data.forEach(function (d) {
+                var x = (d.denominator === 0) ? 0 : d.numerator / d.denominator;
+                x     = Math.ceil((x * 10) + 1) * 10;
+                if (x > 100) {
+                    values.push(100);
+                } else {
+                    values.push(x);
+                }
+            });
+            return d3.max(values);
+        };
 
-		//set y axis domain dynamically based on max value
-		yScale.domain([0,d3.max(data.processed_result.drugs,trimAndScale)]);
+        //set y axis domain dynamically based on max value
+        yScale.domain([0, d3.max(data.processed_result.drugs, trimAndScale)]);
 
-		//y axis def
-		var yAxis = d3.svg.axis()
-			.scale(yScale)
-			.orient("left");
+        //y axis def
+        var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
 
-		//add Y Axis
-		canvas.append("g")
-			.attr("class", "y axis")
-  			.attr("transform", "translate(6,0)")
-				.style({"text-anchor":"middle", "font-size":"14pt"})
-  			.call(yAxis)
-  			.append("text")
-		      		.attr("y", -40)
-		      		.attr("x", -height/2 +margin.top)
-		      		.attr("transform", "rotate(-90)")
-		      		.style({"text-anchor":"middle", "font-size":"18pt"})
-		      		.text("Prescription Frequency (%)");
+        //add Y Axis
+        canvas.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(6,0)")
+                .style({"text-anchor": "middle", "font-size": "14pt"})
+                .call(yAxis)
+                .append("text")
+                .attr("y", -40)
+                .attr("x", -height / 2 + margin.top)
+                .attr("transform", "rotate(-90)")
+                .style({"text-anchor": "middle", "font-size": "18pt"})
+                .text("Prescription Frequency (%)");
 
-		//@TODO Make this dynamic or otherwise seperate from string names
-		//function for selecting colour based on data set affiliation
-		//other visuals use a colour map array
-		var setColour = function(d){
-				if (d.set === "clinician"){
-					return "black";
-				}else if (d.set === "group"){
-					return "steelblue";
-				}else if (d.set === "network"){
-					return "red";
-				} else {
-					return "White";}
-			};
+        //@TODO Make this dynamic or otherwise seperate from string names
+        //function for selecting colour based on data set affiliation
+        //other visuals use a colour map array
+        var setColour = function (d) {
+            if (d.set === "clinician") {
+                return "black";
+            } else if (d.set === "group") {
+                return "steelblue";
+            } else if (d.set === "network") {
+                return "red";
+            } else {
+                return "White";
+            }
+        };
 
-		//create bars in clusters by generating a set of groups with the
-		//cluster class then putting rects in each group
-		var bars = canvas.append("g")
-			.attr("class","bars")
-			.selectAll(".cluster")
-			.data(data.processed_result.drugs)
-				.enter().append("g")
-				.attr("class","cluster")
-				.attr("transform", function(d){return "translate("+xScale(d.drug_name)+",0)";})
-				.selectAll("rect")
-				.data(function(d){return d.agg_data;})
-				.enter().append("rect")
-					.attr("y",function(d){return yScale((d.numerator/d.denominator)*100);})
-					.attr("x",function(d){return xClusterScale(d.set);})
-					.attr("width",xClusterScale.rangeBand())
-					.attr("height", function(d){return height - yScale((d.numerator/d.denominator)*100);})
-					.attr("fill",setColour)
-					.on("mouseover", function (d){toolTipMouseOver(d, d.set, data.processed_result.display_names[d.set]);})
-					.on("mouseout", toolTipMouseOut);
+        //create bars in clusters by generating a set of groups with the
+        //cluster class then putting rects in each group
+        var bars = canvas.append("g")
+                .attr("class", "bars")
+                .selectAll(".cluster")
+                .data(data.processed_result.drugs)
+                .enter().append("g")
+                .attr("class", "cluster")
+                .attr("transform", function (d) {
+                    return "translate(" + xScale(d.drug_name) + ",0)";
+                })
+                .selectAll("rect")
+                .data(function (d) {
+                    return d.agg_data;
+                })
+                .enter().append("rect")
+                .attr("y", function (d) {
+                    return yScale((d.numerator / d.denominator) * 100);
+                })
+                .attr("x", function (d) {
+                    return xClusterScale(d.set);
+                })
+                .attr("width", xClusterScale.rangeBand())
+                .attr("height", function (d) {
+                    return height - yScale((d.numerator / d.denominator) * 100);
+                })
+                .attr("fill", setColour)
+                .on("mouseover", function (d) {
+                    toolTipMouseOver(d, d.set, data.processed_result.display_names[d.set]);
+                })
+                .on("mouseout", toolTipMouseOut);
 
-		//mapping for colour selection and legend
-		var colorMap = {network:"red", group:"blue", clinician:"black"};
+        //mapping for colour selection and legend
+        var colorMap = {network: "red", group: "blue", clinician: "black"};
 
-		//size for colour suqares in legend
-		var legendRectSize = 15;
-		//shift value for each legend entry
-		var legendSpacing = 20;
+        //size for colour suqares in legend
+        var legendRectSize = 15;
+        //shift value for each legend entry
+        var legendSpacing = 20;
 
-		var legendWidth = 180;
-		var legendHeight = 65;
-		//add a container for the legend
-		var legend = canvas.append('g')
-		.attr('class', 'legend')
-		.attr("transform","translate(" + (width-legendWidth-5) + ", 25)");
+        var legendWidth  = 180;
+        var legendHeight = 65;
+        //add a container for the legend
+        var legend = canvas.append('g')
+                .attr('class', 'legend')
+                .attr("transform", "translate(" + (width - legendWidth - 5) + ", 25)");
 
-		//append a background for the legend
-		legend.append('rect')
-		//transform neg-ive so the left and top are around the legend item
-		.attr('width', legendWidth)  //values chosen based on info being displayed
-		.attr('height', legendHeight)
-		.style('fill', "lightgrey");
+        //append a background for the legend
+        legend.append('rect')
+            //transform neg-ive so the left and top are around the legend item
+                .attr('width', legendWidth)  //values chosen based on info being displayed
+                .attr('height', legendHeight)
+                .style('fill', "lightgrey");
 
-		//create legend entires and for each add a colour block and text
-		legend.selectAll('.legendEntry')
-		.data(Object.keys(colorMap))
-		.enter().append("g")
-		.attr('class', 'legendEntry')
-		.attr("transform",function(d,i){return "translate(0," + legendSpacing*i +")";})
-		.call(function(d){
+        //create legend entires and for each add a colour block and text
+        legend.selectAll('.legendEntry')
+                .data(Object.keys(colorMap))
+                .enter().append("g")
+                .attr('class', 'legendEntry')
+                .attr("transform", function (d, i) {
+                    return "translate(0," + legendSpacing * i + ")";
+                })
+                .call(function (d) {
 
-			//append entry text
-			d.append('text')
-			.style({"text-anchor":"start","text-decoration":"underline", "font-size":"14pt"})
-			.text(function(d) { return data.processed_result.display_names[d]; })
-			.attr("transform",function(d,i){return "translate(" + (legendRectSize*1.5 + 10) + ",17)";});
+                    //append entry text
+                    d.append('text')
+                            .style({"text-anchor": "start", "text-decoration": "underline", "font-size": "14pt"})
+                            .text(function (d) {
+                                return data.processed_result.display_names[d];
+                            })
+                            .attr("transform", function (d, i) {
+                                return "translate(" + (legendRectSize * 1.5 + 10) + ",17)";
+                            });
 
-			//append colour square
-			d.append('rect')
-			.attr('width', legendRectSize)
-			.attr('height', legendRectSize)
-			.attr("transform", "translate(5, 5)")
-			.style('fill', function(d){return colorMap[d];})
-			.style('stroke', function(d){return colorMap[d];});
-		});
+                    //append colour square
+                    d.append('rect')
+                            .attr('width', legendRectSize)
+                            .attr('height', legendRectSize)
+                            .attr("transform", "translate(5, 5)")
+                            .style('fill', function (d) {
+                                return colorMap[d];
+                            })
+                            .style('stroke', function (d) {
+                                return colorMap[d];
+                            });
+                });
 
-	}
+    }
 </script>

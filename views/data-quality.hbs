@@ -1,0 +1,57 @@
+<html>
+{{> head}}
+<body>
+
+<div class="container">
+
+    {{> topbar}}
+
+    {{> navbar}}
+
+    <br>
+
+    <div class="wrapper">
+
+        <div class="row">
+
+            <div class="col-sm-10">
+
+                <h3>Data Quality</h3>
+
+                <p>The <b>Data Quality</b> is .... Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <h4>Data Quality Graphs</h4>
+
+                <ul class="query-list">
+                    <li> <a href="/visualization/PDC-831/{{user.clinic}}/{{user.clinician}}">Active Patients Seen in the Last 3 Years</a></li>
+                    <li> <a href="/visualization/PDC-832/{{user.clinic}}/{{user.clinician}}">Active Patients Missing Gender</a></li>
+                    <li> <a href="/visualization/PDC-833/{{user.clinic}}/{{user.clinician}}">Active Patients with Invalid Date of Birth</a></li>
+                    <li> <a href="/visualization/PDC-834/{{user.clinic}}/{{user.clinician}}">Active Patients with No Date of Birth</a></li>
+                    <li> <a href="/visualization/PDC-836/{{user.clinic}}/{{user.clinician}}">Percentage of Medications that are Coded</a></li>
+                    <li> <a href="/visualization/PDC-837/{{user.clinic}}/{{user.clinician}}">Number of Prescriptions Per Encounter</a></li>
+                    <li> <a href="/visualization/PDC-838/{{user.clinic}}/{{user.clinician}}">Patients with No Current Medications</a></li>
+                    <li> <a href="/visualization/PDC-840/{{user.clinic}}/{{user.clinician}}">Percentage of the Problem List that is Coded</a></li>
+                    <li> <a href="/visualization/PDC-882/{{user.clinic}}/{{user.clinician}}">Percentage of Problem 1+ Documented Problem</a></li>
+                    <li> <a href="/visualization/PDC-842/{{user.clinic}}/{{user.clinician}}">Percentage of Patients with Diabetes</a></li>
+                    <li> <a href="/visualization/PDC-843/{{user.clinic}}/{{user.clinician}}">COPD Completeness Estimate</a></li>
+                    <li> <a href="/visualization/PDC-845/{{user.clinic}}/{{user.clinician}}">Hypothyroidism Completeness Estimate</a></li>
+                    <li> <a href="/visualization/PDC-846/{{user.clinic}}/{{user.clinician}}">Gout Completeness Estimate</a></li>
+                    <li> <a href="/visualization/PDC-865/{{user.clinic}}/{{user.clinician}}">Documentation Rate for Blood Pressure</a></li>
+                    <li> <a href="/visualization/PDC-889/{{user.clinic}}/{{user.clinician}}">Documentation Rate for BMI</a></li>
+                </ul>
+
+            </div>
+            <div class="col-sm-2">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- container -->
+
+
+</body>
+</html>

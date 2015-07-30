@@ -1,48 +1,47 @@
 <html>
 {{> head}}
 <body>
-{{> sidebar}}
 
 <div class="container">
-    <div class="row text-center">
-      <img src="/assets/images/PDC-Logo.png" alt="PDC Logo" width="300px" align="middle" style="padding:20px">
-      <hr>
-      <h1>Visualizer</h1>
-<!---
-      <h3 class="text-muted">Physicians Data Collaborative of British Columbia</h3>
--->
-    </div> <!-- row text-center -->
 
-    <div class="row">
-      {{#if user}}
-      <p class="lead" style="text-align:center">
-        Welcome to the visualizer.<br>
-        Your user name is <code>{{user.username}}</code>.<br>
-<!---        Welcome to the visualizer {{user.first_name}} {{user.last_name}}.<br>
-        Your user name is <code>{{user.username}}</code>.<br>
--->
-        {{#if user.admin }}
-          You are an administrator.<br>
-        {{/if}}
-      </p>
-      <!-- <code>{{json user}}</code> -->
-    {{else}}
-      <div class="col-xs-6 col-xs-offset-3">
-        In order to access the visualization data, you must authenticate.
-        <div class="text-center">
-          <a href="/auth" class="btn btn-primary btn-labeled">
-            <span class="btn-label">
-              <i class="fa fa-key"></i>
-            </span>
-            Authenticate
-          </a>
-        </div> <!-- text-center -->
-      </div> <!-- col-xs-6 col-xs-offset-3 -->
-    {{/if}}
-  </div> <!-- row -->
+    {{> topbar}}
 
 
-</div> <!-- container -->
+    <div class="wrapper">
+
+        <div class="row">
+
+            <div class="col-sm-10">
+
+                <div class="row">
+                   <div class="col-xs-12">
+
+                       {{> projects}}
+
+                   </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+
+                        {{> welcome}}
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-2">
+
+                {{> rightbar }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+<!-- container -->
 
 
 </body>
