@@ -43,8 +43,8 @@
                 "Num of Prescriptions" + d.numerator + "<br/>" +
                 "Total Prescriptions:" + d.denominator)
                 .style({
-                    "left"      : (d3.event.pageX - p.top) + "px",
-                    "top"       : (d3.event.pageY - p.left - 28) + "px",
+                    "left"      : (d3.event.pageX - p.left) + "px",
+                    "top"       : (d3.event.pageY - p.top - 28) + "px",
                     "background": toolTipColorMap[src]
                 });
     }
@@ -59,8 +59,8 @@
     function vis(data) {
 
         //define container constraints
-        var margin = {top: 50, right: 50, bottom: 125, left: 75},
-            width  = 600 + margin.left + margin.right,
+        var margin = {top: 50, right: 50, bottom: 80, left: 75},
+            width  = 700 + margin.left + margin.right,
             height = 400 + margin.top + margin.bottom;
 
         //set up SVG container to contain all components
@@ -69,18 +69,8 @@
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(150,50) scale(0.75, 0.75)");
+                .attr("transform", "translate(150,50) scale(0.70, 0.70)");
         //.style({'overflow':'visible'});//translate(" + margin.left + "," + margin.top + ");
-
-        //append a title
-        canvas.append("g")
-                .attr("class", "title")
-                .append("text")
-                .attr("x", width / 2)
-                .attr("y", 0)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "20pt"})
-                .text("Top Ten Most Commonly Prescribed Medication Classes");
-
 
         //variable for descrete x axis tick headings
         var xScaleHeadings = [];
@@ -229,7 +219,7 @@
             //transform neg-ive so the left and top are around the legend item
                 .attr('width', legendWidth)  //values chosen based on info being displayed
                 .attr('height', legendHeight)
-                .style('fill', "lightgrey");
+                .style('fill', "#e6e6e6");
 
         //create legend entires and for each add a colour block and text
         legend.selectAll('.legendEntry')
