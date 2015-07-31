@@ -1,13 +1,18 @@
 <html>
 
 <head>
-  <meta charset="UTF-8">
-  <title>PDC - {{ title }}</title>
-  <meta name="description" content="Visualization Dashboard.">
-  <link rel="PDC Icon" href="/assets/images/favicon.ico" type="image/x-icon" />
+    <meta charset="UTF-8">
+    {{#if title}}
+        <title>{{ title }} - PDC</title>
+    {{else}}
+        <title>PDC</title>
+    {{/if}}
 
-  {{> styles }}
-  {{> scripts }}
+    <meta name="description" content="Visualization Dashboard.">
+    <link rel="PDC Icon" href="/assets/images/favicon.ico" type="image/x-icon"/>
+
+    {{> styles }}
+    {{> scripts }}
 </head>
 
 <body>
