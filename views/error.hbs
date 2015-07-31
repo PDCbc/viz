@@ -21,9 +21,10 @@
         <a href='/auth'>
         {{/if}}
 
-        <button id='backButton' class="btn btn-primary">
+        <button id='backButton' class="btn btn-warning">
             Take Me Back!
         </button>
+
 
     </a>
 
@@ -33,6 +34,8 @@
         {{#if message }}
             <p><b>There was the following message:</b> <br> {{ message }}</p>
         {{/if}}
+
+        <a href="mailto:contact@pdc.io"><button class="btn btn-primary">Send Feedback</button></a>
 
     </div>
 </div>
