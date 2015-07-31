@@ -160,6 +160,7 @@ h1, h2, h3, h4, h5, h6 {
     margin-left: 5px;
     text-decoration: none;
     color: black; /** remove color from the hyperlinking */
+    font-size:14px;
 
 }
 
