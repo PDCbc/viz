@@ -62,9 +62,7 @@
 
         function toolTipMouseOver(d, src, tempData) {
 
-            var p = $(elemId+" svg").position();
-
-            console.log(p);
+            var p = $(elemId + " svg").offset();
 
             div.transition()
                     .duration(200)
@@ -75,8 +73,8 @@
                     "Num of Patients:" + tempData[src][d] + "<br/>" +
                     "Total Patients:" + tempData.totalPatients)
                     .style({
-                        "left": (d3.event.pageX - p.left) + "px",
-                        "top" : (d3.event.pageY - p.top - 28) + "px"
+                        "left": (d3.event.pageX - p.left + 200) + "px",
+                        "top" : (d3.event.pageY - p.top - 50) + "px"
                     });
         }
 

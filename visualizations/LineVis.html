@@ -12,8 +12,8 @@
         position: absolute;
         text-align: center;
         width: 125px;
-        height: 40px;
-        padding: 2px;
+        height: 55px;
+        padding: 8px;
         font: 12px sans-serif;
         border: 0px;
         border-radius: 8px;
@@ -43,7 +43,7 @@
 
     function toolTipMouseOver(d, src) {
 
-        var p = $("svg").position();
+        var p = $("svg").offset();
 
         div.transition()
                 .duration(200)

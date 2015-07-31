@@ -34,12 +34,7 @@
 
         var units = d.units || "Patients";
         //var p = $(".container").position();
-        var p = $("svg").position();
-
-        console.log(d3.event.pageX);
-        console.log(d3.event.pageY);
-        console.log(p);
-
+        var p = $("svg").offset();
 
         div.transition()
                 .duration(200)
