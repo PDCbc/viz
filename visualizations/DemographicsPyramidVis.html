@@ -276,7 +276,7 @@
                 .attr("x", width / 4)
                 .attr("y", margin.bottom)
                 .style({"text-anchor": "middle", "text-decoration": "none", "font-size": "14pt"})
-                .text("Number of Patients");
+                .text(|| "Number of Patients");
 
         //left side (male) x axis def
         var x2Axis = d3.svg.axis()
