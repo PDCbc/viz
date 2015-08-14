@@ -31,4 +31,26 @@ function complete(error, data) {
     require('https').createServer(data.certificate, data.httpd).listen(process.env.PORT, function () {
         logger.success('Server listening on port ' + process.env.PORT);
     });
+
+    //secondary server that redirects HTTP traffic onto the HTTPS routes.
+    require('http').createServer(function(req, res){
+
+        if(process.env.MODE === "DEV"){
+
+            logger.log("Redirecting HTTP request to: "+"https://" + req.headers['host'].split(":")[0]+":"+process.env.PORT + req.url);
+            res.writeHead(301, { "Location": "https://" + req.headers['host'].split(":")[0]+":"+process.env.PORT + req.url });
+
+        }else{
+
+            res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+
+        }
+
+        res.end();
+
+    }).listen(process.env.PORT_VIZ_HTTP, function(){
+
+        logger.success("HTTP->HTTPS Redirect server listening on port "+process.env.PORT_VIZ_HTTP);
+
+    });
 }

@@ -42,6 +42,18 @@ npm install # Install Dependencies into `.node_modules/`.
 npm start   # Start the application.
 ```
 
+### Settings
+
+It is possible to configure some settings for the server using Node's `process.env.VARIABLE` construct. Any environement variables are available through this. The Visualizer utilizes the following environment variables, if they are not specified a default value is choosen.
+
+* `HUBAPI_URL` - the URL to the HAPI component. Defaults to `https://hubapi:3005`.
+* `AUTH_MAIN_URL` - the URL to the Auth main component. Defaults to `https://auth:3005`.
+* `AUTH_CONTROL_URL` - the URL to the Auth main component. Defaults to `https://auth:3006`.
+* `AUTH_MAIN_URL` - the URL to the Auth main component. Defaults to `https://auth:3005`.
+* `PORT` - the URL to the Auth main component. Defaults to `3004`.
+* `NODE_TLS_REJECT_UNAUTHORIZED` - the URL to the Auth main component.
+* `PORT_VIZ_HTTP` - The port to service HTTP requests on, redirects to HTTPS. Defaults `3008`.
+
 # Deploy
 
 There is a `Dockerfile` for use in deployment, however your mileage may vary.
