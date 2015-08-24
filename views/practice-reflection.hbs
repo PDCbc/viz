@@ -2,6 +2,8 @@
 {{> head}}
 <body>
 
+
+
 <div class="container">
 
     {{> topbar}}
@@ -75,15 +77,12 @@
                     <li><a href="/visualization/PDC-993/{{user.clinic}}/{{user.clinician}}">Estimated Number of Frail Elderly</a></li>
                 </ul>
 
+                -->
                 <h4>Downloadable Reports</h4>
 
                 <ul class="query-list">
-                    <li><a href="/visualization/PDC-993/{{user.clinic}}/{{user.clinician}}">Medication use in Seniors</a></li>
-                    <li><a href="/visualization/PDC-993/{{user.clinic}}/{{user.clinician}}">PSP Pain Module</a></li>
-                    <li><a href="/visualization/PDC-993/{{user.clinic}}/{{user.clinician}}">PSP Musculoskeletal Module</a></li>
-                    <li><a href="/visualization/PDC-993/{{user.clinic}}/{{user.clinician}}">PSP End of Life Module</a></li>
+                    <li><a href="/report/practice-reflection-report.csv">Practice Reflection Report</a></li>
                 </ul>
-                -->
 
             </div>
             <div class="col-sm-2">
@@ -96,7 +95,9 @@
 
 </div>
 <!-- container -->
-
+<script>
+    setNavbarColor("navbar-practice-reflection");
+</script>
 
 </body>
 </html>

@@ -2,6 +2,7 @@
     <html>
     {{> head}}
 
+
     <script>
         /**
          * Changes the perspective of the visualization to show either clinician, group, or network
@@ -209,5 +210,18 @@
         };
 
     </script>
+
+    <script>
+
+        var initiative = getParameterByName("initiative");
+
+        if(initiative){
+            setNavbarColor("navbar-"+initiative);
+        }else{
+            setNavbarColor(null);
+        }
+
+    </script>
+
     </html>
 {{/if}}
