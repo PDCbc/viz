@@ -10,6 +10,11 @@
         border-radius: 8px;
         pointer-events: none;
     }
+
+    .viz-text {
+        font-size:14px;
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Thin", "Helvetica Neue";
+    }
 </style>
 
 <script>
@@ -106,7 +111,7 @@
         //define container constraints
         var margin  = {top: 50, right: 50, bottom: 75, left: -75, inner: 80},
             //This is half width due to the two sides of a pop pyramid
-            width   = 800 - margin.left - margin.right,
+            width   = 825 - margin.left - margin.right,
             height  = 500 - margin.top - margin.bottom,
             yScale  = d3.scale.ordinal().domain(ageRanges).rangeBands([0, height], 0.25),
             //Scale for right pyramid
@@ -124,6 +129,7 @@
         var t = title || "";
 
         //append a title
+        /*
         canvas.append("g")
                 .attr("class", "title")
                 .append("text")
@@ -131,6 +137,7 @@
                 .attr("y", -5)
                 .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "14pt"})
                 .text(t);
+        */
 
         //text on y axis for age ranges
         canvas.append("g")
@@ -138,15 +145,15 @@
                 .selectAll("text.ages")
                 .data(ageRanges)
                 .enter("svg:text").append("text")
-                .attr("class", "ages")
+                .attr("class", "ages viz-text")
                 .attr("x", width / 2)
                 .attr("y", function (d) {
                     return yScale(d) + yScale.rangeBand() - 10;
                 })
                 .attr("fill", "#000")
                 .attr("text-anchor", "middle")
-                .attr("font-size", "12px")
-                .style({"text-anchor": "middle", "font-size": "12pt"})
+                .attr("font-size", "14px")
+                .style({"text-anchor": "middle", "font-size": "14pt"})
                 .text(function (d) {
                     return d;
                 });
@@ -156,6 +163,7 @@
                 .attr("x", width / 2)
                 .attr("y", height + 40)
                 .attr("dy", ".71em")
+                .attr('class', 'viz-text')
                 .attr("fill", "#000")
                 .attr("text-anchor", "middle")
                 .attr("letter-spacing", 1)
@@ -268,7 +276,7 @@
 
         //add right X Axis to SVG
         canvas.append("g")
-                .attr("class", "x axis")
+                .attr("class", "x axis viz-text")
                 .attr("transform", "translate(" + (width / 2 + margin.inner / 2) + "," + height + ")")
                 .style({"text-anchor": "middle", "font-size": "14pt"})
                 .call(x1Axis)
@@ -286,7 +294,7 @@
 
         //add left X Axis to SVG
         canvas.append("g")
-                .attr("class", "x axis")
+                .attr("class", "x axis viz-text")
                 .attr("transform", "translate(" + (-1 * margin.inner / 2) + "," + height + ")")
                 .style({"text-anchor": "middle", "font-size": "14pt"})
                 .call(x2Axis)
@@ -332,16 +340,22 @@
             //transform neg-ive so the left and top are around the legend item
                 .attr("transform", "translate(-5,-5)")
                 .attr('width', 180)  //values chosen based on info being displayed
-                .attr('height', 85)
+                .attr('height', 100)
                 .style('fill', "white");
+
+        legend.append("text")
+                .attr("class", "viz-text")
+                .attr("transform", "translate(0,5)")
+                .style({"text-anchor": "start", "text-decoration": "", "font-size": "14pt", "font-weight":"bold"})
+                .text(t);
 
         //create legend entires and for each add a colour block and text
         legend.selectAll('.legendEntry')
                 .data(Object.keys(colorMap))
                 .enter().append("g")
-                .attr('class', 'legendEntry')
+                .attr('class', 'legendEntry viz-text')
                 .attr("transform", function (d, i) {
-                    return "translate(0," + legendSpacing * i + ")";
+                    return "translate(0," + (legendSpacing * i + 20)+ ")";
                 })
                 .call(function (d) {
 

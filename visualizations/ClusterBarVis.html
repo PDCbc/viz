@@ -40,8 +40,8 @@
                 name + "<br/>" +
                 "Date: " + formatTime(new Date(d.time * 1000)) + "<br/>" +
                 "Ratio: " + ( (d.numerator / d.denominator ) * 100).toFixed(2) + " % <br/>" +
-                "Num of Prescriptions" + d.numerator + "<br/>" +
-                "Total Prescriptions:" + d.denominator)
+                "Num of Prescriptions: " + d.numerator + "<br/>" +
+                "Total Prescriptions: " + d.denominator)
                 .style({
                     "left"      : (d3.event.pageX - p.left) + "px",
                     "top"       : (d3.event.pageY - p.top - 28) + "px",
