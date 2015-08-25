@@ -46,6 +46,48 @@
 
             }
         }
+
+        /**
+         * Changes the visualization to show as line, bar, or pie
+         */
+        function changeViz(event) {
+
+            console.log(event.delegateTarget.id);
+
+            $("#lineVizToggle").removeClass("btn-warning");
+            $("#barVizToggle").removeClass("btn-warning");
+
+            $("#" + event.delegateTarget.id).addClass("btn-warning");
+
+            switch (event.delegateTarget.id) {
+
+                case "lineVizToggle":
+                    $("#lineChart").show();
+                    $("#barChart").hide();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                case "barVizToggle":
+                    $("#lineChart").hide();
+                    $("#barChart").show();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                default:
+                    $("#lineVizToggle").hide();
+                    $("#barVizToggle").hide();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+
+            }
+        }
     </script>
     <body>
     <div class="container">
@@ -83,6 +125,8 @@
                                 <div class="" id="foobar">
 
                                     <div id="chart"></div>
+                                    <div id="barChart"></div>
+                                    <div id="lineChart"></div>
                                     <!-- this is the anchor for the d3 visualization, must have id=chart -->
 
                                     <div id="tripleGraph" class="row">
@@ -128,6 +172,22 @@
 
                     </div>
 
+                    <div class="row">
+
+                        <div class="col-xs-12 text-center panel" id="vizToggle"> <!-- side bar -->
+
+                            <div class="col-xs-offset-3 col-xs-2" role="presentation">
+                                <button id="barVizToggle" class="btn btn-primary btn-warning toggleButton">Bar Chart
+                                </button>
+                            </div>
+                            <div class="col-xs-2" role="presentation">
+                                <button id="lineVizToggle" class="btn btn-primary toggleButton">Line Chart</button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
 
                 </div>
 
@@ -157,10 +217,12 @@
     </body>
 
     {{{ script }}}
+
     <script>
 
         var data = {{{json visualization}}};
 
+        console.log(data);
 
         if (data["display_name"]) {
 
@@ -182,17 +244,36 @@
             $("#exec-date").text("Latest Execution: " + d.getFullYear()+"-"+ ("0"+(d.getMonth()+1)).slice(-2) +"-"+d.getDate());
 
         }else{
+
             console.log("No latest execution date provided via data.latest");
             $("#exec-date").hide();
+
         }
 
-        vis(data); // Render the actual visualiztion;
 
         if (data.script === "DemographicsPyramidVis") {
 
+            vis(data); // Render the actual visualiztion;
+
             $("#perspectiveToggle").show();
+            $("#vizToggle").hide();
 
             $("#c1").show();
+            $("#c2").hide();
+            $("#c3").hide();
+
+            $("#chart").hide();
+
+        } else if(data.script === "ratioViz"){
+
+            barVis(data, "#barChart");
+            lineVis(data, "#lineChart");
+
+            $("#vizToggle").show();
+            $("#lineChart").hide();
+            $("#perspectiveToggle").hide();
+
+            $("#c1").hide();
             $("#c2").hide();
             $("#c3").hide();
 
@@ -201,6 +282,7 @@
         } else {
 
             $("#perspectiveToggle").hide();
+            $("#vizToggle").hide();
 
             $("#c1").hide();
             $("#c2").hide();
@@ -214,13 +296,29 @@
         $("#groupToggle").bind('click', changePerspective);
         $("#networkToggle").bind('click', changePerspective);
 
+        $("#lineVizToggle").bind('click', changeViz);
+        $("#barVizToggle").bind('click', changeViz);
+
         window.onresize = function(){
 
             $("#chart").text("");
             $("#c1").text("");
             $("#c2").text("");
             $("#c3").text("");
-            vis({{{json visualization}}});
+            $("#lineChart").text("");
+            $("#barChart").text("");
+
+            if(data.script === 'ratioViz'){
+
+                barVis({{{json visualization}}}, "#barChart");
+                lineVis({{{json visualization}}}, "#lineChart");
+
+            }else{
+
+                vis({{{json visualization}}});
+
+            }
+
 
         };
 
