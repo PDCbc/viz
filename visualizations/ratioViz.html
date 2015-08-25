@@ -24,7 +24,7 @@
 
         var units = d.units || "Patients";
         //var p = $(".container").position();
-        var p = $(parent+" > svg").offset();
+        var p = $(parent + " > svg").offset();
 
         div.transition()
                 .duration(200)
@@ -262,7 +262,8 @@
         //add a container for the legend
         var legend = canvas.append('g')
                 .attr('class', 'legend')
-                .attr("transform", "translate(" + (width - legendWidth / 2 - 5) + ", -5)");
+                .attr("transform", "translate(" + (width - legendWidth / 2 - 5) + ", -5)")
+                .style('opacity', '0.9');
 
         //append a background for the legend
         legend.append('rect')
@@ -389,7 +390,7 @@
         //See docs: https://github.com/mbostock/d3/wiki/SVG-Axes#tickValues
         var tickVals = [];
 
-        data.processed_result.clinician.forEach(function(x){
+        data.processed_result.clinician.forEach(function (x) {
 
             tickVals.push(x.time);
 
@@ -610,7 +611,8 @@
         //add a container for the legend
         var legend = canvas.append('g')
                 .attr('class', 'legend')
-                .attr("transform", "scale(0.75, 0.75) translate(" + (width + 200) + ", 50)");
+                .attr("transform", "scale(0.75, 0.75) translate(" + (width + 200) + ", 50)")
+                .style('opacity', '0.9');
 
         //append a background for the legend
         legend.append('rect')
@@ -653,5 +655,89 @@
                             });
                 });
     }
+</script>
+
+<script>
+
+    /*----------------------------- PIE CHART ------------------------------------*/
+
+    function pieVis(data, parent) {
+
+        var radius  = 100,
+            margin  = 100,
+            padding = 10;
+
+        function division(d, g) {
+
+            var calculate = d.aggregate_result.numerator / d.aggregate_result.denominator;
+
+            return [{"label": "Value", "value": calculate, "group": g},
+                {"label": "Inverse", "value": 1 - calculate, "group": g}];
+
+        }
+
+        var color = d3.scale.ordinal()
+                .range(["black", "lightSlateGray", "red"]);
+
+        parent = parent || "#pieChart";
+
+        var canvas = d3.select(parent)
+                .append("svg:svg")
+                .attr("width", (radius + margin) * 2 * 3)
+                .attr("height", (radius + margin) * 2)
+                .append("svg:g")
+                .attr("transform", "translate(" + (radius + 50) + "," + (radius + 50) + ")");
+
+        var arc = d3.svg.arc()
+                .outerRadius(radius);
+
+        var pie = d3.layout.pie()
+                .value(function (d) {
+                    return d.value;
+                });
+
+        var NetworkData   = division(data.processed_result.network[0], "Network");
+        var ClinicData    = division(data.processed_result.group[0], "Clinic");
+        var ClinicianData = division(data.processed_result.clinician[0], "Clinician");
+        var allData       = [NetworkData, ClinicData, ClinicianData];
+
+        //Total Pie
+
+        var arcs = canvas.append("g")
+                .attr("class", "graphs")
+                .selectAll(".pie")
+                .data(allData)
+                .enter().append("g")
+                .attr("class", "pie")
+                .attr("transform", function (d, i) {
+                    return "translate(" + i * 250 + ",0)";
+                });
+
+        arcs.selectAll(".slice")
+                .data(function (d) {
+                    return pie(d);
+                })
+                .enter().append("g")
+                .attr("fill", color)
+                .attr("class", "slice")
+                .call(function (d, i) {
+                    d.append("svg:path")
+                            .style("fill", function (d, i) {
+                                return color(d.value);
+                            })
+                            .attr("d", arc)
+                            .on('mouseover', undefined)
+                            .on('mouseout', undefined)
+                    arcs.append("svg:text")
+                            .attr("x", 0)
+                            .attr("y", 140)
+                            .style({"text-anchor": "middle", "font-size": "14pt", "font-weight": "bold"})
+                            .text(function (d) {
+                                return d[0].group;
+                            })
+                });
+    }
+
+
 </script>
 

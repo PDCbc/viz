@@ -56,6 +56,7 @@
 
             $("#lineVizToggle").removeClass("btn-warning");
             $("#barVizToggle").removeClass("btn-warning");
+            $("#pieVizToggle").removeClass("btn-warning");
 
             $("#" + event.delegateTarget.id).addClass("btn-warning");
 
@@ -64,6 +65,7 @@
                 case "lineVizToggle":
                     $("#lineChart").show();
                     $("#barChart").hide();
+                    $("#pieChart").hide();
                     $("#c1").hide();
                     $("#c2").hide();
                     $("#c3").hide();
@@ -72,6 +74,16 @@
                 case "barVizToggle":
                     $("#lineChart").hide();
                     $("#barChart").show();
+                    $("#pieChart").hide();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                case "pieVizToggle":
+                    $("#lineChart").hide();
+                    $("#barChart").hide();
+                    $("#pieChart").show();
                     $("#c1").hide();
                     $("#c2").hide();
                     $("#c3").hide();
@@ -80,6 +92,7 @@
                 default:
                     $("#lineVizToggle").hide();
                     $("#barVizToggle").hide();
+                    $("#pieChart").hide();
                     $("#c1").hide();
                     $("#c2").hide();
                     $("#c3").hide();
@@ -127,6 +140,7 @@
                                     <div id="chart"></div>
                                     <div id="barChart"></div>
                                     <div id="lineChart"></div>
+                                    <div id="pieChart"></div>
                                     <!-- this is the anchor for the d3 visualization, must have id=chart -->
 
                                     <div id="tripleGraph" class="row">
@@ -182,6 +196,9 @@
                             </div>
                             <div class="col-xs-2" role="presentation">
                                 <button id="lineVizToggle" class="btn btn-primary toggleButton">Line Chart</button>
+                            </div>
+                            <div class="col-xs-2" role="presentation">
+                                <button id="pieVizToggle" class="btn btn-primary toggleButton">Pie Chart</button>
                             </div>
 
                         </div>
@@ -263,14 +280,19 @@
             $("#c3").hide();
 
             $("#chart").hide();
+            $("#lineChart").hide();
+            $("#barChart").hide();
+            $("#pieChart").hide();
 
         } else if(data.script === "ratioViz"){
 
             barVis(data, "#barChart");
             lineVis(data, "#lineChart");
+            pieVis(data, "#pieChart");
 
             $("#vizToggle").show();
             $("#lineChart").hide();
+            $("#pieChart").hide();
             $("#perspectiveToggle").hide();
 
             $("#c1").hide();
@@ -288,6 +310,10 @@
             $("#c2").hide();
             $("#c3").hide();
 
+            $("#lineChart").hide();
+            $("#barChart").hide();
+            $("#pieChart").hide();
+
             $("#chart").show();
 
         }
@@ -298,6 +324,7 @@
 
         $("#lineVizToggle").bind('click', changeViz);
         $("#barVizToggle").bind('click', changeViz);
+        $("#pieVizToggle").bind('click', changeViz);
 
         window.onresize = function(){
 
@@ -307,11 +334,13 @@
             $("#c3").text("");
             $("#lineChart").text("");
             $("#barChart").text("");
+            $("#pieChart").text("");
 
             if(data.script === 'ratioViz'){
 
                 barVis({{{json visualization}}}, "#barChart");
                 lineVis({{{json visualization}}}, "#lineChart");
+                pieVis({{{json visualization}}}, "#pieChart");
 
             }else{
 
