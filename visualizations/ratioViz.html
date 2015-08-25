@@ -333,7 +333,7 @@
         var c = $(parent).width();
 
         //define container constraints
-        var margin = {top: 50, right: 50, bottom: 100, left: 50},
+        var margin = {top: 50, right: 75, bottom: 100, left: 50},
             width  = 0.9 * c - margin.left - margin.right,
             height = 200 - margin.top + margin.bottom;
 
@@ -385,13 +385,17 @@
             d.time = new Date(d.time * 1000);
         });
 
-        //scale number of XAxis ticks based on JSON
-        //causes some problems because of automatic D3 tick labels, could be changed with stronger logic
-        xAxis.ticks(Math.max(
-                Object.keys(data.processed_result.network).length,
-                Object.keys(data.processed_result.group).length,
-                Object.keys(data.processed_result.clinician).length
-        )).tickFormat(d3.time.format("%Y-%m-%d"));
+        //Set the value to xAxis ticks
+        //See docs: https://github.com/mbostock/d3/wiki/SVG-Axes#tickValues
+        var tickVals = [];
+
+        data.processed_result.clinician.forEach(function(x){
+
+            tickVals.push(x.time);
+
+        });
+
+        xAxis.tickValues(tickVals).tickFormat(d3.time.format("%Y-%m-%d"));
 
         //set the domain to the absolute min and max of the 3 data sets to ensure proper scaling
         xScale.domain([
