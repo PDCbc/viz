@@ -14,6 +14,38 @@
 
 <script>
 
+    //Share variables
+    var colorMap = {clinician: 'black', group: 'blue', network: 'red'};
+    var colorMap2 = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
+
+    var formatTime = d3.time.format("%Y-%m-%d");
+
+    function toolTipMouseOver(d, src, name, div) {
+
+        var units = d.units || "Patients";
+        //var p = $(".container").position();
+        var p = $("svg").offset();
+
+        div.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+        div.html(
+                name + "<br/>" +
+                "Date: " + formatTime(new Date(d.time)) + "<br/>" +
+                "Ratio: " + ( (d.aggregate_result.numerator / d.aggregate_result.denominator ) * 100).toFixed(2) + " %<br/>" +
+                "Num of " + units + ": " + d.aggregate_result.numerator + "<br/>" +
+                "Total " + units + ": " + d.aggregate_result.denominator)
+                .style("background", colorMap2[src])
+                .style("top", (d3.event.pageY - p.top) + "px")
+                .style("left", (d3.event.pageX - p.left + 100) + "px");
+    }
+
+    function toolTipMouseOut(d, div) {
+        div.transition()
+                .duration(500)
+                .style("opacity", 0);
+    }
+
     /* ---------------------------BAR VISUALIZATION -------------------------- */
 
     /*
@@ -28,46 +60,15 @@
 
         parent = parent || "#chart";
 
-        var colorMap = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
         //@WiP create the tooltip div
         var div = d3.select(parent).append("div")
                 .attr("class", "tooltip")
                 .style({"opacity": 0, "width": "150"});
 
-        var formatTime = d3.time.format("%Y-%m-%d");
-
-        function toolTipMouseOver(d, src, name) {
-
-            var units = d.units || "Patients";
-            //var p = $(".container").position();
-            var p = $("svg").offset();
-
-            div.transition()
-                    .duration(200)
-                    .style("opacity", 0.9);
-            div.html(
-                    name + "<br/>" +
-                    "Date: " + formatTime(new Date(d.time * 1000)) + "<br/>" +
-                    "Ratio: " + ( (d.aggregate_result.numerator / d.aggregate_result.denominator ) * 100).toFixed(2) + " %<br/>" +
-                    "Num of "+units+": " + d.aggregate_result.numerator + "<br/>" +
-                    "Total "+units+": " + d.aggregate_result.denominator)
-                    .style("background", colorMap[src])
-                    .style("top", (d3.event.pageY - p.top) + "px")
-                    .style("left", (d3.event.pageX - p.left + 100) + "px");
-        }
-
-        function toolTipMouseOut(d) {
-            div.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-        }
-
-        var dataCopy = (JSON.parse(JSON.stringify(data)));
-
         //use only last point
-        data.processed_result.clinician = data.processed_result.clinician.slice(-1);
-        data.processed_result.group     = data.processed_result.group.slice(-1);
-        data.processed_result.network   = data.processed_result.network.slice(-1);
+        var clinician = data.processed_result.clinician.slice(-1);
+        var group     = data.processed_result.group.slice(-1);
+        var network   = data.processed_result.network.slice(-1);
 
         //define container constraints
         var margin = {top: 50, right: 50, bottom: 75, left: 75},
@@ -82,12 +83,15 @@
                 .append("svg:g")
                 .attr("transform", "translate(" + margin.left + ", 10) scale(0.90, 0.90)");
 
-        //append a title
+        //get dates from the data.
+        clinician[0].time = new Date(clinician[0].time);
+        group[0].time     = new Date(group[0].time);
+        network[0].time   = new Date(network[0].time);
 
         tmpXScale = [
-            data.processed_result.network[0].display_name,
-            data.processed_result.group[0].display_name,
-            data.processed_result.clinician[0].display_name
+            network[0].display_name,
+            group[0].display_name,
+            clinician[0].display_name
         ];
 
         //x position scale using date data
@@ -139,9 +143,9 @@
         //scale Y axis based on global maximum
         //ineffecient. Could retieve local maxs and trimAndScale just those values
         yScale.domain([0, d3.max([
-            d3.max(data.processed_result.network, trimAndScale),
-            d3.max(data.processed_result.group, trimAndScale),
-            d3.max(data.processed_result.clinician, trimAndScale)
+            d3.max(network, trimAndScale),
+            d3.max(group, trimAndScale),
+            d3.max(clinician, trimAndScale)
         ])]);
 
         //y axis def
@@ -162,7 +166,7 @@
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-50, 0)")
                 .style({"text-anchor": "middle", "font-size": "14pt"})
-                .text(units+" (%)");
+                .text(units + " (%)");
 
         //Bars(rects) for display. Due to JSON formatting the easiest way is
         //to create them seperatly.
@@ -179,9 +183,9 @@
         var bar3 = canvas.append("g")
                 .attr("class", "bars")
                 .selectAll(".bar")
-                .data(data.processed_result.clinician)
+                .data(clinician)
                 .enter().append("rect")
-                .attr("x", xScale(data.processed_result.clinician[0].display_name))
+                .attr("x", xScale(clinician[0].display_name))
                 .attr("y", yScale(0))
                 .attr("width", xScale.rangeBand())
                 .attr("height", 0)
@@ -194,16 +198,18 @@
                     return getDelta(d);
                 })
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'clinician', data.processed_result.clinician[0].display_name);
+                    toolTipMouseOver(d, 'clinician', clinician[0].display_name, div);
                 })
-                .on("mouseout", toolTipMouseOut);
+                .on("mouseout", function (d) {
+                    toolTipMouseOut(d, div);
+                });
 
         var bar2 = canvas.append("g")
                 .attr("class", "bars")
                 .selectAll(".bar")
-                .data(data.processed_result.group)
+                .data(group)
                 .enter().append("rect")
-                .attr("x", xScale(data.processed_result.group[0].display_name))
+                .attr("x", xScale(group[0].display_name))
                 .attr("y", yScale(0))
                 .attr("width", xScale.rangeBand())
                 .attr("height", 0)
@@ -215,16 +221,18 @@
                     return getDelta(d);
                 })
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'group', data.processed_result.group[0].display_name);
+                    toolTipMouseOver(d, 'group', group[0].display_name, div);
                 })
-                .on("mouseout", toolTipMouseOut);
+                .on("mouseout", function (d) {
+                    toolTipMouseOut(d, div);
+                });
 
         var bar1 = canvas.append("g")
                 .attr("class", "bars")
                 .selectAll(".bar")
-                .data(data.processed_result.network)
+                .data(network)
                 .enter().append("rect")
-                .attr("x", xScale(data.processed_result.network[0].display_name))
+                .attr("x", xScale(network[0].display_name))
                 .attr("y", yScale(0))
                 .attr("width", xScale.rangeBand())
                 .attr("height", 0)
@@ -236,12 +244,13 @@
                     return height - getDelta(d);
                 })
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'network', data.processed_result.network[0].display_name);
+                    toolTipMouseOver(d, 'network', network[0].display_name, div);
                 })
-                .on("mouseout", toolTipMouseOut);
+                .on("mouseout", function (d) {
+                    toolTipMouseOut(d, div);
+                });
 
         //mapping for colour selection and legend
-        var colorMap = {network: "red", group: "steelblue", clinician: "black"};
 
         //size for colour suqares in legend
         var legendRectSize = 15;
@@ -297,29 +306,6 @@
     }
 </script>
 
-<style>
-
-    .axis path,
-    .axis line {
-        stroke: Black;
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-
-    div.tooltip {
-        position: absolute;
-        text-align: center;
-        width: 125px;
-        height: 55px;
-        padding: 8px;
-        font: 12px sans-serif;
-        border: 0px;
-        border-radius: 8px;
-        pointer-events: none;
-    }
-</style>
-
 <script>
 
     /*---------------------------------------- LINE VISUALIZATION --------------------------*/
@@ -340,39 +326,9 @@
 
         parent = parent || "#chart";
 
-        var colorMap = {clinician: 'lightSlateGray', clinic: 'royalBlue', network: 'lightCoral'};
-
-        var formatTime = d3.time.format("%a %b %d %Y");
-
-        function toolTipMouseOver(d, src) {
-
-            var p = $("svg").offset();
-
-            div.transition()
-                    .duration(200)
-                    .style("opacity", 0.9);
-            div.html(
-                    "Date: " + formatTime(d.time) + "<br/>" +
-                    "Num of Patients:" + d.aggregate_result.numerator + "<br/>" +
-                    "Total Patients:" + d.aggregate_result.denominator)
-                    .style({
-                        "left"      : (d3.event.pageX - p.left - 100) + "px",
-                        "top"       : (d3.event.pageY - p.top - 28) + "px",
-                        "background": colorMap[src]
-                    });
-        }
-
-        function toolTipMouseOut(d) {
-            div.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-        }
-
-
-        div = d3.select(parent).append("div")
+        var div = d3.select(parent).append("div")
                 .attr("class", "tooltip")
                 .style({"opacity": 0, "width": "150"});
-
 
         var c = $(parent).width();
 
@@ -434,7 +390,7 @@
                 Object.keys(data.processed_result.network).length,
                 Object.keys(data.processed_result.group).length,
                 Object.keys(data.processed_result.clinician).length
-        )).tickFormat(d3.time.format("%Y-%m-%d"))
+        )).tickFormat(d3.time.format("%Y-%m-%d"));
 
         //set the domain to the absolute min and max of the 3 data sets to ensure proper scaling
         xScale.domain([
@@ -493,7 +449,6 @@
                 .attr("x", width / 2)
                 .attr("y", margin.bottom - 10)
                 .style("text-anchor", "middle");
-                //.text("Query Date");
 
         //add Y Axis to canvas
         canvas.append("g")
@@ -587,9 +542,11 @@
                 .attr("r", 7)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'clinician');
+                    toolTipMouseOver(d, 'clinician', data.processed_result['clinician'][0].display_name, div);
                 })
-                .on("mouseout", toolTipMouseOut);
+                .on("mouseout", function (d) {
+                    toolTipMouseOut(d, div);
+                });
 
         var clinicPoints = canvas.append("g")
                 .attr("class", "points")
@@ -608,9 +565,11 @@
                 .attr("r", 4)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'clinic');
+                    toolTipMouseOver(d, 'group', data.processed_result['group'][0].display_name, div);
                 })
-                .on("mouseout", toolTipMouseOut);
+                .on("mouseout", function (d) {
+                    toolTipMouseOut(d, div);
+                });
 
         var networkPoints = canvas.append("g")
                 .attr("class", "points")
@@ -629,12 +588,12 @@
                 .attr("r", 2)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'network');
+                    toolTipMouseOver(d, 'network', data.processed_result['network'][0].display_name, div);
                 })
-                .on("mouseout", toolTipMouseOut);
+                .on("mouseout", function (d) {
+                    toolTipMouseOut(d, div);
+                });
 
-        //mapping for colour selection and legend
-        var colorMap = {network: "red", group: "blue", clinician: "black"};
 
         var legendWidth  = 180;
         var legendHeight = 86;
