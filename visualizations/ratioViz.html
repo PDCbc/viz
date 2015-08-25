@@ -20,7 +20,7 @@
 
     var formatTime = d3.time.format("%Y-%m-%d");
 
-    function toolTipMouseOver(d, src, name, div, parent) {
+    function toolTipMouseOver(d, src, name, div, parent, color) {
 
         var units = d.units || "Patients";
         //var p = $(".container").position();
@@ -35,7 +35,7 @@
                 "Ratio: " + ( (d.aggregate_result.numerator / d.aggregate_result.denominator ) * 100).toFixed(2) + " %<br/>" +
                 "Num of " + units + ": " + d.aggregate_result.numerator + "<br/>" +
                 "Total " + units + ": " + d.aggregate_result.denominator)
-                .style("background", colorMap2[src])
+                .style("background", color || colorMap2[src])
                 .style("top", (d3.event.pageY - p.top) + "px")
                 .style("left", (d3.event.pageX - p.left + 100) + "px");
     }
@@ -663,16 +663,26 @@
 
     function pieVis(data, parent) {
 
-        var radius  = 100,
-            margin  = 100,
-            padding = 10;
+        var div = d3.select(parent).append("div")
+                .attr("class", "tooltip")
+                .style({"opacity": 0, "width": "150"});
 
-        function division(d, g) {
+        var radius     = 100,
+            margin     = 50,
+            pieSpacing = 250,
+            height     = 350,
+            padding    = 10;
 
-            var calculate = d.aggregate_result.numerator / d.aggregate_result.denominator;
+        /**
+         * Determines the breakdown for the two slices of the pie chart.
+         */
+        function division(d, t, g) {
 
-            return [{"label": "Value", "value": calculate, "group": g},
-                {"label": "Inverse", "value": 1 - calculate, "group": g}];
+            var ratio = d.aggregate_result.numerator / d.aggregate_result.denominator;
+
+            return [
+                {"label": "Value", "value": ratio, aggregate_result : d.aggregate_result, "title": t, group: g, time : d.time},
+                {"label": "Inverse", "value": 1 - ratio, aggregate_result : d.aggregate_result, "title": t, group: g, time : d.time}];
 
         }
 
@@ -683,10 +693,10 @@
 
         var canvas = d3.select(parent)
                 .append("svg:svg")
-                .attr("width", (radius + margin) * 2 * 3)
-                .attr("height", (radius + margin) * 2)
+                .attr("width", margin * 2 + radius * 2 + pieSpacing * 2)
+                .attr("height", (radius * 2 + 2 * margin) > height ? (radius * 2 + 2 * margin) : height)
                 .append("svg:g")
-                .attr("transform", "translate(" + (radius + 50) + "," + (radius + 50) + ")");
+                .attr("transform", "translate(" + (radius + 50) + "," + (radius) + ")");
 
         var arc = d3.svg.arc()
                 .outerRadius(radius);
@@ -696,10 +706,10 @@
                     return d.value;
                 });
 
-        var NetworkData   = division(data.processed_result.network[0], "Network");
-        var ClinicData    = division(data.processed_result.group[0], "Clinic");
-        var ClinicianData = division(data.processed_result.clinician[0], "Clinician");
-        var allData       = [NetworkData, ClinicData, ClinicianData];
+        var NetworkData   = division(data.processed_result.network.slice(-1)[0], data.processed_result.network[0].display_name, "network");
+        var GroupData     = division(data.processed_result.group.slice(-1)[0], data.processed_result.group[0].display_name, "group");
+        var ClinicianData = division(data.processed_result.clinician.slice(-1)[0], data.processed_result.clinician[0].display_name, "clinician");
+        var allData       = [NetworkData, GroupData, ClinicianData];
 
         //Total Pie
 
@@ -710,7 +720,7 @@
                 .enter().append("g")
                 .attr("class", "pie")
                 .attr("transform", function (d, i) {
-                    return "translate(" + i * 250 + ",0)";
+                    return "translate(" + i * pieSpacing + ",0)";
                 });
 
         arcs.selectAll(".slice")
@@ -723,17 +733,38 @@
                 .call(function (d, i) {
                     d.append("svg:path")
                             .style("fill", function (d, i) {
-                                return color(d.value);
+                                if (i === 0) {
+
+                                    return colorMap[d.data.group.toLowerCase()];
+
+                                } else {
+
+                                    return "lightSlateGray";
+
+                                }
                             })
                             .attr("d", arc)
-                            .on('mouseover', undefined)
-                            .on('mouseout', undefined)
+                            .on('mouseover', function(d,i){
+                                if(i === 0){
+
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent)
+
+                                }else{
+
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, "#e6e6e6")
+
+                                }
+
+                            })
+                            .on('mouseout', function(d){
+                                toolTipMouseOut(d, div)
+                            });
                     arcs.append("svg:text")
                             .attr("x", 0)
                             .attr("y", 140)
                             .style({"text-anchor": "middle", "font-size": "14pt", "font-weight": "bold"})
                             .text(function (d) {
-                                return d[0].group;
+                                return d[0].title;
                             })
                 });
     }
