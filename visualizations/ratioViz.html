@@ -4,7 +4,7 @@
         text-align: center;
         width: 130px;
         height: 75px;
-        padding: 5px;
+        padding: 7px;
         font: 12px sans-serif;
         border: 0px;
         border-radius: 8px;
@@ -20,11 +20,11 @@
 
     var formatTime = d3.time.format("%Y-%m-%d");
 
-    function toolTipMouseOver(d, src, name, div) {
+    function toolTipMouseOver(d, src, name, div, parent) {
 
         var units = d.units || "Patients";
         //var p = $(".container").position();
-        var p = $("svg").offset();
+        var p = $(parent+" > svg").offset();
 
         div.transition()
                 .duration(200)
@@ -198,7 +198,7 @@
                     return getDelta(d);
                 })
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'clinician', clinician[0].display_name, div);
+                    toolTipMouseOver(d, 'clinician', clinician[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
                     toolTipMouseOut(d, div);
@@ -221,7 +221,7 @@
                     return getDelta(d);
                 })
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'group', group[0].display_name, div);
+                    toolTipMouseOver(d, 'group', group[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
                     toolTipMouseOut(d, div);
@@ -244,7 +244,7 @@
                     return height - getDelta(d);
                 })
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'network', network[0].display_name, div);
+                    toolTipMouseOver(d, 'network', network[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
                     toolTipMouseOut(d, div);
@@ -361,8 +361,9 @@
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
+                .style('margin-top', '-75px')
                 .append("svg:g")
-                .attr("transform", "translate(20,0)");
+                .attr("transform", "translate(2,0)");
 
         //Line functions to build path from JSON data
         var line = d3.svg.line()
@@ -542,7 +543,7 @@
                 .attr("r", 7)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'clinician', data.processed_result['clinician'][0].display_name, div);
+                    toolTipMouseOver(d, 'clinician', data.processed_result['clinician'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
                     toolTipMouseOut(d, div);
@@ -565,7 +566,7 @@
                 .attr("r", 4)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'group', data.processed_result['group'][0].display_name, div);
+                    toolTipMouseOver(d, 'group', data.processed_result['group'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
                     toolTipMouseOut(d, div);
@@ -588,7 +589,7 @@
                 .attr("r", 2)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'network', data.processed_result['network'][0].display_name, div);
+                    toolTipMouseOver(d, 'network', data.processed_result['network'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
                     toolTipMouseOut(d, div);
