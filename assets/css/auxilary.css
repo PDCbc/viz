@@ -206,6 +206,11 @@ h1, h2, h3, h4, h5, h6 {
 
 }
 
+#viz-panel{
+    min-height:500px;
+    max-height:500px;
+}
+
 svg {
     text-align: center;
 }

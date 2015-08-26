@@ -1,18 +1,23 @@
 <style>
     div.tooltip {
-        position: relative;
+        position: absolute;
         text-align: center;
         width: 130px;
-        height: 75px;
-        padding: 7px;
+        height: 90px;
+        padding: 12px;
         font: 12px sans-serif;
         border: 0px;
         border-radius: 8px;
         pointer-events: none;
+        z-index: 100;
     }
 </style>
 
 <script>
+
+    var graphOffsets = {top: 20};
+
+    var fonts = {axisTickSize: 12, axisTitleSize: 14, legendSize : 14};
 
     //Share variables
     var colorMap = {clinician: 'black', group: 'blue', network: 'red'};
@@ -36,8 +41,8 @@
                 "Num of " + units + ": " + d.aggregate_result.numerator + "<br/>" +
                 "Total " + units + ": " + d.aggregate_result.denominator)
                 .style("background", color || colorMap2[src])
-                .style("top", (d3.event.pageY - p.top) + "px")
-                .style("left", (d3.event.pageX - p.left + 100) + "px");
+                .style("top", (d3.event.pageY ) + "px")
+                .style("left", (d3.event.pageX) + "px");
     }
 
     function toolTipMouseOut(d, div) {
@@ -61,7 +66,8 @@
         parent = parent || "#chart";
 
         //@WiP create the tooltip div
-        var div = d3.select(parent).append("div")
+        //var div = d3.select(parent).append("div")
+        var div = d3.select("#tooltip-holder").append("div")
                 .attr("class", "tooltip")
                 .style({"opacity": 0, "width": "150"});
 
@@ -73,7 +79,7 @@
         //define container constraints
         var margin = {top: 50, right: 50, bottom: 75, left: 75},
             width  = 600 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+            height = 450 - margin.top - margin.bottom;
 
         //set up SVG container to contain all components
         var canvas = d3.select(parent)
@@ -81,7 +87,7 @@
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(" + margin.left + ", 10) scale(0.90, 0.90)");
+                .attr("transform", "translate(" + margin.left + ", " + graphOffsets.top + ")");
 
         //get dates from the data.
         clinician[0].time = new Date(clinician[0].time);
@@ -114,14 +120,12 @@
                 .append("text")
                 .attr("x", (width ) / 2)
                 .attr("y", margin.bottom + 50)
-                .style({"text-anchor": "middle", "font-size": "14pt"});
+                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize + "pt"});
 
         //Rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.x.axis g.tick text")
-                .style({"text-anchor": "end", "font-size": "14pt"})
-                .attr("dx", "-0.5em")
-                .attr("dy", "1em")
-                .attr("transform", "rotate(-45)");
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
+                .attr("transform", "translate(0, 10) rotate(45)");
 
         //y position scaling
         var yScale = d3.scale.linear()
@@ -159,13 +163,13 @@
         canvas.append("g")
                 .attr("class", "y axis")
                 .attr("transform", "translate(6,0)")
-                .style({"text-anchor": "middle", "font-size": "14pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize+"pt"})
                 .call(yAxis)
                 .append("text")
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-50, 0)")
-                .style({"text-anchor": "middle", "font-size": "14pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
                 .text(units + " (%)");
 
         //Bars(rects) for display. Due to JSON formatting the easiest way is
@@ -262,7 +266,7 @@
         //add a container for the legend
         var legend = canvas.append('g')
                 .attr('class', 'legend')
-                .attr("transform", "translate(" + (width - legendWidth / 2 - 5) + ", -5)")
+                .attr("transform", "scale(0.75, 0.75) translate(" + (width - legendWidth/2 + 120) + ", -5)")
                 .style('opacity', '0.9');
 
         //append a background for the legend
@@ -284,7 +288,11 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": "14pt"})
+                            .style({
+                                "text-anchor"    : "start",
+                                "text-decoration": "none",
+                                "font-size"      : fonts.legendSize + "pt"
+                            })
                             .text(function (d) {
                                 return data.processed_result[d][0].display_name;
                             })
@@ -327,7 +335,7 @@
 
         parent = parent || "#chart";
 
-        var div = d3.select(parent).append("div")
+        var div = d3.select("#tooltip-holder").append("div")
                 .attr("class", "tooltip")
                 .style({"opacity": 0, "width": "150"});
 
@@ -336,7 +344,7 @@
         //define container constraints
         var margin = {top: 50, right: 75, bottom: 100, left: 50},
             width  = 0.9 * c - margin.left - margin.right,
-            height = 200 - margin.top + margin.bottom;
+            height = 250 - margin.top + margin.bottom;
 
         //x position scale using date data
         var xScale = d3.time.scale()
@@ -361,10 +369,9 @@
         var canvas = d3.select(parent)
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .style('margin-top', '-75px')
+                .attr("height", height + 100 + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(2,0)");
+                .attr("transform", "translate(2,"+(graphOffsets.top - 20)+")");
 
         //Line functions to build path from JSON data
         var line = d3.svg.line()
@@ -465,18 +472,18 @@
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-20,0)")
-                .style({"text-anchor": "middle", "font-size": "12pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize+"pt"})
                 .text("Patients (%)");
 
         //rotate and move Y Axis ticks for vertical write and align
         canvas.selectAll("g.yaxis g.tick text")
-                .style({"text-anchor": "start", "font-size": "12pt"})
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize+"pt"})
                 .attr("dx", "-20px")
                 .attr("dy", "0px");
 
         //rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.xaxis g.tick text")
-                .style({"text-anchor": "start", "font-size": "10pt"})
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize+"pt"})
                 .attr("dx", ".8em")
                 .attr("dy", "10px")
                 .attr("transform", "rotate(45)");
@@ -634,14 +641,13 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": "14pt"})
+                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": fonts.legendSize+"pt"})
                             .text(function (d) {
                                 return data.processed_result[d][0].display_name;
                             })
                             .attr("transform", function (d, i) {
                                 return "translate(" + (legendRectSize * 1.5 + 10) + ",17)";
                             });
-
                     //append colour square
                     d.append('rect')
                             .attr('width', legendRectSize)
@@ -663,15 +669,24 @@
 
     function pieVis(data, parent) {
 
-        var div = d3.select(parent).append("div")
+        var div = d3.select("#tooltip-holder").append("div")
                 .attr("class", "tooltip")
                 .style({"opacity": 0, "width": "150"});
 
-        var radius     = 100,
-            margin     = 50,
-            pieSpacing = 250,
-            height     = 350,
-            padding    = 10;
+        var radius  = 100,
+            margin  = 50,
+            height  = 450,
+            padding = 10;
+
+        var width      = $(parent).width();
+        var pieSpacing = width * 0.25;
+
+        //var width = margin * 2 + radius * 2 + pieSpacing * 2 + 200;
+        var legendRectSize = 16;
+        //shift value for each legend entry
+        var legendSpacing = 20;
+
+        //add a container for the
 
         /**
          * Determines the breakdown for the two slices of the pie chart.
@@ -681,8 +696,22 @@
             var ratio = d.aggregate_result.numerator / d.aggregate_result.denominator;
 
             return [
-                {"label": "Value", "value": ratio, aggregate_result : d.aggregate_result, "title": t, group: g, time : d.time},
-                {"label": "Inverse", "value": 1 - ratio, aggregate_result : d.aggregate_result, "title": t, group: g, time : d.time}];
+                {
+                    "label"         : "Value",
+                    "value"         : ratio,
+                    aggregate_result: d.aggregate_result,
+                    "title"         : t,
+                    group           : g,
+                    time            : d.time
+                },
+                {
+                    "label"         : "Inverse",
+                    "value"         : 1 - ratio,
+                    aggregate_result: d.aggregate_result,
+                    "title"         : t,
+                    group           : g,
+                    time            : d.time
+                }];
 
         }
 
@@ -693,10 +722,10 @@
 
         var canvas = d3.select(parent)
                 .append("svg:svg")
-                .attr("width", margin * 2 + radius * 2 + pieSpacing * 2)
+                .attr("width", width)
                 .attr("height", (radius * 2 + 2 * margin) > height ? (radius * 2 + 2 * margin) : height)
                 .append("svg:g")
-                .attr("transform", "translate(" + (radius + 50) + "," + (radius) + ")");
+                .attr("transform", "translate(" + (0.5 * width - (pieSpacing)) + "," + (graphOffsets.top + 2*radius) + ")");
 
         var arc = d3.svg.arc()
                 .outerRadius(radius);
@@ -718,6 +747,10 @@
                 .selectAll(".pie")
                 .data(allData)
                 .enter().append("g")
+                .call(function(d){
+                    console.log(d);
+                    return;
+                })
                 .attr("class", "pie")
                 .attr("transform", function (d, i) {
                     return "translate(" + i * pieSpacing + ",0)";
@@ -744,29 +777,76 @@
                                 }
                             })
                             .attr("d", arc)
-                            .on('mouseover', function(d,i){
-                                if(i === 0){
+                            .on('mouseover', function (d, i) {
+                                if (i === 0) {
 
                                     toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent)
 
-                                }else{
+                                } else {
 
                                     toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, "#e6e6e6")
 
                                 }
 
                             })
-                            .on('mouseout', function(d){
+                            .on('mouseout', function (d) {
                                 toolTipMouseOut(d, div)
                             });
                     arcs.append("svg:text")
                             .attr("x", 0)
                             .attr("y", 140)
-                            .style({"text-anchor": "middle", "font-size": "14pt", "font-weight": "bold"})
+                            .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize+"pt"})
                             .text(function (d) {
                                 return d[0].title;
                             })
                 });
+        //add a container for the legend
+        var legend = canvas.append('g')
+                .attr('class', 'legend')
+                .attr("transform", "scale(0.75, 0.75) translate(" + (width * 0.8) + ", -150)")
+                .style('opacity', '0.9');
+
+        //append a background for the legend
+        legend.append('rect')
+            //transform neg-ive so the left and top are around the legend item
+                .attr('width', 250)  //values chosen based on info being displayed
+                .attr('height', 100)
+                .style('padding', 10)
+                .style('fill', "white");
+
+        //create legend entires and for each add a colour block and text
+        legend.selectAll('.legendEntry')
+                .data(Object.keys(colorMap))
+                .enter().append("g")
+                .attr('class', 'legendEntry')
+                .attr("transform", function (d, i) {
+                    return "translate(5," + (((legendSpacing + 5) * i) + 15) + ")";
+                })
+                .call(function (d) {
+
+                    //append entry text
+                    d.append('text')
+                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": fonts.legendSize+"pt"})
+                            .text(function (d) {
+                                return data.processed_result[d][0].display_name;
+                            })
+                            .attr("transform", function (d, i) {
+                                return "translate(" + (legendRectSize * 1.5 + 10) + ",17)";
+                            });
+
+                    //append colour square
+                    d.append('rect')
+                            .attr('width', legendRectSize)
+                            .attr('height', legendRectSize)
+                            .attr("transform", "translate(5, 5)")
+                            .style('fill', function (d) {
+                                return colorMap[d];
+                            })
+                            .style('stroke', function (d) {
+                                return colorMap[d];
+                            });
+                });
+
     }
 
 
