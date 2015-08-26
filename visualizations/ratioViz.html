@@ -20,8 +20,10 @@
     var fonts = {axisTickSize: 12, axisTitleSize: 14, legendSize : 14};
 
     //Share variables
-    var colorMap = {clinician: 'black', group: 'blue', network: 'red'};
+    // clinician: black, group: blue, network: red
+    var colorMap = {clinician: '#000000', group: '#0000FF', network: '#FF0000'};
     var colorMap2 = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
+    var inverseColorMap = {clinician : '#808080', group: "#8080FF", network: "#FF8080"}
 
     var formatTime = d3.time.format("%Y-%m-%d");
 
@@ -193,7 +195,7 @@
                 .attr("y", yScale(0))
                 .attr("width", xScale.rangeBand())
                 .attr("height", 0)
-                .attr("fill", "black")
+                .attr("fill", colorMap["clinician"])
                 .attr("height",
                 function (d) {
                     return height - getDelta(d);
@@ -217,7 +219,7 @@
                 .attr("y", yScale(0))
                 .attr("width", xScale.rangeBand())
                 .attr("height", 0)
-                .attr("fill", "steelblue")
+                .attr("fill", colorMap.group)
                 .attr("height", function (d) {
                     return height - getDelta(d);
                 })
@@ -240,7 +242,7 @@
                 .attr("y", yScale(0))
                 .attr("width", xScale.rangeBand())
                 .attr("height", 0)
-                .attr("fill", "red")
+                .attr("fill", colorMap.network)
                 .attr("y", function (d) {
                     return getDelta(d);
                 })
@@ -772,7 +774,7 @@
 
                                 } else {
 
-                                    return "lightSlateGray";
+                                    return inverseColorMap[d.data.group.toLowerCase()];
 
                                 }
                             })
@@ -780,11 +782,11 @@
                             .on('mouseover', function (d, i) {
                                 if (i === 0) {
 
-                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent)
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, colorMap[d.data.group.toLowerCase()])
 
                                 } else {
 
-                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, "#e6e6e6")
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, inverseColorMap[d.data.group.toLowerCase()])
 
                                 }
 
