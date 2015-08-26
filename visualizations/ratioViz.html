@@ -33,6 +33,12 @@
         //var p = $(".container").position();
         var p = $(parent + " > svg").offset();
 
+        console.log(d.time);
+
+        if(typeof d.time != "object"){
+            d.time = new Date(d.time*1000);
+        }
+
         div.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -92,9 +98,11 @@
                 .attr("transform", "translate(" + margin.left + ", " + graphOffsets.top + ")");
 
         //get dates from the data.
+        /*
         clinician[0].time = new Date(clinician[0].time);
         group[0].time     = new Date(group[0].time);
         network[0].time   = new Date(network[0].time);
+        */
 
         tmpXScale = [
             network[0].display_name,
