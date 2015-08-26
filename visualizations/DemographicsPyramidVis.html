@@ -111,7 +111,7 @@
         //define container constraints
         var margin  = {top: 50, right: 50, bottom: 75, left: -75, inner: 80},
             //This is half width due to the two sides of a pop pyramid
-            width   = 825 - margin.left - margin.right,
+            width   = 925 - margin.left - margin.right,
             height  = 500 - margin.top - margin.bottom,
             yScale  = d3.scale.ordinal().domain(ageRanges).rangeBands([0, height], 0.25),
             //Scale for right pyramid
@@ -395,7 +395,7 @@
         //cannot be programtically determined thus hardcoded and
         //subject to change if HubAPI changes served info
 
-        //putting network info into tempdata, once this is working @TODO turn eveything below
+        //putting network info into tempdata, once this is working, turn eveything below
         //into some sort of function and run for all three datasets
         showVis(data.clinician[0], "#c1", "Clinician", data.xAxisTitle);
         showVis(data.group[0], "#c2", "Group", data.xAxisTitle);

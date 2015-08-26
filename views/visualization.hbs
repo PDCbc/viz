@@ -4,6 +4,16 @@
 
 
     <script>
+
+        var vizStartTime = null;
+        var lastVizName = null;
+
+        window.onbeforeunload = function(){
+
+            _gaq.push(['_trackEvent', 'visualization', lastVizName, 'time', (new Date()).getTime() - vizStartTime.getTime()]);
+
+        };
+
         /**
          * Changes the perspective of the visualization to show either clinician, group, or network
          */
@@ -53,17 +63,24 @@
          */
         function changeViz(event) {
 
-            console.log(event.delegateTarget.id);
-
             $("#lineVizToggle").removeClass("btn-warning");
             $("#barVizToggle").removeClass("btn-warning");
             $("#pieVizToggle").removeClass("btn-warning");
 
             $("#" + event.delegateTarget.id).addClass("btn-warning");
 
+            var diff = (new Date()).getTime() - vizStartTime.getTime();
+
+            console.log("viz diff for "+lastVizName+" : " + diff);
+
+            _gaq.push(['_trackEvent', 'visualization', lastVizName, 'time', diff]);
+
+            vizStartTime = new Date();
+
             switch (event.delegateTarget.id) {
 
                 case "lineVizToggle":
+                    lastVizName = "lineViz";
                     $("#lineChart").show();
                     $("#barChart").hide();
                     $("#pieChart").hide();
@@ -73,6 +90,7 @@
                     $("#chart").hide();
                     break;
                 case "barVizToggle":
+                    lastVizName = "barViz";
                     $("#lineChart").hide();
                     $("#barChart").show();
                     $("#pieChart").hide();
@@ -82,6 +100,7 @@
                     $("#chart").hide();
                     break;
                 case "pieVizToggle":
+                    lastVizName = "pieViz";
                     $("#lineChart").hide();
                     $("#barChart").hide();
                     $("#pieChart").show();
@@ -91,7 +110,6 @@
                     $("#chart").hide();
                     break;
                 default:
-                        console.log("changeViz: default case")
                     $("#lineVizToggle").hide();
                     $("#barVizToggle").hide();
                     $("#pieChart").hide();
@@ -275,7 +293,6 @@
 
         }
 
-
         if (data.script === "DemographicsPyramidVis") {
 
             vis(data); // Render the actual visualiztion;
@@ -334,6 +351,9 @@
         $("#barVizToggle").bind('click', changeViz);
         $("#pieVizToggle").bind('click', changeViz);
 
+        lastVizName = 'barViz';
+        vizStartTime = new Date();
+
         window.onresize = function(){
 
             $("#chart").text("");
@@ -355,7 +375,6 @@
                 vis({{{json visualization}}});
 
             }
-
 
         };
 

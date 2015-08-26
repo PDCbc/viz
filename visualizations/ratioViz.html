@@ -27,17 +27,19 @@
 
     var formatTime = d3.time.format("%Y-%m-%d");
 
+    var tooltipStart = null;
+
     function toolTipMouseOver(d, src, name, div, parent, color) {
 
         var units = d.units || "Patients";
         //var p = $(".container").position();
         var p = $(parent + " > svg").offset();
 
-        console.log(d.time);
-
         if(typeof d.time != "object"){
             d.time = new Date(d.time*1000);
         }
+
+        tooltipStart = new Date();
 
         div.transition()
                 .duration(200)
@@ -54,6 +56,13 @@
     }
 
     function toolTipMouseOut(d, div) {
+
+        var diff = (new Date()).getTime() - tooltipStart.getTime();
+
+        console.log(diff);
+
+        _gaq.push(['_trackEvent', 'tooltip', 'mouse', 'time', diff]);
+
         div.transition()
                 .duration(500)
                 .style("opacity", 0);
