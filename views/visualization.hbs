@@ -45,6 +45,7 @@
                     break;
 
             }
+
         }
 
         /**
@@ -90,6 +91,7 @@
                     $("#chart").hide();
                     break;
                 default:
+                        console.log("changeViz: default case")
                     $("#lineVizToggle").hide();
                     $("#barVizToggle").hide();
                     $("#pieChart").hide();
@@ -100,6 +102,10 @@
                     break;
 
             }
+
+            //this is a bit of a hack, it causes the visualizations to be re-rendered everytime you
+            //change the visualization we are looking at.
+            $(window).trigger('resize');
         }
     </script>
     <body>
@@ -260,7 +266,7 @@
             var d = new Date(data.latest*1000);
 
             $("#exec-date").show();
-            $("#exec-date").text("Latest Execution: " + d.getFullYear()+"-"+ ("0"+(d.getMonth()+1)).slice(-2) +"-"+d.getDate());
+            $("#exec-date").text("Latest Execution: " + d.getFullYear()+"-"+ ("0"+(d.getMonth()+1)).slice(-2) +"-"+("0"+d.getDate()).slice(-2));
 
         }else{
 
@@ -340,9 +346,9 @@
 
             if(data.script === 'ratioViz'){
 
-                barVis({{{json visualization}}}, "#barChart");
                 lineVis({{{json visualization}}}, "#lineChart");
                 pieVis({{{json visualization}}}, "#pieChart");
+                barVis({{{json visualization}}}, "#barChart");
 
             }else{
 

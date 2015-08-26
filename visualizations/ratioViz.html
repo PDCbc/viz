@@ -749,10 +749,6 @@
                 .selectAll(".pie")
                 .data(allData)
                 .enter().append("g")
-                .call(function(d){
-                    console.log(d);
-                    return;
-                })
                 .attr("class", "pie")
                 .attr("transform", function (d, i) {
                     return "translate(" + i * pieSpacing + ",0)";
