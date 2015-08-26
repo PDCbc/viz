@@ -733,7 +733,7 @@
         var pie = d3.layout.pie()
                 .value(function (d) {
                     return d.value;
-                });
+                }).sort(null);
 
         var NetworkData   = division(data.processed_result.network.slice(-1)[0], data.processed_result.network[0].display_name, "network");
         var GroupData     = division(data.processed_result.group.slice(-1)[0], data.processed_result.group[0].display_name, "group");
