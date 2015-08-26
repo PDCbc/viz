@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+      
+        <title>Pie Page</title>
+        <title>d3.tip.js - Tooltips for D3</title>    
+        <script src="http://d3js.org/d3.v3.min.js"> </script> 
+        <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+        <meta charset="utf-8">
+
+    </head>
+    <style>
+
+        .d3-tip {
+          line-height: 1;
+          font-weight: normal;
+          padding: 12px;
+          background: rgba(0, 0, 0, 0.8);
+          color: #fff;
+          border-radius: 2px;
+        }
+
+        .d3-tip:after {
+          box-sizing: border-box;
+          display: inline;
+          font-size: 10px;
+          width: 100%;
+          line-height: 1;
+          color: rgba(0, 0, 0, 0.8);
+          content: "\25BC";
+          position: absolute;
+          text-align: center;
+        }
+
+        
+        .d3-tip.n:after {
+          margin: -1px 0 0 0;
+          top: 100%;
+          left: 0;
+        }
+
+     
+    </style>
+    <body>
+    <script>
+
+    var data =  '{ "processed_result":' +
+            '{ "network": ['+
+            '{ "time": "Thu Nov 20 2014", '+
+            '"aggregate_result": {"numerator": 70,"denominator": 238} }],'+
+            '"group": ['+
+            '{"time": "Thu Nov 20 2014",'+
+            '"aggregate_result": {"numerator": 18,"denominator": 238} }],'+
+            '"clinician":['+
+            '{"time": "Thu Nov 20 2014",'+
+            '"aggregate_result": {"numerator": 40,"denominator": 100}} ]},'+
+            '"network_id": "PDC",'+
+            '"endpoint_id": "546d0365ebca1fa333000003",'+
+            '"provider_id": "87654"}';
+
+
+    var dataCopy = (JSON.parse(data));
+
+    var width = 600,
+        heigth = 300,
+        radius = 100,
+        margin = 500,
+        padding = 10;
+
+
+  
+        
+    function division(d,g){
+
+            var calculate = d.aggregate_result.numerator / d.aggregate_result.denominator;
+
+            var text = [{"label":"Value", "value": calculate, "group":g},
+                        {"label":"Inverse", "value": 1-calculate,"group":g}];
+
+            return text;
+
+    }
+
+    var color = d3.scale.ordinal()
+        .range(["black", "lightSlateGray", "red"]);     
+
+
+    var tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html(function(d) {
+            return "<strong>Value:</strong> <span style='color:red'>" + d.value + "</span>";
+               
+      })
+
+    var canvas = d3.select("body")
+        .append("svg:svg")      
+        .attr("width", (radius + margin) * 2)
+        .attr("height", (radius + margin) * 2) 
+        .append("svg:g")
+        .attr("transform", "translate(" + (radius +50)+ "," + (radius + 50) + ")"); 
+
+    canvas.call(tip);
+    
+    var arc = d3.svg.arc() 
+        .outerRadius(radius);
+
+    var pie = d3.layout.pie()           
+        .value(function(d) { return d.value; });
+   
+    var NetworkData = division(dataCopy.processed_result.network[0],"Network");
+    var ClinicData = division(dataCopy.processed_result.group[0],"Clinic");
+    var ClinicianData = division(dataCopy.processed_result.clinician[0],"Clinician");
+    var allData = [NetworkData,ClinicData,ClinicianData];
+
+//Total Pie
+
+    var arcs = canvas.append("g")
+        .attr("class", "graphs")
+        .selectAll(".pie")
+        .data(allData)
+        .enter().append("g")
+        .attr("class", "pie")
+        .attr("transform", function(d, i) { return "translate(" + i * 250 + ",0)"; }) 
+                             
+        arcs.selectAll(".slice")  
+          .data(function(d){return pie(d);})          
+            .enter().append("g")   
+                .attr("fill",color)             
+                .attr("class", "slice")
+                .call(function(d,i){
+                d.append("svg:path")
+                    .style("fill", function(d,i) { return color(d.value); } ) 
+                    .attr("d", arc) 
+                    .on('mouseover', tip.show)
+                    .on('mouseout', tip.hide)      
+                arcs.append("svg:text")                                     
+                    .attr("x", 0)
+                    .attr("y", 140)
+                    .style({"text-anchor":"middle","font-size":"14pt","font-weight":"bold"})              
+                    .text(function(d) { return d[0].group; })      
+    });
+
+    </script>
+  </body>
+</html>

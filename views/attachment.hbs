@@ -23,8 +23,16 @@
                 <h4>Attachment Graphs</h4>
 
                 <ul class="query-list">
-                    <li> <a href="/visualization/PDC-001/{{user.clinic}}/{{user.clinician}}">Practice Population Profile</a> - the number of active patients in a physician's practice, grouped by gender and displayed in age decades.</li>
-                    <li> <a href="/visualization/PDC-1740/{{user.clinic}}/{{user.clinician}}">Practice Population Encounter Profile</a> - the number of encounters for active patients in a physician's practice grouped by gender and displayed in age decades.</li>
+                    <li> <a href="/visualization/PDC-001/{{user.clinic}}/{{user.clinician}}?initiative=attachment">Practice Population Profile</a> - the number of active patients in a physician's practice, grouped by gender and displayed in age decades.</li>
+                    <li> <a href="/visualization/PDC-1740/{{user.clinic}}/{{user.clinician}}?initiative=attachment">Practice Population Encounter Profile</a> - the number of encounters for active patients in a physician's practice grouped by gender and displayed in age decades.</li>
+                </ul>
+
+                <h4>Downloadable Reports</h4>
+
+                <ul class="query-list">
+                    <li> <a href="/report/attachment-active-patients-report.csv">Attached Active Patients</a></li>
+                    <li> <a href="/report/demographics-report.csv">Demographics Report</a></li>
+                    <li> <a href="/report/encounters-report.csv">Encounters Report</a></li>
                 </ul>
 
             </div>
@@ -40,7 +48,9 @@
 
 </div>
 <!-- container -->
-
+<script>
+    setNavbarColor("navbar-attachment");
+</script>
 
 </body>
 </html>

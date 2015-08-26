@@ -4,7 +4,7 @@ html, body {
 
 body {
     padding: 50px 0 0 0;
-    font-family: "HelveticaNeue-Light", "Helvetica Neue Thin", "Helvetica Neue";
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Thin", "Helvetica Neue", "HelveticaNeue", "Helvetica Neue Light", "Helvetica", "Arial";
 }
 
 span {
@@ -26,6 +26,30 @@ h1, h2, h3, h4, h5, h6 {
     .navbar-toggle {
         display: block; /* force showing the toggle */
     }
+}
+
+@media print{
+
+    .navmenu-header{
+        visibility: hidden;
+        display:none;
+    }
+
+    .login-row{
+        visibility: hidden;
+        display:none;
+    }
+
+    #topbar-row{
+        visibility: hidden;
+        display:none;
+    }
+
+    #navbar-wrapper{
+        visibility: hidden;
+        display:none;
+    }
+
 }
 
 @media (min-width: 992px) {
@@ -180,6 +204,11 @@ h1, h2, h3, h4, h5, h6 {
 
     width:150px;
 
+}
+
+#viz-panel{
+    min-height:500px;
+    max-height:500px;
 }
 
 svg {

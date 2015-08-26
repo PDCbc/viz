@@ -133,7 +133,7 @@
                 Object.keys(data.processed_result.network).length,
                 Object.keys(data.processed_result.group).length,
                 Object.keys(data.processed_result.clinician).length
-        ));
+        )).tickFormat(d3.time.format("%Y-%m-%d"))
 
         //set the domain to the absolute min and max of the 3 data sets to ensure proper scaling
         xScale.domain([
@@ -204,7 +204,7 @@
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-20,0)")
                 .style({"text-anchor": "middle", "font-size": "12pt"})
-                .text("Percentage of Patients (%)");
+                .text("Patients (%)");
 
         //rotate and move Y Axis ticks for vertical write and align
         canvas.selectAll("g.yaxis g.tick text")
@@ -214,10 +214,10 @@
 
         //rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.xaxis g.tick text")
-                .style({"text-anchor": "start", "font-size": "12pt"})
+                .style({"text-anchor": "start", "font-size": "10pt"})
                 .attr("dx", ".8em")
-                .attr("dy", "-.35em")
-                .attr("transform", "rotate(90)");
+                .attr("dy", "10px")
+                .attr("transform", "rotate(45)");
 
         //create and append paths using line data
         if (data.processed_result.clinician.length > 1) {
@@ -333,7 +333,7 @@
                 .on("mouseout", toolTipMouseOut);
 
         //mapping for colour selection and legend
-        var colorMap = {network: "red", clinic: "blue", clinician: "black"};
+        var colorMap = {network: "red", group: "blue", clinician: "black"};
 
         var legendWidth  = 180;
         var legendHeight = 86;
@@ -353,7 +353,7 @@
                 .attr('width', 250)  //values chosen based on info being displayed
                 .attr('height', 100)
                 .style('padding', 10)
-                .style('fill', "#e6e6e6");
+                .style('fill', "white");
 
         //create legend entires and for each add a colour block and text
         legend.selectAll('.legendEntry')
@@ -367,9 +367,9 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": "18pt"})
+                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": "14pt"})
                             .text(function (d) {
-                                return d;
+                                return data.processed_result[d][0].display_name;
                             })
                             .attr("transform", function (d, i) {
                                 return "translate(" + (legendRectSize * 1.5 + 10) + ",17)";

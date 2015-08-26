@@ -2,6 +2,7 @@
     <html>
     {{> head}}
 
+
     <script>
         /**
          * Changes the perspective of the visualization to show either clinician, group, or network
@@ -44,6 +45,67 @@
                     break;
 
             }
+
+        }
+
+        /**
+         * Changes the visualization to show as line, bar, or pie
+         */
+        function changeViz(event) {
+
+            console.log(event.delegateTarget.id);
+
+            $("#lineVizToggle").removeClass("btn-warning");
+            $("#barVizToggle").removeClass("btn-warning");
+            $("#pieVizToggle").removeClass("btn-warning");
+
+            $("#" + event.delegateTarget.id).addClass("btn-warning");
+
+            switch (event.delegateTarget.id) {
+
+                case "lineVizToggle":
+                    $("#lineChart").show();
+                    $("#barChart").hide();
+                    $("#pieChart").hide();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                case "barVizToggle":
+                    $("#lineChart").hide();
+                    $("#barChart").show();
+                    $("#pieChart").hide();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                case "pieVizToggle":
+                    $("#lineChart").hide();
+                    $("#barChart").hide();
+                    $("#pieChart").show();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+                default:
+                        console.log("changeViz: default case")
+                    $("#lineVizToggle").hide();
+                    $("#barVizToggle").hide();
+                    $("#pieChart").hide();
+                    $("#c1").hide();
+                    $("#c2").hide();
+                    $("#c3").hide();
+                    $("#chart").hide();
+                    break;
+
+            }
+
+            //this is a bit of a hack, it causes the visualizations to be re-rendered everytime you
+            //change the visualization we are looking at.
+            $(window).trigger('resize');
         }
     </script>
     <body>
@@ -62,10 +124,13 @@
                 <div class="col-xs-12">
 
                     <div class="row"> <!-- title block -->
-                        <div class="col-xs-12">
+                        <div class="col-xs-8">
 
-                            <h2 id="title"></h2>
+                            <h3 id="title"></h3>
 
+                        </div>
+                        <div class="col-xs-4 text-right">
+                            <p id='exec-date' style="margin-top:23px;"></p>
                         </div>
                     </div>
                     <!-- end title block -->
@@ -79,6 +144,9 @@
                                 <div class="" id="foobar">
 
                                     <div id="chart"></div>
+                                    <div id="barChart"></div>
+                                    <div id="lineChart"></div>
+                                    <div id="pieChart"></div>
                                     <!-- this is the anchor for the d3 visualization, must have id=chart -->
 
                                     <div id="tripleGraph" class="row">
@@ -124,6 +192,25 @@
 
                     </div>
 
+                    <div class="row">
+
+                        <div class="col-xs-12 text-center panel" id="vizToggle"> <!-- side bar -->
+
+                            <div class="col-xs-offset-3 col-xs-2" role="presentation">
+                                <button id="barVizToggle" class="btn btn-primary btn-warning toggleButton">Bar Chart
+                                </button>
+                            </div>
+                            <div class="col-xs-2" role="presentation">
+                                <button id="lineVizToggle" class="btn btn-primary toggleButton">Line Chart</button>
+                            </div>
+                            <div class="col-xs-2" role="presentation">
+                                <button id="pieVizToggle" class="btn btn-primary toggleButton">Pie Chart</button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
 
                 </div>
 
@@ -150,42 +237,73 @@
 
     </div>
 
+    <div id="tooltip-holder"></div>
+
     </body>
 
     {{{ script }}}
+
     <script>
 
         var data = {{{json visualization}}};
 
-        var s = data.description.split(":");
-
         console.log(data);
 
-        if (s.length > 1) {
+        if (data["display_name"]) {
 
-            //we expect that the description field will
-            //have a human readable title and description
-            //separated by a comma, e.g. "someTItle:SomeDescriptionAboutTHeQuery"
+            $("#title").text(data["display_name"]);
+        }
 
-            $("#title").text(s[0]);
-            $("#description").text(s[1]);
-            $("#description-panel").show();
+        if(data.description){
 
-        } else {
-
-            $("#title").text(s[0]);
-            $("#description").hide();
-            $("#description-panel").hide();
+            $("#description").text(data["description"]);
+            $("#description").show();
 
         }
 
-        vis(data); // Render the actual visualiztion;
+        if(data.latest){
+
+            var d = new Date(data.latest*1000);
+
+            $("#exec-date").show();
+            $("#exec-date").text("Latest Execution: " + d.getFullYear()+"-"+ ("0"+(d.getMonth()+1)).slice(-2) +"-"+("0"+d.getDate()).slice(-2));
+
+        }else{
+
+            console.log("No latest execution date provided via data.latest");
+            $("#exec-date").hide();
+
+        }
+
 
         if (data.script === "DemographicsPyramidVis") {
 
+            vis(data); // Render the actual visualiztion;
+
             $("#perspectiveToggle").show();
+            $("#vizToggle").hide();
 
             $("#c1").show();
+            $("#c2").hide();
+            $("#c3").hide();
+
+            $("#chart").hide();
+            $("#lineChart").hide();
+            $("#barChart").hide();
+            $("#pieChart").hide();
+
+        } else if(data.script === "ratioViz"){
+
+            barVis(data, "#barChart");
+            lineVis(data, "#lineChart");
+            pieVis(data, "#pieChart");
+
+            $("#vizToggle").show();
+            $("#lineChart").hide();
+            $("#pieChart").hide();
+            $("#perspectiveToggle").hide();
+
+            $("#c1").hide();
             $("#c2").hide();
             $("#c3").hide();
 
@@ -194,10 +312,15 @@
         } else {
 
             $("#perspectiveToggle").hide();
+            $("#vizToggle").hide();
 
             $("#c1").hide();
             $("#c2").hide();
             $("#c3").hide();
+
+            $("#lineChart").hide();
+            $("#barChart").hide();
+            $("#pieChart").hide();
 
             $("#chart").show();
 
@@ -207,16 +330,48 @@
         $("#groupToggle").bind('click', changePerspective);
         $("#networkToggle").bind('click', changePerspective);
 
+        $("#lineVizToggle").bind('click', changeViz);
+        $("#barVizToggle").bind('click', changeViz);
+        $("#pieVizToggle").bind('click', changeViz);
+
         window.onresize = function(){
 
             $("#chart").text("");
             $("#c1").text("");
             $("#c2").text("");
             $("#c3").text("");
-            vis({{{json visualization}}});
+            $("#lineChart").text("");
+            $("#barChart").text("");
+            $("#pieChart").text("");
+
+            if(data.script === 'ratioViz'){
+
+                lineVis({{{json visualization}}}, "#lineChart");
+                pieVis({{{json visualization}}}, "#pieChart");
+                barVis({{{json visualization}}}, "#barChart");
+
+            }else{
+
+                vis({{{json visualization}}});
+
+            }
+
 
         };
 
     </script>
+
+    <script>
+
+        var initiative = getParameterByName("initiative");
+
+        if(initiative){
+            setNavbarColor("navbar-"+initiative);
+        }else{
+            setNavbarColor(null);
+        }
+
+    </script>
+
     </html>
 {{/if}}

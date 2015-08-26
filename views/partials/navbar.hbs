@@ -1,39 +1,39 @@
 {{#if user}}
 
-    <div class="wrapper">
+    <div id='navbar-wrapper' class="wrapper">
 
-        <div class="row navbar-outer"style="margin-left:0px; margin-right:0px;">
+        <div class="row navbar-outer"style="margin-left:0px; margin-right:0px; @media print{display:none;}">
 
             <a href="/attachment">
-                <div class="col-xs-2 navbar-box">
+                <div id="navbar-attachment" class="col-xs-2 navbar-box">
                     <img class="navbar-logo" src="/assets/images/attachment.png">
                     <span>Attachment</span>
                 </div>
             </a>
 
             <a href="/population-health">
-                <div class="col-xs-3 navbar-box">
+                <div id='navbar-population-health' class="col-xs-3 navbar-box">
                     <img class="navbar-logo" src="/assets/images/population-health.png">
                     <span>Population Health</span>
                 </div>
             </a>
 
             <a href="/polypharmacy">
-                <div class="col-xs-2 navbar-box">
+                <div id='navbar-polypharmacy' class="col-xs-2 navbar-box">
                     <img class="navbar-logo" src="/assets/images/polypharmacy.png">
                     <span>Polypharmacy</span>
                 </div>
             </a>
 
             <a href="/practice-reflection">
-                <div class="col-xs-3 navbar-box">
+                <div id='navbar-practice-reflection' class="col-xs-3 navbar-box">
                     <img class="navbar-logo" src="/assets/images/practice-reflection.png">
                     <span>Practice Reflection</span>
                 </div>
             </a>
 
             <a href="/data-quality">
-                <div class="col-xs-2 navbar-box far-right">
+                <div id='navbar-data-quality' class="col-xs-2 navbar-box far-right">
                     <img class="navbar-logo" src="/assets/images/data-quality.png">
                     <span>Data Quality</span>
                 </div>
