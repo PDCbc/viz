@@ -19,6 +19,8 @@
 
 <script>
 
+    var tooltipStartTime = null;
+
     var ageRanges = [
         "90+",
         "80-89",
@@ -69,6 +71,8 @@
 
             var p = $(elemId + " svg").offset();
 
+            tooltipStartTime = new Date();
+
             div.transition()
                     .duration(200)
                     .style({"opacity": 0.9, "background": toolTipColorMap[src]});
@@ -84,6 +88,14 @@
         }
 
         function toolTipMouseOut(d) {
+
+            var diff = (new Date()).getTime() - tooltipStartTime.getTime();
+
+            if(diff > 750){
+                console.log(diff);
+                _gaq.push(['_trackEvent', 'tooltip', 'pyramidViz', 'time', diff]);
+            }
+
             div.transition()
                     .duration(500)
                     .style("opacity", 0);
@@ -127,17 +139,6 @@
                 .attr("transform", "translate(30,50) scale(0.9, 0.9)");
 
         var t = title || "";
-
-        //append a title
-        /*
-        canvas.append("g")
-                .attr("class", "title")
-                .append("text")
-                .attr("x", width / 2)
-                .attr("y", -5)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "14pt"})
-                .text(t);
-        */
 
         //text on y axis for age ranges
         canvas.append("g")

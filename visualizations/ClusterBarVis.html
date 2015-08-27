@@ -29,9 +29,13 @@
 
     var formatTime = d3.time.format("%Y-%m-%d");
 
+    var tooltipStartTime = null;
+
     function toolTipMouseOver(d, src, name) {
 
         var p = $("svg").offset();
+
+        tooltipStartTime = new Date();
 
         div.transition()
                 .duration(200)
@@ -50,6 +54,16 @@
     }
 
     function toolTipMouseOut(d) {
+
+        var diff = (new Date()).getTime() - tooltipStartTime.getTime();
+
+        if(diff > 750){
+
+            console.log(diff);
+            _gaq.push(['_trackEvent', 'tooltip', 'clusterBarViz', 'time', diff]);
+
+        }
+
         div.transition()
                 .duration(500)
                 .style("opacity", 0);

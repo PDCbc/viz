@@ -55,13 +55,18 @@
                 .style("left", (d3.event.pageX) + "px");
     }
 
-    function toolTipMouseOut(d, div) {
+    function toolTipMouseOut(d, div, parent) {
 
         var diff = (new Date()).getTime() - tooltipStart.getTime();
 
-        console.log(diff);
+        //only report actions over 0.75 seconds.
+        if(diff > 750){
 
-        _gaq.push(['_trackEvent', 'tooltip', 'mouse', 'time', diff]);
+            console.log("tooltip: "+ parent.replace("#", "") + " for: "+diff + " ms");
+            _gaq.push(['_trackEvent', 'tooltip', parent.replace("#", ""), 'time', diff]);
+
+        }
+
 
         div.transition()
                 .duration(500)
@@ -224,7 +229,7 @@
                     toolTipMouseOver(d, 'clinician', clinician[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var bar2 = canvas.append("g")
@@ -247,7 +252,7 @@
                     toolTipMouseOver(d, 'group', group[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var bar1 = canvas.append("g")
@@ -270,7 +275,7 @@
                     toolTipMouseOver(d, 'network', network[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         //mapping for colour selection and legend
@@ -577,7 +582,7 @@
                     toolTipMouseOver(d, 'clinician', data.processed_result['clinician'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var clinicPoints = canvas.append("g")
@@ -600,7 +605,7 @@
                     toolTipMouseOver(d, 'group', data.processed_result['group'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var networkPoints = canvas.append("g")
@@ -623,7 +628,7 @@
                     toolTipMouseOver(d, 'network', data.processed_result['network'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
 
@@ -805,7 +810,7 @@
 
                             })
                             .on('mouseout', function (d) {
-                                toolTipMouseOut(d, div)
+                                toolTipMouseOut(d, div, parent)
                             });
                     arcs.append("svg:text")
                             .attr("x", 0)
