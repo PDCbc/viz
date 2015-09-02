@@ -103,13 +103,6 @@
                 .append("svg:g")
                 .attr("transform", "translate(" + margin.left + ", " + graphOffsets.top + ")");
 
-        //get dates from the data.
-        /*
-         clinician[0].time = new Date(clinician[0].time);
-         group[0].time     = new Date(group[0].time);
-         network[0].time   = new Date(network[0].time);
-         */
-
         tmpXScale = [
             network[0].display_name,
             group[0].display_name,
@@ -136,11 +129,13 @@
                 .append("text")
                 .attr("x", (width ) / 2)
                 .attr("y", margin.bottom + 50)
-                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize + "pt"});
+                .style({"text-anchor": "middle"})
+                .attr('class', 'pdc-footnote');
 
         //Rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.x.axis g.tick text")
-                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
+                .style({"text-anchor": "start"})
+                .attr('class', 'pdc-body')
                 .attr("transform", "translate(0, 10) rotate(45)");
 
         //y position scaling
@@ -185,7 +180,8 @@
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-50, 0)")
-                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
+                .style({"text-anchor": "middle"})
+                .attr('class', 'pdc-body')
                 .text(units + " (%)");
 
         //Bars(rects) for display. Due to JSON formatting the easiest way is
@@ -477,7 +473,8 @@
                 .append("text")
                 .attr("x", width / 2)
                 .attr("y", margin.bottom - 10)
-                .style("text-anchor", "middle");
+                .style("text-anchor", "middle")
+                .attr('class', 'pdc-body');
 
         //add Y Axis to canvas
         canvas.append("g")
@@ -488,14 +485,16 @@
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-20,0)")
-                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
+                .style({"text-anchor": "middle"})
+                .attr('class', 'pdc-body')
                 .text("Patients (%)");
 
         //rotate and move Y Axis ticks for vertical write and align
         canvas.selectAll("g.yaxis g.tick text")
                 .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
                 .attr("dx", "-20px")
-                .attr("dy", "0px");
+                .attr("dy", "0px")
+                .attr('class', 'pdc-body');
 
         //rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.xaxis g.tick text")
