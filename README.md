@@ -1,5 +1,61 @@
 # Developer Notes
 
+## User Interface
+
+The following provides color palette and font guidelines for the user interface: 
+ 
+### Colors
+
+The UI has two main colors, blue and yellow. 
+
+Blues (in order of dark to light), hex codes:
+
+* 1C2D3E
+* 335579 <- Primary blue
+* 4D83BD
+* 65B0FF
+* A6D3FF
+* D0E7FF
+
+Yellows/Brown (dark to light), hex codes:
+
+* 2A1F0E
+* 71521F
+* 926927
+* D99B37 <- Primary yellow
+* FDB53F
+* FECE7A
+
+The following colors are used for ratio visualizations: 
+
+* D99B37 - clinician data
+* 4D83BD - group data
+* 1C2D3E - network data
+
+The following colors are used for demographics pyramid visualization:
+
+* 335579 - male
+* A6D3FF - undifferentiated
+* 71521F - female
+* FECE7A - undefined
+
+The following colors are used for buttons: 
+
+* EBEBEB - unselected button
+* D0E7FF - unselected button hover
+* 65B0FF - selected button
+* 4D83BD - selected button hover
+
+### Fonts
+
+Different font classes are as follows: 
+
+* Title - 20pt Helvetica Bold
+* Subtitle - 16pt Helvetica Bold
+* Body - 14pt Helvetica Thin
+* Secondary - 12pt Helvetica Bold
+* Footnote - 12pt Helvetica Light
+
 ## Security 
 
 ### Preventing HTML Injection
@@ -8,6 +64,7 @@
 * See disscussion on HTML injection: [http://stackoverflow.com/a/3793406](http://stackoverflow.com/a/3793406)
 * When using handlebarjs to render text, if the `{{ text }}` syntax is used, the `text` will be passed through an `escapeExpression()` function that replaces HTML special characters. When using the `{{{ text }}}` no escape function is called. When in doubt, use `{{ }}`. 
   * See discussion about `handlebars.escapeExpression(String)` at [http://handlebarsjs.com/reference.html](http://handlebarsjs.com/reference.html). 
+  
 # Setup
 
 ## Dependencies
