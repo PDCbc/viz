@@ -13,19 +13,11 @@
     }
 </style>
 
+
+<!-- imports color palette and fonts shared between visualizations -->
+<script src="/assets/js/vizCommon.js"></script>
+
 <script>
-
-    var graphOffsets = {top: 20};
-
-    var fonts = {axisTickSize: 12, axisTitleSize: 14, legendSize: 14, pieMiddle:24};
-
-    //Share variables
-    // clinician: black, group: blue, network: red
-    var colorMap = {clinician: '#D99B37', group: '#4D83BD', network: '#1C2D3E'};
-    var colorMap2 = {clinician: '#FDB53F', group: '#65B0FF', network: '#4D83BD'};
-    var inverseColorMap = {clinician: '#D0E7FF', group: "#D0E7FF", network: "#D0E7FF"};
-
-    var formatTime = d3.time.format("%Y-%m-%d");
 
     var tooltipStart = null;
 

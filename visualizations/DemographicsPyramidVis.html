@@ -17,6 +17,8 @@
     }
 </style>
 
+<!-- imports properties shared between all visualizations, e.g. color palette. -->
+<script src="/assets/js/vizCommon.js"></script>
 <script>
 
     var tooltipStartTime = null;
@@ -33,10 +35,6 @@
         "10-19",
         "0-9"];
 
-    var toolTipColorMap = {male: '#8888FF', female: '#FF8888', undifferentiated: '#CCCCFF', undefined: '#FFCCCC'};
-    //@WiP create the tooltip div
-
-    var formatTime = d3.time.format("%a %b %d %Y");
 
     var tempData;
 
@@ -75,7 +73,7 @@
 
             div.transition()
                     .duration(200)
-                    .style({"opacity": 0.9, "background": toolTipColorMap[src]});
+                    .style({"opacity": 0.9, "background": pyramidTooltipColorMap[src]});
 
             div.html(
                     "Date: " + formatTime(new Date(tempData.time)) + "<br/>" +
@@ -179,7 +177,7 @@
                 .data(ageRanges)//iterates over the age ranges not the data for completeness
                 .enter("svg:rect").append("rect")
                 .attr("class", "female")
-                .attr("fill", "red")
+                .attr("fill", pyramidColorMap.female)
                 .attr("transform",
                 function (d, i) {
                     return "translate(" + ( width / 2 + margin.inner / 2 ) + "," + yScale(d) + ")";
@@ -203,7 +201,7 @@
                 .data(ageRanges)//iterates over the age ranges not the data for completeness
                 .enter("svg:rect").append("rect")
                 .attr("class", "undef")
-                .attr("fill", "#FFAAAA")
+                .attr("fill", pyramidColorMap['undefined'])
                 .attr("transform",
                 function (d, i) {
                     return "translate(" + ( width / 2 + margin.inner / 2 ) + "," + yScale(d) + ")";
@@ -227,7 +225,7 @@
                 .data(ageRanges)
                 .enter("svg:rect").append("rect")
                 .attr("class", "male")
-                .attr("fill", "blue")
+                .attr("fill", pyramidColorMap.male)
                 .attr("opacity", 1)
                 .attr("transform",
                 function (d, i) {
@@ -251,7 +249,7 @@
                 .data(ageRanges)
                 .enter("svg:rect").append("rect")
                 .attr("class", "undifferentiated")
-                .attr("fill", "#AAAAFF")
+                .attr("fill", pyramidColorMap.undifferentiated)
                 .attr("opacity", 1)
                 .attr("transform",
                 function (d, i) {
@@ -306,7 +304,6 @@
                 .text(xAxisName || "Number of Patients");
 
         //add vertical lines to boarder y Axis on both sides
-        //
         canvas.append("svg:line")
                 .attr("y1", 9)
                 .attr("y2", height + 6)
@@ -323,9 +320,6 @@
                 .attr("stroke", "black")
                 .attr("stroke-width", 5);
 
-
-        //mapping for colour selection and legend
-        var colorMap = {male: "blue", female: "red", undifferentiated: "#8888FF", undefined: "#FF8888"};
 
         //size for colour suqares in legend
         var legendRectSize = 15;
@@ -352,7 +346,7 @@
 
         //create legend entires and for each add a colour block and text
         legend.selectAll('.legendEntry')
-                .data(Object.keys(colorMap))
+                .data(Object.keys(pyramidColorMap))
                 .enter().append("g")
                 .attr('class', 'legendEntry viz-text')
                 .attr("transform", function (d, i) {
@@ -375,10 +369,10 @@
                             .attr('width', legendRectSize)
                             .attr('height', legendRectSize)
                             .style('fill', function (d) {
-                                return colorMap[d];
+                                return pyramidColorMap[d];
                             })
                             .style('stroke', function (d) {
-                                return colorMap[d];
+                                return pyramidColorMap[d];
                             });
                 });
     }
