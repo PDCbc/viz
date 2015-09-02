@@ -21,11 +21,11 @@
 
             console.log(event.delegateTarget.id);
 
-            $("#clinicianToggle").removeClass("btn-warning");
-            $("#groupToggle").removeClass("btn-warning");
-            $("#networkToggle").removeClass("btn-warning");
+            $("#clinicianToggle").removeClass("pdc-button-selected");
+            $("#groupToggle").removeClass("button-selected");
+            $("#networkToggle").removeClass("pdc-button-selected");
 
-            $("#" + event.delegateTarget.id).addClass("btn-warning");
+            $("#" + event.delegateTarget.id).addClass("pdc-button-selected");
 
             switch (event.delegateTarget.id) {
 
@@ -63,11 +63,11 @@
          */
         function changeViz(event) {
 
-            $("#lineVizToggle").removeClass("btn-warning");
-            $("#barVizToggle").removeClass("btn-warning");
-            $("#pieVizToggle").removeClass("btn-warning");
+            $("#lineVizToggle").removeClass("pdc-button-selected");
+            $("#barVizToggle").removeClass("pdc-button-selected");
+            $("#pieVizToggle").removeClass("pdc-button-selected");
 
-            $("#" + event.delegateTarget.id).addClass("btn-warning");
+            $("#" + event.delegateTarget.id).addClass("pdc-button-selected");
 
             var diff = (new Date()).getTime() - vizStartTime.getTime();
 
@@ -195,14 +195,14 @@
                                     <h4>Perspective</h4>
 
                                         <div class="col-xs-offset-3 col-xs-2" role="presentation">
-                                            <button id="clinicianToggle" class="btn btn-primary btn-warning toggleButton">Clinician
+                                            <button id="clinicianToggle" class="btn toggleButton pdc-button pdc-button-selected">Clinician
                                             </button>
                                         </div>
                                         <div class="col-xs-2" role="presentation">
-                                            <button id="groupToggle" class="btn btn-primary toggleButton">Group</button>
+                                            <button id="groupToggle" class="btn toggleButton pdc-button">Group</button>
                                         </div>
                                         <div  class='col-xs-2' role="presentation">
-                                            <button id="networkToggle" class="btn btn-primary toggleButton">Network</button>
+                                            <button id="networkToggle" class="btn toggleButton pdc-button">Network</button>
                                         </div>
 
 
@@ -215,14 +215,14 @@
                         <div class="col-xs-12 text-center panel" id="vizToggle"> <!-- side bar -->
 
                             <div class="col-xs-offset-3 col-xs-2" role="presentation">
-                                <button id="barVizToggle" class="btn btn-primary btn-warning toggleButton">Bar Chart
+                                <button id="barVizToggle" class="btn toggleButton pdc-button pdc-button-selected">Bar Chart
                                 </button>
                             </div>
                             <div class="col-xs-2" role="presentation">
-                                <button id="lineVizToggle" class="btn btn-primary toggleButton">Line Chart</button>
+                                <button id="lineVizToggle" class="btn toggleButton pdc-button">Line Chart</button>
                             </div>
                             <div class="col-xs-2" role="presentation">
-                                <button id="pieVizToggle" class="btn btn-primary toggleButton">Pie Chart</button>
+                                <button id="pieVizToggle" class="btn toggleButton pdc-button">Pie Chart</button>
                             </div>
 
                         </div>

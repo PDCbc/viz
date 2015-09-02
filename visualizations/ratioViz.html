@@ -17,13 +17,13 @@
 
     var graphOffsets = {top: 20};
 
-    var fonts = {axisTickSize: 12, axisTitleSize: 14, legendSize : 14};
+    var fonts = {axisTickSize: 12, axisTitleSize: 14, legendSize: 14, pieMiddle:24};
 
     //Share variables
     // clinician: black, group: blue, network: red
-    var colorMap = {clinician: '#000000', group: '#0000FF', network: '#FF0000'};
-    var colorMap2 = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
-    var inverseColorMap = {clinician : '#808080', group: "#8080FF", network: "#FF8080"}
+    var colorMap = {clinician: '#D99B37', group: '#4D83BD', network: '#1C2D3E'};
+    var colorMap2 = {clinician: '#FDB53F', group: '#65B0FF', network: '#4D83BD'};
+    var inverseColorMap = {clinician: '#D0E7FF', group: "#D0E7FF", network: "#D0E7FF"};
 
     var formatTime = d3.time.format("%Y-%m-%d");
 
@@ -35,8 +35,8 @@
         //var p = $(".container").position();
         var p = $(parent + " > svg").offset();
 
-        if(typeof d.time != "object"){
-            d.time = new Date(d.time*1000);
+        if (typeof d.time != "object") {
+            d.time = new Date(d.time * 1000);
         }
 
         tooltipStart = new Date();
@@ -60,9 +60,9 @@
         var diff = (new Date()).getTime() - tooltipStart.getTime();
 
         //only report actions over 0.75 seconds.
-        if(diff > 750){
+        if (diff > 750) {
 
-            console.log("tooltip: "+ parent.replace("#", "") + " for: "+diff + " ms");
+            console.log("tooltip: " + parent.replace("#", "") + " for: " + diff + " ms");
             _gaq.push(['_trackEvent', 'tooltip', parent.replace("#", ""), 'time', diff]);
 
         }
@@ -113,10 +113,10 @@
 
         //get dates from the data.
         /*
-        clinician[0].time = new Date(clinician[0].time);
-        group[0].time     = new Date(group[0].time);
-        network[0].time   = new Date(network[0].time);
-        */
+         clinician[0].time = new Date(clinician[0].time);
+         group[0].time     = new Date(group[0].time);
+         network[0].time   = new Date(network[0].time);
+         */
 
         tmpXScale = [
             network[0].display_name,
@@ -187,7 +187,7 @@
         canvas.append("g")
                 .attr("class", "y axis")
                 .attr("transform", "translate(6,0)")
-                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize+"pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize + "pt"})
                 .call(yAxis)
                 .append("text")
                 .attr("y", -40)
@@ -290,7 +290,7 @@
         //add a container for the legend
         var legend = canvas.append('g')
                 .attr('class', 'legend')
-                .attr("transform", "scale(0.75, 0.75) translate(" + (width - legendWidth/2 + 120) + ", -5)")
+                .attr("transform", "scale(0.75, 0.75) translate(" + (width - legendWidth / 2 + 120) + ", -5)")
                 .style('opacity', '0.9');
 
         //append a background for the legend
@@ -395,7 +395,7 @@
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + 100 + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(2,"+(graphOffsets.top - 20)+")");
+                .attr("transform", "translate(2," + (graphOffsets.top - 20) + ")");
 
         //Line functions to build path from JSON data
         var line = d3.svg.line()
@@ -496,18 +496,18 @@
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-20,0)")
-                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize+"pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
                 .text("Patients (%)");
 
         //rotate and move Y Axis ticks for vertical write and align
         canvas.selectAll("g.yaxis g.tick text")
-                .style({"text-anchor": "start", "font-size": fonts.axisTickSize+"pt"})
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
                 .attr("dx", "-20px")
                 .attr("dy", "0px");
 
         //rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.xaxis g.tick text")
-                .style({"text-anchor": "start", "font-size": fonts.axisTickSize+"pt"})
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
                 .attr("dx", ".8em")
                 .attr("dy", "10px")
                 .attr("transform", "rotate(45)");
@@ -521,7 +521,7 @@
                     .enter().append("path")
                     .attr("d", line)
                     .attr("fill", "none")
-                    .attr("stroke", "black")
+                    .attr("stroke", colorMap['clinician'])
                     .attr("stroke-width", 5)
                     .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
         }
@@ -534,7 +534,7 @@
                     .enter().append("path")
                     .attr("d", line)
                     .attr("fill", "none")
-                    .attr("stroke", "blue")
+                    .attr("stroke", colorMap["group"])
                     .attr("stroke-width", 2)
                     .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
         }
@@ -547,7 +547,7 @@
                     .enter().append("path")
                     .attr("d", line)
                     .attr("fill", "none")
-                    .attr("stroke", "red")
+                    .attr("stroke", colorMap["network"])
                     .attr("stroke-width", 1)
                     .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
         }
@@ -575,7 +575,7 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", "black")
+                .attr("fill", colorMap["clinician"])
                 .attr("r", 7)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
@@ -598,7 +598,7 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", "blue")
+                .attr("fill", colorMap["group"])
                 .attr("r", 4)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
@@ -621,7 +621,7 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", "red")
+                .attr("fill", colorMap["network"])
                 .attr("r", 2)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
@@ -665,7 +665,11 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": fonts.legendSize+"pt"})
+                            .style({
+                                "text-anchor"    : "start",
+                                "text-decoration": "none",
+                                "font-size"      : fonts.legendSize + "pt"
+                            })
                             .text(function (d) {
                                 return data.processed_result[d][0].display_name;
                             })
@@ -705,8 +709,8 @@
         var width      = $(parent).width();
         var pieSpacing = width * 0.25;
 
-        //var width = margin * 2 + radius * 2 + pieSpacing * 2 + 200;
         var legendRectSize = 16;
+
         //shift value for each legend entry
         var legendSpacing = 20;
 
@@ -749,10 +753,11 @@
                 .attr("width", width)
                 .attr("height", (radius * 2 + 2 * margin) > height ? (radius * 2 + 2 * margin) : height)
                 .append("svg:g")
-                .attr("transform", "translate(" + (0.5 * width - (pieSpacing)) + "," + (graphOffsets.top + 2*radius) + ")");
+                .attr("transform", "translate(" + (0.5 * width - (pieSpacing)) + "," + (graphOffsets.top + 2 * radius) + ")");
 
         var arc = d3.svg.arc()
-                .outerRadius(radius);
+                .outerRadius(radius)
+                .innerRadius(radius * 0.60);
 
         var pie = d3.layout.pie()
                 .value(function (d) {
@@ -800,11 +805,11 @@
                             .on('mouseover', function (d, i) {
                                 if (i === 0) {
 
-                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, colorMap[d.data.group.toLowerCase()])
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, colorMap2[d.data.group.toLowerCase()]);
 
                                 } else {
 
-                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, inverseColorMap[d.data.group.toLowerCase()])
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, "#A6D3FF");
 
                                 }
 
@@ -815,10 +820,23 @@
                     arcs.append("svg:text")
                             .attr("x", 0)
                             .attr("y", 140)
-                            .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize+"pt"})
+                            .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
                             .text(function (d) {
                                 return d[0].title;
-                            })
+                            });
+
+                    //add text to middle of the donut
+                    arcs.append("svg:text")
+                            .attr("x", 10)
+                            .attr("y", 10)
+                            .style({"text-anchor": "middle", "font-size": fonts.pieMiddle + "pt"})
+                            .text(function (d) {
+
+                                var v = d[0].value;
+                                v = Math.round(v * 100);
+                                return v + "%";
+
+                            });
                 });
         //add a container for the legend
         var legend = canvas.append('g')
@@ -846,7 +864,11 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": fonts.legendSize+"pt"})
+                            .style({
+                                "text-anchor"    : "start",
+                                "text-decoration": "none",
+                                "font-size"      : fonts.legendSize + "pt"
+                            })
                             .text(function (d) {
                                 return data.processed_result[d][0].display_name;
                             })
