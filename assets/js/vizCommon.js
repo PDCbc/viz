@@ -16,7 +16,7 @@ var colorMap2 = {clinician: '#FDB53F', group: '#65B0FF', network: '#4D83BD'};
 var inverseColorMap = {clinician: '#D0E7FF', group: "#D0E7FF", network: "#D0E7FF"};
 
 // demographics pyramid
-var pyramidTooltipColorMap = {male: '#4D83BD', female: '#D99B37', undifferentiated: '#FDB53F', undefined: '#D0E7FF'};
+var pyramidTooltipColorMap = {male: '#4D83BD', female: '#D99B37', undifferentiated: '#D0E7FF', undefined:'#FDB53F'};
 var pyramidColorMap = {male: '#335579', female: '#926927', undifferentiated: '#FECE7A', undefined: '#A6D3FF'};
 
 
