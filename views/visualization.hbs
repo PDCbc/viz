@@ -10,7 +10,9 @@
 
         window.onbeforeunload = function(){
 
-            _gaq.push(['_trackEvent', 'visualization', lastVizName, 'time', (new Date()).getTime() - vizStartTime.getTime()]);
+            if(vizStartTime){
+                _gaq.push(['_trackEvent', 'visualization', lastVizName, 'time', (new Date()).getTime() - vizStartTime.getTime()]);
+            }
 
         };
 
@@ -326,7 +328,11 @@
 
             $("#chart").hide();
 
+            lastVizName = 'barViz';
+
         } else {
+
+            vis(data);
 
             $("#perspectiveToggle").hide();
             $("#vizToggle").hide();
@@ -351,7 +357,6 @@
         $("#barVizToggle").bind('click', changeViz);
         $("#pieVizToggle").bind('click', changeViz);
 
-        lastVizName = 'barViz';
         vizStartTime = new Date();
 
         window.onresize = function(){
