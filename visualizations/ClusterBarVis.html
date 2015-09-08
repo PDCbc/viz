@@ -75,20 +75,23 @@
     //function called by the visualizer
     function vis(data) {
 
+
         //define container constraints
-        var margin = {top: 50, right: 50, bottom: 80, left: 75},
-            width  = 700 + margin.left + margin.right,
-            height = 400 + margin.top + margin.bottom;
+        var margin = {top: 50, right: 50, bottom: 200, left: 50},
+            width  = 800 + margin.left + margin.right,
+            height = 400;
 
         //set up SVG container to contain all components
         var canvas = d3.select("#chart")
                 .append("svg:svg")
-                .attr("width", width + margin.left + margin.right)
+                .attr("width", width * 1.1)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(150,20) scale(1, 1)")
+                .attr("transform", "translate(50,20) scale(1, 1)")
                 .attr("width", width)
                 .attr("height", height);
+
+        $("#viz-panel").css("max-height", width + margin.top + margin.bottom);
 
         //variable for descrete x axis tick headings
         var xScaleHeadings = [];
@@ -139,15 +142,17 @@
             var values = [];
             d.agg_data.forEach(function (d) {
                 var x = (d.denominator === 0) ? 0 : d.numerator / d.denominator;
-                x     = Math.ceil((x * 10) + 1) * 10;
+                x     = Math.ceil((x * 10)) * 10;
                 if (x > 100) {
                     values.push(100);
                 } else {
                     values.push(x);
                 }
             });
-            console.log(d3.max(values));
-            return d3.max(values);
+
+            console.log(d3.max(values))
+
+            return Math.ceil(d3.max(values) * 1.1);
         };
 
         //set y axis domain dynamically based on max value
