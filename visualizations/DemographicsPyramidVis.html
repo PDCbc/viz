@@ -72,11 +72,11 @@
             tooltipStartTime = new Date();
 
             div.transition()
-                    .duration(200)
-                    .style({"opacity": 0.9, "background": pyramidTooltipColorMap[src]});
+                    .duration(150)
+                    .style({"opacity": 0.9, "background": pyramidTooltipColorMap[src], color : fontColorMap[src]});
 
             div.html(
-                    "Date: " + formatTime(new Date(tempData.time)) + "<br/>" +
+                    "Date: " + formatTime(new Date(tempData.time * 1000)) + "<br/>" +
                     "Num of Patients:" + tempData[src][d] + "<br/>" +
                     "Total Patients:" + tempData.totalPatients)
                     .style({
@@ -95,7 +95,7 @@
             }
 
             div.transition()
-                    .duration(500)
+                    .duration(150)
                     .style("opacity", 0);
         }
 
@@ -336,6 +336,7 @@
                 .attr("transform", "translate(-5,-5)")
                 .attr('width', 180)  //values chosen based on info being displayed
                 .attr('height', 100)
+                .style('opacity', 0.7)
                 .style('fill', "white");
 
         legend.append("text")
