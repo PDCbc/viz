@@ -43,6 +43,7 @@
                 "Num of " + units + ": " + d.aggregate_result.numerator + "<br/>" +
                 "Total " + units + ": " + d.aggregate_result.denominator)
                 .style("background", color || colorMap2[src])
+                .style("color", fontColorMap[src])
                 .style("top", (d3.event.pageY ) + "px")
                 .style("left", (d3.event.pageX) + "px");
     }

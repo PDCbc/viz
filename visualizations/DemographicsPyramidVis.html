@@ -201,7 +201,7 @@
                 .data(ageRanges)//iterates over the age ranges not the data for completeness
                 .enter("svg:rect").append("rect")
                 .attr("class", "undef")
-                .attr("fill", pyramidColorMap['undefined'])
+                .attr("fill", pyramidColorMap.undefined)
                 .attr("transform",
                 function (d, i) {
                     return "translate(" + ( width / 2 + margin.inner / 2 ) + "," + yScale(d) + ")";
