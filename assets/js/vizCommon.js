@@ -16,7 +16,7 @@ var fonts = {axisTickSize: 12, axisTitleSize: 14, legendSize: 14, pieMiddle:24};
 //
 
 // ratio color palette
-var colorMap = {clinician: colors.yellow[3], group: colors.blue[2], network: colors.blue[0]};
+var colorMap = {clinician: colors.yellow[4], group: colors.blue[2], network: colors.blue[0]};
 var colorMap2 = {clinician: colors.yellow[5], group: colors.blue[3], network: colors.blue[1]};
 var fontColorMap = {clinician : "#000000", group : "#000000", network : "#ffffff", male:'#ffffff', female : '#000000', undifferentiated : '#000000', undefined : '#000000' };
 var inverseColorMap = {clinician: colors.blue[5], group: colors.blue[5], network:colors.blue[5]};
