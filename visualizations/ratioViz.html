@@ -13,25 +13,25 @@
     }
 </style>
 
+
+<!-- imports color palette and fonts shared between visualizations -->
+<script src="/assets/js/vizCommon.js"></script>
+
 <script>
 
-    var graphOffsets = {top: 20};
-
-    var fonts = {axisTickSize: 12, axisTitleSize: 14, legendSize : 14};
-
-    //Share variables
-    // clinician: black, group: blue, network: red
-    var colorMap = {clinician: '#000000', group: '#0000FF', network: '#FF0000'};
-    var colorMap2 = {clinician: 'lightSlateGray', group: 'royalBlue', network: 'lightCoral'};
-    var inverseColorMap = {clinician : '#808080', group: "#8080FF", network: "#FF8080"}
-
-    var formatTime = d3.time.format("%Y-%m-%d");
+    var tooltipStart = null;
 
     function toolTipMouseOver(d, src, name, div, parent, color) {
 
         var units = d.units || "Patients";
         //var p = $(".container").position();
         var p = $(parent + " > svg").offset();
+
+        if (typeof d.time != "object") {
+            d.time = new Date(d.time * 1000);
+        }
+
+        tooltipStart = new Date();
 
         div.transition()
                 .duration(200)
@@ -43,11 +43,24 @@
                 "Num of " + units + ": " + d.aggregate_result.numerator + "<br/>" +
                 "Total " + units + ": " + d.aggregate_result.denominator)
                 .style("background", color || colorMap2[src])
+                .style("color", fontColorMap[src])
                 .style("top", (d3.event.pageY ) + "px")
                 .style("left", (d3.event.pageX) + "px");
     }
 
-    function toolTipMouseOut(d, div) {
+    function toolTipMouseOut(d, div, parent) {
+
+        var diff = (new Date()).getTime() - tooltipStart.getTime();
+
+        //only report actions over 0.75 seconds.
+        if (diff > 750) {
+
+            console.log("tooltip: " + parent.replace("#", "") + " for: " + diff + " ms");
+            _gaq.push(['_trackEvent', 'tooltip', parent.replace("#", ""), 'time', diff]);
+
+        }
+
+
         div.transition()
                 .duration(500)
                 .style("opacity", 0);
@@ -91,11 +104,6 @@
                 .append("svg:g")
                 .attr("transform", "translate(" + margin.left + ", " + graphOffsets.top + ")");
 
-        //get dates from the data.
-        clinician[0].time = new Date(clinician[0].time);
-        group[0].time     = new Date(group[0].time);
-        network[0].time   = new Date(network[0].time);
-
         tmpXScale = [
             network[0].display_name,
             group[0].display_name,
@@ -122,11 +130,13 @@
                 .append("text")
                 .attr("x", (width ) / 2)
                 .attr("y", margin.bottom + 50)
-                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize + "pt"});
+                .style({"text-anchor": "middle"})
+                .attr('class', 'pdc-footnote');
 
         //Rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.x.axis g.tick text")
-                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
+                .style({"text-anchor": "start"})
+                .attr('class', 'pdc-body')
                 .attr("transform", "translate(0, 10) rotate(45)");
 
         //y position scaling
@@ -165,13 +175,14 @@
         canvas.append("g")
                 .attr("class", "y axis")
                 .attr("transform", "translate(6,0)")
-                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize+"pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize + "pt"})
                 .call(yAxis)
                 .append("text")
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-50, 0)")
-                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
+                .style({"text-anchor": "middle"})
+                .attr('class', 'pdc-body')
                 .text(units + " (%)");
 
         //Bars(rects) for display. Due to JSON formatting the easiest way is
@@ -207,7 +218,7 @@
                     toolTipMouseOver(d, 'clinician', clinician[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var bar2 = canvas.append("g")
@@ -230,7 +241,7 @@
                     toolTipMouseOver(d, 'group', group[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var bar1 = canvas.append("g")
@@ -253,7 +264,7 @@
                     toolTipMouseOver(d, 'network', network[0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         //mapping for colour selection and legend
@@ -268,7 +279,7 @@
         //add a container for the legend
         var legend = canvas.append('g')
                 .attr('class', 'legend')
-                .attr("transform", "scale(0.75, 0.75) translate(" + (width - legendWidth/2 + 120) + ", -5)")
+                .attr("transform", "scale(0.75, 0.75) translate(" + (width - legendWidth / 2 + 120) + ", -5)")
                 .style('opacity', '0.9');
 
         //append a background for the legend
@@ -319,6 +330,17 @@
 
 <script>
 
+
+	function sortExes(a,b){
+		if(a.time > b.time){
+			return 1; 
+		}else if(a.time < b.time){
+			return -1; 
+		}else{
+			return 0; 
+		}
+	}
+
     /*---------------------------------------- LINE VISUALIZATION --------------------------*/
 
     /*
@@ -334,6 +356,10 @@
 
     //data needs to be valid JSON in standard HUB API line graph format
     function lineVis(data, parent) {
+
+	data.processed_result.clinician = data.processed_result.clinician.sort(sortExes); 
+	data.processed_result.group = data.processed_result.group.sort(sortExes); 
+	data.processed_result.network = data.processed_result.network.sort(sortExes); 
 
         parent = parent || "#chart";
 
@@ -373,7 +399,7 @@
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + 100 + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(2,"+(graphOffsets.top - 20)+")");
+                .attr("transform", "translate(2," + (graphOffsets.top - 20) + ")");
 
         //Line functions to build path from JSON data
         var line = d3.svg.line()
@@ -397,13 +423,35 @@
 
         //Set the value to xAxis ticks
         //See docs: https://github.com/mbostock/d3/wiki/SVG-Axes#tickValues
-        var tickVals = [];
+	
+	var tickVals = [];
 
-        data.processed_result.clinician.forEach(function (x) {
+	if(data.processed_result.clinician.length > 1)
+	{
+		var t0 = data.processed_result.clinician[0].time.getTime();
+		var t5 = data.processed_result.clinician[data.processed_result.clinician.length-1].time.getTime();
+	
+		var t1 = new Date(t0 + Math.floor(new Date(t5 - t0).getTime()*0.2));
+		var t2 = new Date(t0 + Math.floor(new Date(t5 - t0).getTime()*0.4));
+		var t3 = new Date(t0 + Math.floor(new Date(t5 - t0).getTime()*0.6));
+		var t4 = new Date(t0 + Math.floor(new Date(t5 - t0).getTime()*0.8));
+
+		t0 = new Date(t0);
+		t5 = new Date(t5);
+	
+		tickVals = [t0, t1, t2, t3, t4, t5];
+	}
+	else if(data.processed_result.clinician.length === 1)
+	{
+		tickVals = [data.processed_result.clinician[0].time];
+	}
+        /*
+	data.processed_result.clinician.forEach(function (x) {
 
             tickVals.push(x.time);
 
         });
+        */
 
         xAxis.tickValues(tickVals).tickFormat(d3.time.format("%Y-%m-%d"));
 
@@ -463,7 +511,8 @@
                 .append("text")
                 .attr("x", width / 2)
                 .attr("y", margin.bottom - 10)
-                .style("text-anchor", "middle");
+                .style("text-anchor", "middle")
+                .attr('class', 'pdc-body');
 
         //add Y Axis to canvas
         canvas.append("g")
@@ -474,18 +523,20 @@
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90) translate(-20,0)")
-                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize+"pt"})
+                .style({"text-anchor": "middle"})
+                .attr('class', 'pdc-body')
                 .text("Patients (%)");
 
         //rotate and move Y Axis ticks for vertical write and align
         canvas.selectAll("g.yaxis g.tick text")
-                .style({"text-anchor": "start", "font-size": fonts.axisTickSize+"pt"})
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
                 .attr("dx", "-20px")
-                .attr("dy", "0px");
+                .attr("dy", "0px")
+                .attr('class', 'pdc-body');
 
         //rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.xaxis g.tick text")
-                .style({"text-anchor": "start", "font-size": fonts.axisTickSize+"pt"})
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "pt"})
                 .attr("dx", ".8em")
                 .attr("dy", "10px")
                 .attr("transform", "rotate(45)");
@@ -499,7 +550,7 @@
                     .enter().append("path")
                     .attr("d", line)
                     .attr("fill", "none")
-                    .attr("stroke", "black")
+                    .attr("stroke", colorMap['clinician'])
                     .attr("stroke-width", 5)
                     .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
         }
@@ -512,7 +563,7 @@
                     .enter().append("path")
                     .attr("d", line)
                     .attr("fill", "none")
-                    .attr("stroke", "blue")
+                    .attr("stroke", colorMap["group"])
                     .attr("stroke-width", 2)
                     .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
         }
@@ -525,7 +576,7 @@
                     .enter().append("path")
                     .attr("d", line)
                     .attr("fill", "none")
-                    .attr("stroke", "red")
+                    .attr("stroke", colorMap["network"])
                     .attr("stroke-width", 1)
                     .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
         }
@@ -553,14 +604,14 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", "black")
+                .attr("fill", colorMap["clinician"])
                 .attr("r", 7)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
                     toolTipMouseOver(d, 'clinician', data.processed_result['clinician'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var clinicPoints = canvas.append("g")
@@ -576,14 +627,14 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", "blue")
+                .attr("fill", colorMap["group"])
                 .attr("r", 4)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
                     toolTipMouseOver(d, 'group', data.processed_result['group'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
         var networkPoints = canvas.append("g")
@@ -599,14 +650,14 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", "red")
+                .attr("fill", colorMap["network"])
                 .attr("r", 2)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
                     toolTipMouseOver(d, 'network', data.processed_result['network'][0].display_name, div, parent);
                 })
                 .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div);
+                    toolTipMouseOut(d, div, parent);
                 });
 
 
@@ -643,7 +694,11 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": fonts.legendSize+"pt"})
+                            .style({
+                                "text-anchor"    : "start",
+                                "text-decoration": "none",
+                                "font-size"      : fonts.legendSize + "pt"
+                            })
                             .text(function (d) {
                                 return data.processed_result[d][0].display_name;
                             })
@@ -683,8 +738,8 @@
         var width      = $(parent).width();
         var pieSpacing = width * 0.25;
 
-        //var width = margin * 2 + radius * 2 + pieSpacing * 2 + 200;
         var legendRectSize = 16;
+
         //shift value for each legend entry
         var legendSpacing = 20;
 
@@ -727,10 +782,11 @@
                 .attr("width", width)
                 .attr("height", (radius * 2 + 2 * margin) > height ? (radius * 2 + 2 * margin) : height)
                 .append("svg:g")
-                .attr("transform", "translate(" + (0.5 * width - (pieSpacing)) + "," + (graphOffsets.top + 2*radius) + ")");
+                .attr("transform", "translate(" + (0.5 * width - (pieSpacing)) + "," + (graphOffsets.top + 2 * radius) + ")");
 
         var arc = d3.svg.arc()
-                .outerRadius(radius);
+                .outerRadius(radius)
+                .innerRadius(radius * 0.60);
 
         var pie = d3.layout.pie()
                 .value(function (d) {
@@ -778,31 +834,44 @@
                             .on('mouseover', function (d, i) {
                                 if (i === 0) {
 
-                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, colorMap[d.data.group.toLowerCase()])
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, colorMap2[d.data.group.toLowerCase()]);
 
                                 } else {
 
-                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, inverseColorMap[d.data.group.toLowerCase()])
+                                    toolTipMouseOver(d.data, d.data.group, d.data.title, div, parent, "#A6D3FF");
 
                                 }
 
                             })
                             .on('mouseout', function (d) {
-                                toolTipMouseOut(d, div)
+                                toolTipMouseOut(d, div, parent)
                             });
                     arcs.append("svg:text")
                             .attr("x", 0)
                             .attr("y", 140)
-                            .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize+"pt"})
+                            .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
                             .text(function (d) {
                                 return d[0].title;
-                            })
+                            });
+
+                    //add text to middle of the donut
+                    arcs.append("svg:text")
+                            .attr("x", 10)
+                            .attr("y", 10)
+                            .style({"text-anchor": "middle", "font-size": fonts.pieMiddle + "pt"})
+                            .text(function (d) {
+
+                                var v = d[0].value;
+                                v = Math.round(v * 100);
+                                return v + "%";
+
+                            });
                 });
         //add a container for the legend
         var legend = canvas.append('g')
                 .attr('class', 'legend')
-                .attr("transform", "scale(0.75, 0.75) translate(" + (width * 0.8) + ", -150)")
-                .style('opacity', '0.9');
+                .attr("transform", "scale(1, 1) translate(" + (width * 0.8) + ", -150)")
+                .style('opacity', '1');
 
         //append a background for the legend
         legend.append('rect')
@@ -824,7 +893,11 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": fonts.legendSize+"pt"})
+                            .style({
+                                "text-anchor"    : "start",
+                                "text-decoration": "none",
+                                "font-size"      : fonts.legendSize + "pt"
+                            })
                             .text(function (d) {
                                 return data.processed_result[d][0].display_name;
                             })

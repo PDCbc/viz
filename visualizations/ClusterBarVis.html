@@ -12,6 +12,8 @@
     }
 </style>
 
+<script src="/assets/js/vizCommon.js"></script>
+
 <script>
     /*
      Author: Ryan Habibi
@@ -29,9 +31,13 @@
 
     var formatTime = d3.time.format("%Y-%m-%d");
 
+    var tooltipStartTime = null;
+
     function toolTipMouseOver(d, src, name) {
 
         var p = $("svg").offset();
+
+        tooltipStartTime = new Date();
 
         div.transition()
                 .duration(200)
@@ -45,11 +51,22 @@
                 .style({
                     "left"      : (d3.event.pageX - p.left) + "px",
                     "top"       : (d3.event.pageY - p.top - 28) + "px",
-                    "background": toolTipColorMap[src]
+                    "background": colorMap2[src],
+                    "color" : fontColorMap[src]
                 });
     }
 
     function toolTipMouseOut(d) {
+
+        var diff = (new Date()).getTime() - tooltipStartTime.getTime();
+
+        if (diff > 750) {
+
+            console.log(diff);
+            _gaq.push(['_trackEvent', 'tooltip', 'clusterBarViz', 'time', diff]);
+
+        }
+
         div.transition()
                 .duration(500)
                 .style("opacity", 0);
@@ -58,19 +75,23 @@
     //function called by the visualizer
     function vis(data) {
 
+
         //define container constraints
-        var margin = {top: 50, right: 50, bottom: 80, left: 75},
-            width  = 700 + margin.left + margin.right,
-            height = 400 + margin.top + margin.bottom;
+        var margin = {top: 50, right: 50, bottom: 200, left: 50},
+            width  = 800 + margin.left + margin.right,
+            height = 400;
 
         //set up SVG container to contain all components
         var canvas = d3.select("#chart")
                 .append("svg:svg")
-                .attr("width", width + margin.left + margin.right)
+                .attr("width", width * 1.1)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("svg:g")
-                .attr("transform", "translate(150,50) scale(0.70, 0.70)");
-        //.style({'overflow':'visible'});//translate(" + margin.left + "," + margin.top + ");
+                .attr("transform", "translate(50,20) scale(1, 1)")
+                .attr("width", width)
+                .attr("height", height);
+
+        $("#viz-panel").css("max-height", width + margin.top + margin.bottom);
 
         //variable for descrete x axis tick headings
         var xScaleHeadings = [];
@@ -85,7 +106,7 @@
         //domain set as the first 3 keys in the JSON,
         //if structure modified must be changed.
         var xScale = d3.scale.ordinal()
-                .rangeBands([0, width], 0.1)
+                .rangeBands([0, width], 0.4)
                 .domain(xScaleHeadings);
 
         //define a scale to organize within each cluster
@@ -106,7 +127,7 @@
 
         //Rotate and move X Axis ticks for vertical write and align
         canvas.selectAll("g.x.axis g.tick text")
-                .style({"text-anchor": "start", "font-size": "14pt", "text-transform": "lowercase"})
+                .style({"text-anchor": "start", "font-size": fonts.axisTickSize + "px", "text-transform": "lowercase"})
                 .attr("dx", "0.25em")
                 .attr("dy", "1em")
                 .attr("transform", "rotate(45)");
@@ -121,14 +142,17 @@
             var values = [];
             d.agg_data.forEach(function (d) {
                 var x = (d.denominator === 0) ? 0 : d.numerator / d.denominator;
-                x     = Math.ceil((x * 10) + 1) * 10;
+                x     = Math.ceil((x * 10)) * 10;
                 if (x > 100) {
                     values.push(100);
                 } else {
                     values.push(x);
                 }
             });
-            return d3.max(values);
+
+            console.log(d3.max(values))
+
+            return Math.ceil(d3.max(values) * 1.1);
         };
 
         //set y axis domain dynamically based on max value
@@ -143,25 +167,28 @@
         canvas.append("g")
                 .attr("class", "y axis")
                 .attr("transform", "translate(6,0)")
-                .style({"text-anchor": "middle", "font-size": "14pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTickSize + "pt"})
                 .call(yAxis)
                 .append("text")
                 .attr("y", -40)
                 .attr("x", -height / 2 + margin.top)
                 .attr("transform", "rotate(-90)")
-                .style({"text-anchor": "middle", "font-size": "18pt"})
+                .style({"text-anchor": "middle", "font-size": fonts.axisTitleSize + "pt"})
                 .text("Prescription Frequency (%)");
 
         //@TODO Make this dynamic or otherwise seperate from string names
         //function for selecting colour based on data set affiliation
         //other visuals use a colour map array
+
+        console.log(colorMap);
+
         var setColour = function (d) {
             if (d.set === "clinician") {
-                return "black";
+                return colorMap['clinician'];
             } else if (d.set === "group") {
-                return "steelblue";
+                return colorMap['group'];
             } else if (d.set === "network") {
-                return "red";
+                return colorMap['network'];
             } else {
                 return "White";
             }
@@ -199,9 +226,6 @@
                 })
                 .on("mouseout", toolTipMouseOut);
 
-        //mapping for colour selection and legend
-        var colorMap = {network: "red", group: "blue", clinician: "black"};
-
         //size for colour suqares in legend
         var legendRectSize = 15;
         //shift value for each legend entry
@@ -212,14 +236,15 @@
         //add a container for the legend
         var legend = canvas.append('g')
                 .attr('class', 'legend')
-                .attr("transform", "translate(" + (width - legendWidth - 5) + ", 25)");
+                .attr("transform", "translate(" + (width - legendWidth - 25) + ", 25)");
 
         //append a background for the legend
         legend.append('rect')
             //transform neg-ive so the left and top are around the legend item
                 .attr('width', legendWidth)  //values chosen based on info being displayed
                 .attr('height', legendHeight)
-                .style('fill', "white");
+                .style('fill', "white")
+                .style('opacity', 0.9);
 
         //create legend entires and for each add a colour block and text
         legend.selectAll('.legendEntry')
@@ -233,7 +258,7 @@
 
                     //append entry text
                     d.append('text')
-                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": "14pt"})
+                            .style({"text-anchor": "start", "text-decoration": "none", "font-size": fonts.legendSize+"pt"})
                             .text(function (d) {
                                 return data.processed_result.display_names[d];
                             })

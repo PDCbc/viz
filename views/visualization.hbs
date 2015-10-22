@@ -4,6 +4,18 @@
 
 
     <script>
+
+        var vizStartTime = null;
+        var lastVizName = null;
+
+        window.onbeforeunload = function(){
+
+            if(vizStartTime){
+                _gaq.push(['_trackEvent', 'visualization', lastVizName, 'time', (new Date()).getTime() - vizStartTime.getTime()]);
+            }
+
+        };
+
         /**
          * Changes the perspective of the visualization to show either clinician, group, or network
          */
@@ -11,11 +23,11 @@
 
             console.log(event.delegateTarget.id);
 
-            $("#clinicianToggle").removeClass("btn-warning");
-            $("#groupToggle").removeClass("btn-warning");
-            $("#networkToggle").removeClass("btn-warning");
+            $("#clinicianToggle").removeClass("pdc-button-selected");
+            $("#groupToggle").removeClass("pdc-button-selected");
+            $("#networkToggle").removeClass("pdc-button-selected");
 
-            $("#" + event.delegateTarget.id).addClass("btn-warning");
+            $("#" + event.delegateTarget.id).addClass("pdc-button-selected");
 
             switch (event.delegateTarget.id) {
 
@@ -53,17 +65,24 @@
          */
         function changeViz(event) {
 
-            console.log(event.delegateTarget.id);
+            $("#lineVizToggle").removeClass("pdc-button-selected");
+            $("#barVizToggle").removeClass("pdc-button-selected");
+            $("#pieVizToggle").removeClass("pdc-button-selected");
 
-            $("#lineVizToggle").removeClass("btn-warning");
-            $("#barVizToggle").removeClass("btn-warning");
-            $("#pieVizToggle").removeClass("btn-warning");
+            $("#" + event.delegateTarget.id).addClass("pdc-button-selected");
 
-            $("#" + event.delegateTarget.id).addClass("btn-warning");
+            var diff = (new Date()).getTime() - vizStartTime.getTime();
+
+            console.log("viz diff for "+lastVizName+" : " + diff);
+
+            _gaq.push(['_trackEvent', 'visualization', lastVizName, 'time', diff]);
+
+            vizStartTime = new Date();
 
             switch (event.delegateTarget.id) {
 
                 case "lineVizToggle":
+                    lastVizName = "lineViz";
                     $("#lineChart").show();
                     $("#barChart").hide();
                     $("#pieChart").hide();
@@ -73,6 +92,7 @@
                     $("#chart").hide();
                     break;
                 case "barVizToggle":
+                    lastVizName = "barViz";
                     $("#lineChart").hide();
                     $("#barChart").show();
                     $("#pieChart").hide();
@@ -82,6 +102,7 @@
                     $("#chart").hide();
                     break;
                 case "pieVizToggle":
+                    lastVizName = "pieViz";
                     $("#lineChart").hide();
                     $("#barChart").hide();
                     $("#pieChart").show();
@@ -91,7 +112,6 @@
                     $("#chart").hide();
                     break;
                 default:
-                        console.log("changeViz: default case")
                     $("#lineVizToggle").hide();
                     $("#barVizToggle").hide();
                     $("#pieChart").hide();
@@ -126,11 +146,11 @@
                     <div class="row"> <!-- title block -->
                         <div class="col-xs-8">
 
-                            <h3 id="title"></h3>
+                            <h3 id="title" class="pdc-title"></h3>
 
                         </div>
                         <div class="col-xs-4 text-right">
-                            <p id='exec-date' style="margin-top:23px;"></p>
+                            <p id='exec-date' class="pdc-secondary" style="margin-top:23px;"></p>
                         </div>
                     </div>
                     <!-- end title block -->
@@ -177,14 +197,14 @@
                                     <h4>Perspective</h4>
 
                                         <div class="col-xs-offset-3 col-xs-2" role="presentation">
-                                            <button id="clinicianToggle" class="btn btn-primary btn-warning toggleButton">Clinician
+                                            <button id="clinicianToggle" class="btn toggleButton pdc-button pdc-button-selected">Clinician
                                             </button>
                                         </div>
                                         <div class="col-xs-2" role="presentation">
-                                            <button id="groupToggle" class="btn btn-primary toggleButton">Group</button>
+                                            <button id="groupToggle" class="btn toggleButton pdc-button">Group</button>
                                         </div>
                                         <div  class='col-xs-2' role="presentation">
-                                            <button id="networkToggle" class="btn btn-primary toggleButton">Network</button>
+                                            <button id="networkToggle" class="btn toggleButton pdc-button">Network</button>
                                         </div>
 
 
@@ -197,14 +217,14 @@
                         <div class="col-xs-12 text-center panel" id="vizToggle"> <!-- side bar -->
 
                             <div class="col-xs-offset-3 col-xs-2" role="presentation">
-                                <button id="barVizToggle" class="btn btn-primary btn-warning toggleButton">Bar Chart
+                                <button id="barVizToggle" class="btn toggleButton pdc-button pdc-button-selected">Bar Chart
                                 </button>
                             </div>
                             <div class="col-xs-2" role="presentation">
-                                <button id="lineVizToggle" class="btn btn-primary toggleButton">Line Chart</button>
+                                <button id="lineVizToggle" class="btn toggleButton pdc-button">Line Chart</button>
                             </div>
                             <div class="col-xs-2" role="presentation">
-                                <button id="pieVizToggle" class="btn btn-primary toggleButton">Pie Chart</button>
+                                <button id="pieVizToggle" class="btn toggleButton pdc-button">Pie Chart</button>
                             </div>
 
                         </div>
@@ -221,9 +241,9 @@
 
                 <div class="col-xs-12 panel panel-default" id="description-panel">
 
-                    <h4>Description:</h4>
+                    <h4 class="pdc-subtitle">Description:</h4>
 
-                    <p id="description"></p>
+                    <p id="description" class="pdc-body"></p>
 
                 </div>
 
@@ -275,7 +295,6 @@
 
         }
 
-
         if (data.script === "DemographicsPyramidVis") {
 
             vis(data); // Render the actual visualiztion;
@@ -309,7 +328,11 @@
 
             $("#chart").hide();
 
+            lastVizName = 'barViz';
+
         } else {
+
+            vis(data);
 
             $("#perspectiveToggle").hide();
             $("#vizToggle").hide();
@@ -334,6 +357,8 @@
         $("#barVizToggle").bind('click', changeViz);
         $("#pieVizToggle").bind('click', changeViz);
 
+        vizStartTime = new Date();
+
         window.onresize = function(){
 
             $("#chart").text("");
@@ -355,7 +380,6 @@
                 vis({{{json visualization}}});
 
             }
-
 
         };
 

@@ -17,7 +17,11 @@
     }
 </style>
 
+<!-- imports properties shared between all visualizations, e.g. color palette. -->
+<script src="/assets/js/vizCommon.js"></script>
 <script>
+
+    var tooltipStartTime = null;
 
     var ageRanges = [
         "90+",
@@ -31,10 +35,6 @@
         "10-19",
         "0-9"];
 
-    var toolTipColorMap = {male: '#8888FF', female: '#FF8888', undifferentiated: '#CCCCFF', undefined: '#FFCCCC'};
-    //@WiP create the tooltip div
-
-    var formatTime = d3.time.format("%a %b %d %Y");
 
     var tempData;
 
@@ -69,12 +69,14 @@
 
             var p = $(elemId + " svg").offset();
 
+            tooltipStartTime = new Date();
+
             div.transition()
-                    .duration(200)
-                    .style({"opacity": 0.9, "background": toolTipColorMap[src]});
+                    .duration(150)
+                    .style({"opacity": 0.9, "background": pyramidTooltipColorMap[src], color : fontColorMap[src]});
 
             div.html(
-                    "Date: " + formatTime(new Date(tempData.time)) + "<br/>" +
+                    "Date: " + formatTime(new Date(tempData.time * 1000)) + "<br/>" +
                     "Num of Patients:" + tempData[src][d] + "<br/>" +
                     "Total Patients:" + tempData.totalPatients)
                     .style({
@@ -84,8 +86,16 @@
         }
 
         function toolTipMouseOut(d) {
+
+            var diff = (new Date()).getTime() - tooltipStartTime.getTime();
+
+            if(diff > 750){
+                console.log(diff);
+                _gaq.push(['_trackEvent', 'tooltip', 'pyramidViz', 'time', diff]);
+            }
+
             div.transition()
-                    .duration(500)
+                    .duration(150)
                     .style("opacity", 0);
         }
 
@@ -111,7 +121,7 @@
         //define container constraints
         var margin  = {top: 50, right: 50, bottom: 75, left: -75, inner: 80},
             //This is half width due to the two sides of a pop pyramid
-            width   = 825 - margin.left - margin.right,
+            width   = 925 - margin.left - margin.right,
             height  = 500 - margin.top - margin.bottom,
             yScale  = d3.scale.ordinal().domain(ageRanges).rangeBands([0, height], 0.25),
             //Scale for right pyramid
@@ -127,17 +137,6 @@
                 .attr("transform", "translate(30,50) scale(0.9, 0.9)");
 
         var t = title || "";
-
-        //append a title
-        /*
-        canvas.append("g")
-                .attr("class", "title")
-                .append("text")
-                .attr("x", width / 2)
-                .attr("y", -5)
-                .style({"text-anchor": "middle", "text-decoration": "underline", "font-size": "14pt"})
-                .text(t);
-        */
 
         //text on y axis for age ranges
         canvas.append("g")
@@ -178,7 +177,7 @@
                 .data(ageRanges)//iterates over the age ranges not the data for completeness
                 .enter("svg:rect").append("rect")
                 .attr("class", "female")
-                .attr("fill", "red")
+                .attr("fill", pyramidColorMap.female)
                 .attr("transform",
                 function (d, i) {
                     return "translate(" + ( width / 2 + margin.inner / 2 ) + "," + yScale(d) + ")";
@@ -202,7 +201,7 @@
                 .data(ageRanges)//iterates over the age ranges not the data for completeness
                 .enter("svg:rect").append("rect")
                 .attr("class", "undef")
-                .attr("fill", "#FFAAAA")
+                .attr("fill", pyramidColorMap.undefined)
                 .attr("transform",
                 function (d, i) {
                     return "translate(" + ( width / 2 + margin.inner / 2 ) + "," + yScale(d) + ")";
@@ -226,7 +225,7 @@
                 .data(ageRanges)
                 .enter("svg:rect").append("rect")
                 .attr("class", "male")
-                .attr("fill", "blue")
+                .attr("fill", pyramidColorMap.male)
                 .attr("opacity", 1)
                 .attr("transform",
                 function (d, i) {
@@ -250,7 +249,7 @@
                 .data(ageRanges)
                 .enter("svg:rect").append("rect")
                 .attr("class", "undifferentiated")
-                .attr("fill", "#AAAAFF")
+                .attr("fill", pyramidColorMap.undifferentiated)
                 .attr("opacity", 1)
                 .attr("transform",
                 function (d, i) {
@@ -305,7 +304,6 @@
                 .text(xAxisName || "Number of Patients");
 
         //add vertical lines to boarder y Axis on both sides
-        //
         canvas.append("svg:line")
                 .attr("y1", 9)
                 .attr("y2", height + 6)
@@ -323,9 +321,6 @@
                 .attr("stroke-width", 5);
 
 
-        //mapping for colour selection and legend
-        var colorMap = {male: "blue", female: "red", undifferentiated: "#8888FF", undefined: "#FF8888"};
-
         //size for colour suqares in legend
         var legendRectSize = 15;
         //shift value for each legend entry
@@ -341,6 +336,7 @@
                 .attr("transform", "translate(-5,-5)")
                 .attr('width', 180)  //values chosen based on info being displayed
                 .attr('height', 100)
+                .style('opacity', 0.7)
                 .style('fill', "white");
 
         legend.append("text")
@@ -351,7 +347,7 @@
 
         //create legend entires and for each add a colour block and text
         legend.selectAll('.legendEntry')
-                .data(Object.keys(colorMap))
+                .data(Object.keys(pyramidColorMap))
                 .enter().append("g")
                 .attr('class', 'legendEntry viz-text')
                 .attr("transform", function (d, i) {
@@ -374,10 +370,10 @@
                             .attr('width', legendRectSize)
                             .attr('height', legendRectSize)
                             .style('fill', function (d) {
-                                return colorMap[d];
+                                return pyramidColorMap[d];
                             })
                             .style('stroke', function (d) {
-                                return colorMap[d];
+                                return pyramidColorMap[d];
                             });
                 });
     }
@@ -395,7 +391,7 @@
         //cannot be programtically determined thus hardcoded and
         //subject to change if HubAPI changes served info
 
-        //putting network info into tempdata, once this is working @TODO turn eveything below
+        //putting network info into tempdata, once this is working, turn eveything below
         //into some sort of function and run for all three datasets
         showVis(data.clinician[0], "#c1", "Clinician", data.xAxisTitle);
         showVis(data.group[0], "#c2", "Group", data.xAxisTitle);

@@ -4,7 +4,8 @@ html, body {
 
 body {
     padding: 50px 0 0 0;
-    font-family: "HelveticaNeue-Light", "Helvetica Neue Thin", "Helvetica Neue", "HelveticaNeue", "Helvetica Neue Light", "Helvetica", "Arial";
+    font-family: "HelveticaNeue-Light", "Helvetica Neue", "HelveticaNeue", "Helvetica Neue Light", "Helvetica", "Arial";
+    font-size:14px;
 }
 
 span {
@@ -13,8 +14,8 @@ span {
     font-size: 16px;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 200;
+p{
+    font-size:14px;
 }
 
 .navbar-toggle {
@@ -215,3 +216,67 @@ svg {
     text-align: center;
 }
 
+#login-button{
+    color:white;
+    background-color:#65B0FF;
+}
+
+#login-button:hover{
+    color:white;
+    background-color:#4D83BD;
+    font-size:12px;
+}
+
+.pdc-button{
+    color:grey;
+    background-color:#ebebeb;
+    border:1px solid grey;
+    font-size:12px;
+}
+
+.pdc-button:hover{
+    color:grey;
+    background-color:#d0e7ff;
+    border:1px solid #65B0FF;
+    font-size:12px;
+}
+
+.pdc-button-selected{
+    color:#ffffff;
+    background-color:#65B0FF;
+    border:1px solid #4b83bd;
+    font-size:12px;
+}
+
+.pdc-button-selected:hover{
+    color:#ffffff;
+    background-color:#4b83bd;
+    border:1px solid #4b83bd;
+    font-size:12px;
+}
+
+
+.pdc-title{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.pdc-subtitle{
+    font-size:16px;
+    font-weight:bold;
+}
+
+.pdc-body{
+    font-size:14px;
+    font-weight:normal;
+}
+
+.pdc-secondary{
+    font-size:12px;
+    font-weight:bold;
+}
+
+.pdc-footnote{
+    font-size:12px;
+    font-weight:normal;
+}
