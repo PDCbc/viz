@@ -15,7 +15,7 @@
  */
 function setNavbarColor(field) {
 
-    console.log("setNavbarColor("+field+")");
+    //console.log("setNavbarColor("+field+")");
 
     //reset old navbar colors.
     $("#navbar-attachment").css("background-color", "white");

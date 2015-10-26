@@ -55,7 +55,6 @@
         //only report actions over 0.75 seconds.
         if (diff > 750) {
 
-            console.log("tooltip: " + parent.replace("#", "") + " for: " + diff + " ms");
             _gaq.push(['_trackEvent', 'tooltip', parent.replace("#", ""), 'time', diff]);
 
         }
@@ -357,9 +356,47 @@
     //data needs to be valid JSON in standard HUB API line graph format
     function lineVis(data, parent) {
 
-	data.processed_result.clinician = data.processed_result.clinician.sort(sortExes); 
-	data.processed_result.group = data.processed_result.group.sort(sortExes); 
+	data.processed_result.clinician = data.processed_result.clinician.sort(sortExes);
+	data.processed_result.clinicianSimulated = data.processed_result.clinician.filter(
+		function(x)
+		{
+			return filterOnSimulated(true, x);
+		});
+ 	data.processed_result.clinicianRealTime = data.processed_result.clinician.filter(
+		function(x)
+		{
+			return filterOnSimulated(false, x);
+ 		});
+
+	data.processed_result.group = data.processed_result.group.sort(sortExes);
+	data.processed_result.groupSimulated = data.processed_result.group.filter(
+                function(x)
+                {
+                        return filterOnSimulated(true, x);
+                });
+        data.processed_result.groupRealTime = data.processed_result.group.filter(
+                function(x)
+                {
+                        return filterOnSimulated(false, x);
+                });
+ 
 	data.processed_result.network = data.processed_result.network.sort(sortExes); 
+
+	data.processed_result.networkSimulated = data.processed_result.network.filter(
+                function(x)
+                {
+                        return filterOnSimulated(true, x);
+                });
+        data.processed_result.networkRealTime = data.processed_result.network.filter(
+                function(x)
+                {
+                        return filterOnSimulated(false, x);
+                });
+
+	function filterOnSimulated(simulated, x)
+	{
+		return simulated ? x.simulated : !x.simulated;
+	}
 
         parent = parent || "#chart";
 
@@ -542,44 +579,32 @@
                 .attr("transform", "rotate(45)");
 
         //create and append paths using line data
-        if (data.processed_result.clinician.length > 1) {
-            var clinicianPath = canvas.append("g")
-                    .attr("class", "line")
-                    .selectAll("path")
-                    .data([data.processed_result.clinician])
-                    .enter().append("path")
-                    .attr("d", line)
-                    .attr("fill", "none")
-                    .attr("stroke", colorMap['clinician'])
-                    .attr("stroke-width", 5)
-                    .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
-        }
-
-        if (data.processed_result.group.length > 1) {
-            var clinicPath = canvas.append("g")
-                    .attr("class", "line")
-                    .selectAll("path")
-                    .data([data.processed_result.group])
-                    .enter().append("path")
-                    .attr("d", line)
-                    .attr("fill", "none")
-                    .attr("stroke", colorMap["group"])
-                    .attr("stroke-width", 2)
-                    .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
-        }
-
-        if (data.processed_result.clinician.length > 1) {
-            var networkPath = canvas.append("g")
-                    .attr("class", "line")
-                    .selectAll("path")
-                    .data([data.processed_result.network])
-                    .enter().append("path")
-                    .attr("d", line)
-                    .attr("fill", "none")
-                    .attr("stroke", colorMap["network"])
-                    .attr("stroke-width", 1)
-                    .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")");
-        }
+	
+	appendPath(data.processed_result.clinicianRealTime, 5, colorMap['clinician']);
+	appendPath(data.processed_result.clinicianSimulated, 5, simulatedColorMap['clinician']);
+	
+	appendPath(data.processed_result.groupRealTime, 3, colorMap['group']);
+	appendPath(data.processed_result.groupSimulated, 3, simulatedColorMap['group']);
+	
+	appendPath(data.processed_result.networkRealTime, 1, colorMap['network']);
+	appendPath(data.processed_result.networkSimulated, 1, simulatedColorMap['network']);
+	
+	function appendPath(data, lineWidth, lineColor)
+	{
+		if(data.length>1)
+		{
+			path = canvas.append("g")
+					.attr("class", "line")
+					.selectAll("path")
+					.data([data])
+					.enter().append("path")
+						.attr("d", line)
+						.attr("fill", "none")
+						.attr("stroke", lineColor)
+						.attr("stroke-width", lineWidth)
+						.attr("transform", "translate(60," + (margin.top/2 + 20) + ")");
+		}
+	}
 
         function getDelta(d) {
             if (d.aggregate_result.denominator === 0) {
@@ -596,23 +621,27 @@
                 .selectAll("circle")
                 .data(data.processed_result.clinician)
                 .enter().append("circle")
-                .attr("onmouseover", "evt.target.setAttribute('r', '10');")
-                .attr("onmouseout", "evt.target.setAttribute('r', '7');")
-                .attr("cx", function (d) {
-                    return xScale(d.time);
-                })
-                .attr("cy", function (d) {
-                    return getDelta(d);
-                })
-                .attr("fill", colorMap["clinician"])
-                .attr("r", 7)
-                .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
-                .on("mouseover", function (d) {
-                    toolTipMouseOver(d, 'clinician', data.processed_result['clinician'][0].display_name, div, parent);
-                })
-                .on("mouseout", function (d) {
-                    toolTipMouseOut(d, div, parent);
-                });
+                	.attr("onmouseover", "evt.target.setAttribute('r', '10');")
+                	.attr("onmouseout", "evt.target.setAttribute('r', '7');")
+                	.attr("cx", function (d) {
+                	    return xScale(d.time);
+                	})
+                	.attr("cy", function (d) {
+                	    return getDelta(d);
+                	})
+                	.attr("fill", 
+				function(d)
+				{
+					return d.simulated ? simulatedColorMap["clinician"] : colorMap["clinician"];
+				})
+                	.attr("r", 7)
+                	.attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
+                	.on("mouseover", function (d) {
+                	    toolTipMouseOver(d, 'clinician', data.processed_result['clinician'][0].display_name, div, parent);
+                	})
+                	.on("mouseout", function (d) {
+                	    toolTipMouseOut(d, div, parent);
+                	});
 
         var clinicPoints = canvas.append("g")
                 .attr("class", "points")
@@ -627,7 +656,11 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", colorMap["group"])
+                .attr("fill",
+			function(d)
+			{
+				return d.simulated ? simulatedColorMap["group"] : colorMap["group"];
+			})
                 .attr("r", 4)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
@@ -650,7 +683,12 @@
                 .attr("cy", function (d) {
                     return getDelta(d);
                 })
-                .attr("fill", colorMap["network"])
+                .attr("fill",
+			function(d)
+			{
+				return d.simulated ? simulatedColorMap["network"] : colorMap["network"];
+			}
+		)
                 .attr("r", 2)
                 .attr("transform", "translate(60," + (margin.top / 2 + 20) + ")")
                 .on("mouseover", function (d) {
