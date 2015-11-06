@@ -21,8 +21,6 @@
          */
         function changePerspective(event) {
 
-            console.log(event.delegateTarget.id);
-
             $("#clinicianToggle").removeClass("pdc-button-selected");
             $("#groupToggle").removeClass("pdc-button-selected");
             $("#networkToggle").removeClass("pdc-button-selected");
@@ -72,8 +70,6 @@
             $("#" + event.delegateTarget.id).addClass("pdc-button-selected");
 
             var diff = (new Date()).getTime() - vizStartTime.getTime();
-
-            //console.log("viz diff for "+lastVizName+" : " + diff);
 
             _gaq.push(['_trackEvent', 'visualization', lastVizName, 'time', diff]);
 
@@ -266,8 +262,6 @@
     <script>
 
         var data = {{{json visualization}}};
-
-        //console.log(data);
 
         if (data["display_name"]) {
 
