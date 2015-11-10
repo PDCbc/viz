@@ -21,6 +21,22 @@
 
     var tooltipStart = null;
 
+    function cleanData(data){
+
+	function cleanIt(d){
+		if(d.aggregate_result.denominator === 0){
+			d.aggregate_result.denominator = 1;
+		}
+	}
+
+
+	data.processed_result.clinician.forEach(cleanIt);
+	data.processed_result.group.forEach(cleanIt);
+	data.processed_result.network.forEach(cleanIt);
+
+	return data; 
+    }
+
     function toolTipMouseOver(d, src, name, div, parent, color) {
 
         var units = d.units || "Patients";
@@ -84,6 +100,11 @@
         var div = d3.select("#tooltip-holder").append("div")
                 .attr("class", "tooltip")
                 .style({"opacity": 0, "width": "150"});
+
+
+ 	console.log(data);	
+
+	data = cleanData(data);
 
         //use only last point
         var clinician = data.processed_result.clinician.slice(-1);
@@ -355,6 +376,8 @@
 
     //data needs to be valid JSON in standard HUB API line graph format
     function lineVis(data, parent) {
+
+	data = cleanData(data);
 
 	data.processed_result.clinician = data.processed_result.clinician.sort(sortExes);
 	data.processed_result.clinicianSimulated = data.processed_result.clinician.filter(
@@ -763,6 +786,8 @@
     /*----------------------------- PIE CHART ------------------------------------*/
 
     function pieVis(data, parent) {
+
+	data = cleanData(data);
 
         var div = d3.select("#tooltip-holder").append("div")
                 .attr("class", "tooltip")
