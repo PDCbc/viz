@@ -106,7 +106,7 @@ function Visualizer() {
       //   chart.bindto = '#chart-' + index;
       //   charts.push(c3.generate(chart));
       // });
-      console.log(data);
+      //console.log(data);
       displayArea.append('div').attr('id', 'chart');
       data.bindto = '#chart';
       c3.generate(data);
