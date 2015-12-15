@@ -31,7 +31,7 @@
 #
 FROM phusion/passenger-nodejs
 MAINTAINER derek.roberts@gmail.com
-ENV RELEASE 0.1.7
+ENV RELEASE 0.1.8
 
 
 # Packages
