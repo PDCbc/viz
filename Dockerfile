@@ -22,24 +22,19 @@
 #
 # Modify default settings
 # - Node secret:    -e NODE_SECRET=<string>
-# - Reject non-CA   -e REJECT_NONCA_CERTS=<0/1>
-#    certificates?:
-#
-# Releases
-# - https://github.com/PDCbc/viz/releases
+# - Reject non-CA
+#    certificates?: -e REJECT_NONCA_CERTS=<0/1>
 #
 #
 FROM phusion/passenger-nodejs
 MAINTAINER derek.roberts@gmail.com
-ENV RELEASE 0.1.8
 
 
 # Packages
 #
 RUN apt-get update; \
     apt-get install -y \
-      python2.7 \
-      git; \
+      python2.7; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -47,10 +42,10 @@ RUN apt-get update; \
 # Prepare /app/ folder
 #
 WORKDIR /app/
-RUN git clone https://github.com/pdcbc/viz.git -b ${RELEASE} .; \
-    npm config set python /usr/bin/python2.7; \
-    npm install; \
-    chown -R app:app /app/
+COPY . .
+RUN chown -R app:app /app/; \
+    /sbin/setuser app npm config set python /usr/bin/python2.7; \
+    /sbin/setuser app npm install
 
 
 # Create startup script and make it executable
@@ -70,11 +65,11 @@ RUN mkdir -p /etc/service/app/; \
       echo "export AUTH_CONTROL_URL=https://auth:\${PORT_AUTH_C:-3006}"; \
       echo "export CALLBACK_URL=https://auth:\${PORT_AUTH_C:-3006}/auth/callback"; \
       echo "export HUBAPI_URL=https://hapi:\${PORT_HAPI:-3003}"; \
+      echo "export NODE_TLS_REJECT_UNAUTHORIZED=\${REJECT_NONCA_CERTS:-0}"; \
+      echo "export SECRET=\${NODE_SECRET:-notVerySecret}"; \
       echo "#"; \
       echo "export MODE=PROD"; \
       echo "export DACS=/etc/dacs"; \
-      echo "export NODE_TLS_REJECT_UNAUTHORIZED=\${REJECT_NONCA_CERTS:-0}"; \
-      echo "export SECRET=\${NODE_SECRET:-notVerySecret}"; \
       echo ""; \
       echo ""; \
       echo "# Start service"; \
@@ -89,3 +84,9 @@ RUN mkdir -p /etc/service/app/; \
 # Run Command
 #
 CMD ["/sbin/my_init"]
+
+
+# Ports and volumes
+#
+EXPOSE 3004
+EXPOSE 3008
